@@ -91,7 +91,7 @@ function readURL6(input) {
 }
 
 $(".getimage6").change(function(){
-  readURL0(this);
+  readURL6(this);
 });
 
 function readURL7(input) {
@@ -101,13 +101,12 @@ function readURL7(input) {
     reader.onload = function (e) {
         $('.imagepreview7').attr('src', e.target.result);
     }
-    
     reader.readAsDataURL(input.files[0]);
   }
 }
 
 $(".getimage7").change(function(){
-  readURL0(this);
+  readURL7(this);
 });
 
 
@@ -118,13 +117,12 @@ function readURL8(input) {
     reader.onload = function (e) {
         $('.imagepreview8').attr('src', e.target.result);
     }
-    
     reader.readAsDataURL(input.files[0]);
   }
 }
 
 $(".getimage8").change(function(){
-  readURL0(this);
+  readURL8(this);
 });
 
 

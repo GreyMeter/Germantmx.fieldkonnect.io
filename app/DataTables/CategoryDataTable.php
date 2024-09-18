@@ -55,7 +55,7 @@ class CategoryDataTable extends DataTable
                   }
             })
             ->addColumn('image', function ($query) {
-                $category_image = !empty($query->category_image) ? '/steel/public/uploads/'.$query->category_image : asset('assets/img/placeholder.jpg') ;
+                $category_image = !empty($query->category_image) ? '/steel_fieldKonnect/public/uploads/'.$query->category_image : asset('assets/img/placeholder.jpg') ;
                 return '<img src="'.$category_image.'" border="0" width="70" class="img-rounded imageDisplayModel" align="center" />';
             })
             ->rawColumns(['action','active','image']);

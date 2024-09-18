@@ -13550,7 +13550,7 @@ fieldset[disabled] .form-group .form-control {
   background-color: #616161;
   border-color: #616161;
   color: #fff;
- /* box-shadow: 0 4px 5px 0 rgba(156, 39, 176, 0.14), 0 1px 10px 0 rgba(156, 39, 176, 0.12), 0 2px 4px -1px rgba(156, 39, 176, 0.2);*/
+  box-shadow: 0 4px 5px 0 rgba(156, 39, 176, 0.14), 0 1px 10px 0 rgba(156, 39, 176, 0.12), 0 2px 4px -1px rgba(156, 39, 176, 0.2);
 }
 
 .pagination.pagination-info>.page-item.active>a,
@@ -15231,14 +15231,14 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
 }
 
 .togglebutton label input[type=checkbox] {
-  opacity: 1;
+  opacity: 0;
   width: 0;
   height: 0;
 }
 
 .togglebutton label .toggle {
   text-align: left;
-  margin-left: 0px;
+  margin-left: 5px;
 }
 
 .togglebutton label .toggle,
@@ -15253,28 +15253,26 @@ fieldset[disabled] .form-group.is-focused .togglebutton label {
     margin-right: 15px;
     transition: background 0.3s ease;
     vertical-align: middle;
-    border: 1px solid #d93636f5;
-    opacity: 1;
+    border: 1px solid rgba(97, 97, 97, 0.7);
 }
 
 .togglebutton label .toggle:after {
      content: "";
-     display: inline-block;
-     width: 16px;
-     height: 16px;
-     background-color: #d93636f5;
-     border-radius: 20px;
-     position: relative;
-     box-shadow: 0 1px 3px 1px #d93636f5;
-     left: -1px;
-     top: 0px;
-     transition: left 0.3s ease, background 0.3s ease, box-shadow 0.1s ease;
-     opacity: 1;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-color: #55b559;
+    border-radius: 20px;
+    position: relative;
+    box-shadow: 0 1px 3px 1px #55b559;
+    left: -1px;
+    top: 0px;
+    transition: left 0.3s ease, background 0.3s ease, box-shadow 0.1s ease;
 }
 
 input[type=checkbox]:checked + .toggle::after {
   background: linear-gradient(45deg, #3860a4 0%, #3694cc 100%) !important;
- /* box-shadow: 0 1px 3px 1px #3860a4;*/
+  box-shadow: 0 1px 3px 1px #3860a4;
 }
 
 .togglebutton label input[type=checkbox][disabled]+.toggle:after,
@@ -15295,7 +15293,7 @@ input[type=checkbox]:checked + .toggle::after {
 /*  background-color: rgba(97, 97, 97, 0.7);*/
     background-color: #fff;
     /* background: linear-gradient(45deg, #3860a4 0%, #3694cc 100%) !important; */
-    border:1px solid rgb(55 132 192)
+    border: 1px solid rgba(97, 97, 97, 0.7);
 }
 
 .togglebutton label input[type=checkbox]:checked+.toggle:after {
@@ -23538,8 +23536,7 @@ table.dataTable thead .sorting_desc_disabled:after {
   position: absolute;
   bottom: 0.9em;
   display: block;
-  opacity: 1;
-  /* color: rebeccapurple; */
+  opacity: 0.3;
 }
 
 table.dataTable thead .sorting:before,
@@ -23547,10 +23544,9 @@ table.dataTable thead .sorting_asc:before,
 table.dataTable thead .sorting_desc:before,
 table.dataTable thead .sorting_asc_disabled:before,
 table.dataTable thead .sorting_desc_disabled:before {
-  top: 11px;
+  top: 2px;
   right: 1em;
   content: "\2191";
-  /* font-weight: 900 !important; */
 }
 
 table.dataTable thead .sorting:after,
@@ -23558,7 +23554,7 @@ table.dataTable thead .sorting_asc:after,
 table.dataTable thead .sorting_desc:after,
 table.dataTable thead .sorting_asc_disabled:after,
 table.dataTable thead .sorting_desc_disabled:after {
-  top: 11px;
+  top: 2px;
   right: 0.5em;
   content: "\2193";
 }
@@ -23634,11 +23630,11 @@ table.dataTable.table-sm .sorting_desc:after {
 
 body table.table-bordered.dataTable th {
       color: #363954;
-      font-weight: 400 !important;
-      white-space: nowrap;
-      font-size: 14px;
-      vertical-align: bottom;
-      font-family: 'Poppins', sans-serif;
+    font-weight: 400 !important;
+    white-space: nowrap;
+    font-size: 14px;
+        vertical-align: bottom;
+         font-family: 'Poppins', sans-serif;
 }
 table.table-bordered.dataTable td {
   border-left-width: 0;

@@ -1,3 +1,7 @@
+
+
+
+
 .table thead tr th {
     font-size: 15px;
     border: 0px;
@@ -22,10 +26,11 @@
 }
 
 .table tbody tr td.td-actions.text-center {
-    display: flex;
+  /*  display: flex;
     flex-direction: row;
     justify-content: center;
-    align-items: center;
+    align-items: center;*/
+    vertical-align: middle;
 }
 
 .table thead tr th.td-actions.text-center.sorting_disabled {
@@ -36,10 +41,11 @@
     background-color: unset !important
 }
 .table>tbody>tr>td {
-    padding: 7px 10px;
+    padding: 7px 7px;
     line-height: 19px;
-    color: #000 !important;
-    font-weight: 300 !important;
+    color: #4a4a4a !important;
+    font-size: 14px;
+    font-weight: 400 !important
 }
 .table-bordered th,
 .table-bordered td {
@@ -79,7 +85,7 @@
 }
 
 
-a.nav-link[aria-expanded="true"] {
+.sidebar li.nav-link a[aria-expanded="true"] {
     background-color: #ffffff2e !important;
 }
 
@@ -113,17 +119,17 @@ a.nav-link[aria-expanded="false"]:after {
     transform: rotate(45deg);
 }
 
-a.nav-link[aria-expanded="false"] {
+.sidebar li.nav-link a[aria-expanded="false"] {
     position: relative;
 }
 
 
-a.nav-link[aria-expanded="true"] {
+.sidebar li.nav-link a[aria-expanded="true"] {
     position: relative;
 }
 
 
-a.nav-link[aria-expanded="true"]:after {
+.sidebar li.nav-link a[aria-expanded="true"]:after {
     position: absolute;
     content: "";
     width: 10px;
@@ -235,7 +241,9 @@ input#end_date::placeholder {
     color: #fff;
 }
 .dataTables_info {
-    color: #000 !important;
+    
+        color: #4a4a4a  !important;
+    font-size: 14px;
     font-weight: 400;
 }
 .dataTables_length label {
@@ -253,7 +261,7 @@ ul.pagination li a {
 }
 ul.pagination li.active a {
     color: #fff !important;
-    background-color: #00acd8 !important;
+   background: linear-gradient(45deg, #3860a4 0%, #3694cc 100%) !important;
 }
 .next-btn .btn-just-icon {
     padding: 40px;

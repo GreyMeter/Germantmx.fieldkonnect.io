@@ -56,7 +56,7 @@ class BrandDataTable extends DataTable
               }
             })
             ->addColumn('image', function ($query) {
-                $brand_image = !empty($query->brand_image) ? ('/steel/public/uploads/').$query->brand_image : asset('assets/img/placeholder.jpg') ;
+                $brand_image = !empty($query->brand_image) ? ('/steel_fieldKonnect/public/uploads/').$query->brand_image : asset('assets/img/placeholder.jpg') ;
                 return '<img src="'.$brand_image.'" border="0" width="70" class="img-rounded imageDisplayModel" align="center" />';
             })
             ->rawColumns(['action','active','image']);
