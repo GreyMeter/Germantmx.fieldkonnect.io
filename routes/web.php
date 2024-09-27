@@ -73,6 +73,7 @@ use App\Http\Controllers\NewJoiningController;
 use App\Http\Controllers\ServiceBillController;
 use App\Http\Controllers\ServiceChargeProductsController;
 use App\Http\Controllers\FieldKonnectAppSettings;
+use App\Http\Controllers\PriceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -396,6 +397,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::any('productionupdate', [ProductController::class, 'productionUpdate'])->name('products.productionupdate');
     Route::any('products-list', [ProductController::class, 'productList']);
     Route::any('checkProductCode', [ProductController::class, 'checkProductCode'])->name('checkProductCode');
+
+    //Price
+    Route::resource('prices', PriceController::class);
 
     // Customer Outstanting
     Route::any('stock', [ProductController::class, 'stock'])->name('stock');

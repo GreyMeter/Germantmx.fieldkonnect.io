@@ -216,7 +216,7 @@
             <table id="getcustomers" class="table table-striped- table-bordered table-hover table-checkable no-wrap">
             <thead class=" text-primary">
               <!-- <th>{!! trans('panel.global.no') !!}</th> -->
-              <th><input type="checkbox" class="allCustomerschecked"/></th>
+              <!-- <th><input type="checkbox" class="allCustomerschecked"/></th> -->
               <th>{!! trans('panel.global.action') !!}</th>
               <th>Firm Name</th>
               <th>{!! trans('panel.customers.fields.first_name') !!}</th>
@@ -252,7 +252,6 @@
             orderable: false,
             targets:   -1
         } ],
-        "order": [ [0, 'desc'] ],
         "retrieve": true,
         ajax: {
           url: "{{ route('customers.index') }}",
@@ -272,9 +271,9 @@
         },
         columns: [
             // { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-            { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false },
-            { data: 'action', name: 'action',"defaultContent": '', orderable: false, searchable: false},
-            {data: 'name', name: 'name',"defaultContent": '',className: 'td-actions text-center',orderable: false,},
+            // { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false },
+            { data: 'action', name: 'action',"defaultContent": '',className: 'remove-sort-icon', orderable: false, searchable: false},
+            {data: 'name', name: 'name',"defaultContent": '',orderable: false,},
             {data: 'first_name', name: 'first_name',"defaultContent": '',orderable: false,},
             {data: 'last_name', name: 'last_name',"defaultContent": '',orderable: false,},
             {data: 'mobile', name: 'mobile',"defaultContent": '',orderable: false,},
@@ -282,8 +281,8 @@
             {data: 'profileimage', name: 'profileimage',"defaultContent": '',orderable: false,},
             {data: 'customertypes.customertype_name', name: 'customertypes.customertype_name',"defaultContent": '', orderable: false},
             {data: 'createdbyname.name', name: 'createdbyname.name',"defaultContent": '', orderable: false},
-            {data: 'created_at', name: 'created_at',"defaultContent": ''},
-            {data: 'beat_name', name: 'beat_name',"defaultContent": ''},
+            {data: 'created_at', name: 'created_at',"defaultContent": '', orderable: false},
+            {data: 'beat_name', name: 'beat_name',"defaultContent": '', orderable: false},
            
         ]
     });

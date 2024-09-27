@@ -11,50 +11,76 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Illuminate\Support\Facades\Auth;
 
-class ProductExport implements FromCollection,WithHeadings,ShouldAutoSize,WithMapping
+class ProductExport implements FromCollection,WithHeadings,ShouldAutoSize,WithMapping,WithEvents
 {
     public function collection()
     {
-        return Product::with('productpriceinfo')->select('id','product_name','product_code','new_group','sub_group','expiry_interval','expiry_interval_preiod', 'display_name', 'description', 'subcategory_id', 'category_id', 'brand_id', 'product_image', 'unit_id', 'specification', 'part_no','suc_del', 'product_no', 'model_no')->latest()->get();   
+        return Product::with('productpriceinfo')->latest()->get();   
     }
 
     public function headings(): array
     {
-        return ['product_id','product_name','product_code','new_group','sub_group','expiry_interval','expiry_interval_preiod','display_name', 'description', 'subcategory_id','subcategory','category_id','category','brand_id','brand','product_image','unit_id','unit_name','mrp','price','selling_price','gst','discount','max_discount', 'hp', 'kw', 'product_stage', 'model_no','suc_del',];
+        return ['Product ID','Grade ID', 'Grade Name', 'Brand ID', 'Brand Name', 'Size ID', 'Size', 'Standard Weight Kg/Mtr', 'No. of Pcs. Per 40Ft. Bundle', 'Weight Per Bundle in Kg.', 'Product Code', 'GST'];
     }
 
     public function map($data): array
     {
         return [
             $data['id'],
-            $data['product_name'],
-            $data['product_code'],
-            $data['new_group'],
-            $data['sub_group'],
-            $data['expiry_interval'],
-            $data['expiry_interval_preiod'],
-            $data['display_name'],
-            $data['description'],
-            $data['subcategory_id'],
-            $data['subcategories']['subcategory_name'],
-            $data['category_id'],
-            $data['categories']['category_name'],
-            $data['brand_id'],
-            $data['brands']['brand_name'],
-            $data['product_image'],
             $data['unit_id'],
-            $data['unitmeasures']['unit_name'],
-            isset($data['productpriceinfo']['mrp']) ? $data['productpriceinfo']['mrp'] :'',
-            isset($data['productpriceinfo']['price']) ? $data['productpriceinfo']['price'] :'',
-            isset($data['productpriceinfo']['selling_price']) ? $data['productpriceinfo']['selling_price'] :'',
-            isset($data['productpriceinfo']['gst']) ? $data['productpriceinfo']['gst'] : '',
-            isset($data['productpriceinfo']['discount']) ? $data['productpriceinfo']['discount'] : '',
-            isset($data['productpriceinfo']['max_discount']) ? $data['productpriceinfo']['max_discount'] :'' ,
-            isset($data['specification']) ? $data['specification'] :'',
-            isset($data['part_no']) ? $data['part_no'] :'',
-            isset($data['product_no']) ? $data['product_no'] :'',            
-            isset($data['model_no']) ? $data['model_no'] :'',
-            $data['suc_del'],
+            $data['unitmeasures']?$data['unitmeasures']['unit_name']:'',
+            $data['brand_id'],
+            $data['brands']?$data['brands']['brand_name']:'',
+            $data['category_id'],
+            $data['categories']?$data['categories']['category_name']:'',
+            $data['description'],
+            $data['product_no'],
+            $data['part_no'],
+            $data['product_code'],
+            $data['gst'],
+        ];
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $lastRow = $event->sheet->getHighestDataRow() + 2;
+                $lastColumn = $event->sheet->getHighestDataColumn();
+
+                $event->sheet->getStyle('A1:' . $lastColumn . '1')->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'color' => ['rgb' => 'FFFFFF'],
+                    ],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                    ],
+                    'fill' => [
+                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => '336677'],
+                    ],
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'color' => ['argb' => '000000'],
+                        ],
+                    ],
+                ]);
+
+                $event->sheet->getStyle('A2:' . $lastColumn . '' . ($lastRow - 2))->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'color' => ['argb' => '000000'],
+                        ],
+                    ],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT,
+                    ],
+                ]);
+            },
         ];
     }
 

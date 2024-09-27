@@ -6,7 +6,7 @@
         <div class="card-icon">
           <i class="material-icons">perm_identity</i>
         </div>
-        <h4 class="card-title ">{!! trans('panel.category.title_singular') !!}{!! trans('panel.global.list') !!}
+        <h4 class="card-title ">Size {!! trans('panel.global.list') !!}
               <span class="">
                 <div class="btn-group header-frm-btn">
                     <div class="next-btn">
@@ -70,9 +70,9 @@
             <thead class=" text-primary">
               <th>{!! trans('panel.global.no') !!}</th>
               <th>{!! trans('panel.global.action') !!}</th>
-              <th>{!! trans('panel.global.active') !!}</th>
-              <th>{!! trans('panel.category.fields.category_image') !!}</th>
-              <th>{!! trans('panel.category.fields.category_name') !!}</th>
+              <!-- <th>{!! trans('panel.global.active') !!}</th> -->
+              <!-- <th>{!! trans('panel.category.fields.category_image') !!}</th> -->
+              <th>Size</th>
               <th>{!! trans('panel.global.created_by') !!}</th>
               <th>{!! trans('panel.global.created_at') !!}</th>
             </thead>
@@ -92,7 +92,7 @@
         <div class="card-icon">
           <i class="material-icons">perm_identity</i>
         </div>
-        <h4 class="card-title"><span class="modal-title">{!! trans('panel.global.add') !!}</span> {!! trans('panel.category.title_singular') !!}
+        <h4 class="card-title"><span class="modal-title">{!! trans('panel.global.add') !!}</span> Size
           <span class="pull-right" >
             <a href="javascript:void(0)" class="btn btn-just-icon btn-danger" data-dismiss="modal"><i class="material-icons">clear</i></a>
           </span>
@@ -104,10 +104,10 @@
         <div class="row">
             <div class="col-md-9">
                 <div class="row">
-                  <label class="col-md-3 col-form-label">{!! trans('panel.category.fields.category_name') !!} <span class="text-danger"> *</span></label>
+                  <label class="col-md-3 col-form-label">Size <span class="text-danger"> *</span></label>
                   <div class="col-md-9">
                     <div class="form-group has-default bmd-form-group">
-                      <input type="text" name="category_name" id="category_name" class="form-control" value="{!! old( 'category_name') !!}" maxlength="200" required>
+                      <input type="number" name="category_name" id="category_name" class="form-control" value="{!! old( 'category_name') !!}" maxlength="200" required>
                       @if ($errors->has('category_name'))
                         <div class="error col-lg-12"><p class="text-danger">{{ $errors->first('category_name') }}</p></div>
                       @endif
@@ -115,7 +115,7 @@
                   </div>
                 </div>
               </div>
-            <div class="col-md-3 col-sm-3">
+            <!-- <div class="col-md-3 col-sm-3">
               <div class="fileinput fileinput-new text-center" data-provides="fileinput">
                    <div class="selectThumbnail">
                      <span class="btn btn-just-icon btn-round btn-file">
@@ -132,7 +132,7 @@
                    <div class="fileinput-preview fileinput-exists thumbnail img-circle"></div>
                    <label class="bmd-label-floating">{!! trans('panel.category.fields.category_image') !!}</label>
                  </div>
-            </div>
+            </div> -->
           </div>
         <div class="clearfix"></div>
         <div class="modal-footer">
@@ -144,8 +144,8 @@
     </div>
   </div>
 </div>
-<script src="{{ url('/').'/'.asset('assets/js/jquery.custom.js') }}"></script>
-<script src="{{ url('/').'/'.asset('assets/js/validation_products.js') }}"></script>
+<script src="{{ url('/').'/'.asset('assets/js/jquery.custom.js?') }}"></script>
+<script src="{{ url('/').'/'.asset('assets/js/validation_products.js?') }}"></script>
 <script type="text/javascript">
   $(function () {
     $.ajaxSetup({
@@ -156,16 +156,15 @@
     var table = $('#getcategory').DataTable({
         processing: true,
         serverSide: true,
-        "order": [ [0, 'desc'] ],
         ajax: "{{ route('categories.index') }}",
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
             {data: 'action', name: 'action',"defaultContent": '',orderable: false, searchable: false},
-             {data: 'active', name: 'active',"defaultContent": '', orderable: false, searchable: false},
-            {data: 'image', name: 'image',"defaultContent": '', orderable: false, searchable: false},
-            {data: 'category_name', name: 'category_name',"defaultContent": ''},
-            {data: 'createdbyname.name', name: 'createdbyname.name',"defaultContent": ''},
-            {data: 'created_at', name: 'created_at',"defaultContent": ''},
+            //  {data: 'active', name: 'active',"defaultContent": '', orderable: false, searchable: false},
+            // {data: 'image', name: 'image',"defaultContent": '', orderable: false, searchable: false},
+            {data: 'category_name', name: 'category_name',"defaultContent": '', orderable: false},
+            {data: 'createdbyname.name', name: 'createdbyname.name',"defaultContent": '', orderable: false},
+            {data: 'created_at', name: 'created_at',"defaultContent": '', orderable: false},
         ]
     });
          

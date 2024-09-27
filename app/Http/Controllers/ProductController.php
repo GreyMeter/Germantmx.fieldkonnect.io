@@ -96,26 +96,16 @@ class ProductController extends Controller
             $request['created_by'] = Auth::user()->id;
             if($product_id = Product::insertGetId([
                 'active'        => 'Y', 
-                'product_name'  => !empty($request['product_name']) ? $request['product_name'] :'',
-                'product_code'  => !empty($request['product_code']) ? $request['product_code'] :'',
-                'new_group'  => !empty($request['new_group']) ? $request['new_group'] :'',
-                'sub_group'  => !empty($request['sub_group']) ? $request['sub_group'] :'',
-                'expiry_interval'  => !empty($request['expiry_interval']) ? $request['expiry_interval'] :'',
-                'expiry_interval_preiod'  => !empty($request['expiry_interval_preiod']) ? $request['expiry_interval_preiod'] :0,
-                //'display_name'  => !empty($request['display_name']) ? $request['display_name'] :'',
-                'description'   => !empty($request['description']) ? $request['description'] :'',
-                'subcategory_id'=> !empty($request['subcategory_id']) ? $request['subcategory_id'] :null,
+                'product_code'  => !empty($request['product_code']) ? $request['product_code'] :'',                
+                'description'   => !empty($request['standard_weight']) ? $request['standard_weight'] :'',
                 'category_id'   => !empty($request['category_id']) ? $request['category_id'] :null,
                 'brand_id'      => !empty($request['brand_id']) ? $request['brand_id'] :null,
-                'product_image' => !empty($request['product_image']) ? $request['product_image'] :'',
                 'unit_id'       => !empty($request['unit_id']) ? $request['unit_id'] :null,
                 'created_by'    => Auth::user()->id,
                 'created_at'    => getcurentDateTime(),
-                'specification' => !empty($request['specification']) ? $request['specification'] :'',
-                'phase' => !empty($request['phase']) ? $request['phase'] :'',
-                'part_no'       => !empty($request['part_no']) ? $request['part_no'] :'',
-                'product_no'    => !empty($request['product_no']) ? $request['product_no'] :'',
-                'model_no'      => !empty($request['model_no']) ? $request['model_no'] :'',
+                'part_no'       => !empty($request['weight_per_bundle']) ? $request['weight_per_bundle'] :'',
+                'product_no'    => !empty($request['pcs_per_forty']) ? $request['pcs_per_forty'] :'',
+                'gst'       => !empty($request['gst']) ? $request['gst'] :'18',
             ]))
             {
                 if(!empty($request['detail']))
@@ -143,7 +133,7 @@ class ProductController extends Controller
                             'selling_price' => !empty($rows['selling_price']) ? $rows['selling_price'] :$rows['mrp'],
                             'discount' => !empty($request['discount']) ? $request['discount'] :0.00,
                             'max_discount' => !empty($request['max_discount']) ? $request['max_discount'] :0.00,
-                            'gst'       => !empty($request['gst']) ? $request['gst'] :0,
+                            
                             'hsn_code'      => !empty($rows['hsn_code']) ? $rows['hsn_code'] :null,
                             'ean_code'      => !empty($rows['ean_code']) ? $rows['ean_code'] :null,
                             'isprimary'      => !empty($rows['isprimary']) ? $rows['isprimary'] :0,
@@ -222,24 +212,13 @@ class ProductController extends Controller
             }
             $id = decrypt($id);
             $product = Product::find($id);
-            $product->product_name = !empty($request['product_name'])? $request['product_name'] :'';
             $product->product_code = !empty($request['product_code'])? $request['product_code'] :'';
-            $product->new_group = !empty($request['new_group'])? $request['new_group'] :'';
-            $product->sub_group = !empty($request['sub_group'])? $request['sub_group'] :'';
-            $product->expiry_interval = !empty($request['expiry_interval'])? $request['expiry_interval'] :'';
-            $product->expiry_interval_preiod = !empty($request['expiry_interval_preiod'])? $request['expiry_interval_preiod'] :0;
-            //$product->display_name = !empty($request['display_name']) ? $request['display_name'] :'';
-            $product->description = !empty($request['description']) ? $request['description'] :'';
-            $product->subcategory_id = !empty($request['subcategory_id']) ? $request['subcategory_id'] :null;
+            $product->description = !empty($request['standard_weight']) ? $request['standard_weight'] :'';
             $product->category_id = !empty($request['category_id']) ? $request['category_id'] :null;
             $product->brand_id = !empty($request['brand_id']) ? $request['brand_id'] :null;
             $product->unit_id = !empty($request['unit_id']) ? $request['unit_id'] :null;
-            $product->specification = !empty($request['specification']) ? $request['specification'] :'';
-            $product->phase = !empty($request['phase']) ? $request['phase'] :'';
-            $product->part_no = !empty($request['part_no']) ? $request['part_no'] :'';
-            $product->product_no = !empty($request['product_no']) ? $request['product_no'] :'';
-            $product->model_no = !empty($request['model_no']) ? $request['model_no'] :'';
-            $product->suc_del  = !empty($request['suc_del']) ? $request['suc_del'] :'';
+            $product->part_no = !empty($request['weight_per_bundle']) ? $request['weight_per_bundle'] :'';
+            $product->product_no = !empty($request['pcs_per_forty']) ? $request['pcs_per_forty'] :'';
             if($request->file('image')){
                 $image = $request->file('image');
                 $filename = 'category'.$id;
@@ -365,7 +344,7 @@ class ProductController extends Controller
         abort_if(Gate::denies('product_template'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
-        return Excel::download(new ProductTemplate, 'products.xlsx');
+        return Excel::download(new ProductTemplate, 'products_template.xlsx');
     }
 
     // public function stockInfo(Request $request)

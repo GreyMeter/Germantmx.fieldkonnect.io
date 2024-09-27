@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Symfony\Component\HttpFoundation\Response;
 use Gate;
+use Illuminate\Validation\Rule;
 
 class ProductRequest extends FormRequest
 {
@@ -20,9 +21,16 @@ class ProductRequest extends FormRequest
         switch($this) {
             case !empty($this->id) :
                 $rules = [
-                    'product_name'  =>  'required|min:2|max:100|string|regex:/[a-zA-Z0-9\s]+/',
+                    'product_code'  =>  [
+                        'required',
+                        'min:2',
+                        'max:100',
+                        'string',
+                        'regex:/[a-zA-Z0-9\s]+/',
+                        Rule::unique('products', 'product_code')->ignore($this->id)
+                    ],
                     'display_name'  =>  'nullable|min:2|max:100|string|regex:/[a-zA-Z0-9\s]+/',
-                    'description'   =>  'required|min:2|max:450|string|regex:/[a-zA-Z0-9\s]+/',
+                    // 'description'   =>  'required|min:2|max:450|string|regex:/[a-zA-Z0-9\s]+/',
                     'mrp'           =>  'nullable|numeric',
                     'price'         =>  'nullable|numeric',
                     'discount'      =>  'nullable|numeric',
@@ -40,9 +48,16 @@ class ProductRequest extends FormRequest
                 break;
             default :
                 $rules = [
-                    'product_name'  =>  'required|min:2|max:100|string|regex:/[a-zA-Z0-9\s]+/',
+                    'product_code'  =>  [
+                        'required',
+                        'min:2',
+                        'max:100',
+                        'string',
+                        'regex:/[a-zA-Z0-9\s]+/',
+                        Rule::unique('products', 'product_code')
+                    ],
                     'display_name'  =>  'nullable|min:2|max:100|string|regex:/[a-zA-Z0-9\s]+/',
-                    'description'   =>  'required|min:2|max:450|string|regex:/[a-zA-Z0-9\s]+/',
+                    // 'description'   =>  'required|min:2|max:450|string|regex:/[a-zA-Z0-9\s]+/',
                     'mrp'           =>  'nullable|numeric',
                     'price'         =>  'nullable|numeric',
                     'discount'      =>  'nullable|numeric',

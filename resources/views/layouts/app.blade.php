@@ -7,19 +7,19 @@
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
   <title>{{ config('app.name', 'Laravel') }}</title>
- <!--  <link href="{{ url('/').'/'.asset('assets/css/testdash2.css') }}" rel="stylesheet" /> -->
-  <link href="{{ url('/').'/'.asset('assets/css/material-dashboard2.css') }}" rel="stylesheet" />
+  <!--  <link href="{{ url('/').'/'.asset('assets/css/testdash2.css') }}" rel="stylesheet" /> -->
+  <link href="{{ url('/').'/'.asset('assets/css/materialdashboard2.css?') }}" rel="stylesheet" />
   <link rel="stylesheet" type="text/css"
     href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
   <!-- CSS Files -->
 
-  <link href="{{ url('/').'/'.asset('assets/css/new_design.css') }}" rel="stylesheet" />
-  <link href="{{ url('/').'/'.asset('assets/css/custom1.css') }}" rel="stylesheet" />
+  <link href="{{ url('/').'/'.asset('assets/css/newdesign.css?') }}" rel="stylesheet" />
+  <link href="{{ url('/').'/'.asset('assets/css/custom1.css?') }}" rel="stylesheet" />
   <!-- CSS Just for demo purpose, don't include it in your project -->
-  <link href="{{ url('/').'/'.asset('assets/demo/demo.css') }}" rel="stylesheet" />
+  <link href="{{ url('/').'/'.asset('assets/demo/demo.css?') }}" rel="stylesheet" />
   <!-- <link href="{{ url('/').'/'.asset('assets/css/jquery-ui.css') }}" rel="stylesheet" /> -->
-  <link href="{{ url('/').'/'.asset('assets/css/responsive.bootstrap4.css') }}" rel="stylesheet" />
+  <link href="{{ url('/').'/'.asset('assets/css/responsive.bootstrap4.css?') }}" rel="stylesheet" />
   <link rel="stylesheet" href="{{ url('/').'/'.asset('assets/plugins/select2/css/select2.css') }}">
   <link href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" rel="stylesheet">
   <script src="{{ url('/').'/'.asset('assets/js/core/jquery.min.js') }}"></script>
@@ -28,6 +28,11 @@
   <link href='https://unpkg.com/boxicons@2.1.1/css/boxicons.min.css' rel='stylesheet'>
   <meta http-equiv="Cache-Control" content="no-store" />
   <style>
+    .main-panel>.navbar {
+      background: linear-gradient(45deg, #3694cc 0%, #3860a4 100%);
+      padding-top: 7px;
+    }
+
     /* Google Font Import - Poppins */
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
@@ -73,12 +78,12 @@
 
     .sidebar li.nav-link:hover a {
       /* background-color: var(--primary-color); */
-      color: #707070;
+      color: #fff;
     }
 
     .sidebar li.nav-link ul.navd a {
       background: transparent;
-      color: #00000094;
+      color: #fff;
       font-weight: 500;
       font-size: 16px;
     }
@@ -103,6 +108,7 @@
       background: var(--sidebar-color);
       transition: var(--tran-05);
       z-index: 100;
+      background: linear-gradient(45deg, #3860a4 0%, #3694cc 100%);
     }
 
     .sidebar.close {
@@ -143,7 +149,7 @@
     .sidebar .text,
     .sidebar .icon {
       /* color: #fff;*/
-      transition: var(--tran-03);
+      /* transition: var(--tran-03);*/
     }
 
     .sidebar .text {
@@ -184,7 +190,7 @@
       margin-top: 2px;
       font-size: 18px;
       font-weight: 600;
-      color: #707070;
+      color: #fff;
     }
 
     header .image-text .profession {
@@ -201,19 +207,19 @@
 
     .sidebar header .image img {
       width: 40px;
-      border-radius: 6px;
+      border-radius: 40px;
     }
 
     .sidebar header .toggle {
       position: absolute;
-      top: 50%;
+      top: 88%;
       right: -25px;
       transform: translateY(-50%) rotate(180deg);
       height: 25px;
       width: 25px;
-      /*background-color: var(--primary-color);*/
-      background: linear-gradient(45deg, #3860a4 0%, #3694cc 100%);
-      color: var(--sidebar-color);
+      /* background-color: var(--primary-color); */
+      background: #fff;
+      color: #3860a4;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -275,6 +281,7 @@
 
     .sidebar li.nav-link ul li a:after {
       position: unset;
+      display: none
     }
 
     .sidebar li.nav-link a:after {
@@ -291,17 +298,26 @@
       transform: rotate(45deg);
     }
 
+    .sidebar li.nav-link.single-menu a:after{
+      display: none;
+    }
+
     .sidebar li.nav-link a:hover {
       /* background-color: var(--primary-color);
 */
       color: #fff;
-      background: linear-gradient(45deg, #3860a4 0%, #3694cc 100%);
+      background: linear-gradient(90deg, #3860a4 0%, #1b4e6c 100%);
     }
 
     .sidebar li.nav-link ul li a:hover .icon,
     .sidebar li.nav-link a:hover .text,
     .sidebar li.nav-link ul li a:hover span {
-      color: var(--primary-color);
+      /* color: var(--primary-color);*/
+      color: #fff;
+    }
+
+    .sidebar li.nav-link ul li a:hover {
+      background: #3860a4a3;
     }
 
     body.dark .sidebar li.nav-link a:hover .icon,
@@ -312,7 +328,7 @@
 
 
     .sidebar li.nav-link.active ul li.nav-link-btn.active .icon {
-      color: #3860a4;
+      color: #fff;
       font-weight: 500;
     }
 
@@ -327,7 +343,7 @@
     }
 
     .sidebar li.nav-link.active ul li .icon {
-      color: #00000094;
+      color: #fff;
     }
 
 
@@ -339,7 +355,7 @@
     .sidebar .menu-bar::-webkit-scrollbar-thumb {
       border-radius: 2px;
       -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
-      /*	background-color: var(--primary-color);*/
+      /*  background-color: var(--primary-color);*/
       background: linear-gradient(45deg, #3860a4 0%, #3694cc 100%);
     }
 
@@ -476,7 +492,7 @@
     }
 
     .sidebar li.nav-link a.collapsed {
-      color: #707070;
+      color: #fff;
       font-weight: 500;
       background: transparent;
     }
@@ -487,14 +503,14 @@
     color: #ffff;
     font-weight: 500;*/
       background-color: transparent;
-      color: #00000094;
+      color: #fff;
       font-weight: 600;
     }
 
 
     .sidebar li.nav-link a.collapsed:hover,
     .sidebar li.nav-link.active a.collapsed {
-      background: linear-gradient(45deg, #3860a4 0%, #3694cc 100%);
+      background: linear-gradient(90deg, #3860a4 0%, #1b4e6c 100%);
       color: #ffff;
       font-weight: 500;
     }
@@ -506,8 +522,8 @@
 
 
     .sidebar li.nav-link.active ul.navd li.nav-link-btn.active a {
-      background: transparent;
-      color: #3860a4;
+      background: #3860a4a3;
+      color: #fff;
       font-weight: 500;
 
     }
@@ -516,6 +532,11 @@
       margin: 0px 0;
     }
 
+    .sidebar.close li.nav-link a:after {
+
+      width: 5px;
+      height: 5px;
+    }
 
     /* .sidebar.close~.main-panel {
     left: 78px;
@@ -546,9 +567,9 @@
 
 
     body .sidebar.close~.main-panel {
-      left: 78px;
+      left: 87px;
       height: 100vh;
-      width: calc(100% - 78px);
+      width: calc(100% - 87px);
     }
 
     .sidebar {
@@ -573,14 +594,13 @@
       min-width: 60px;
     }
 
-nav.sidebar.close .menu-links span
-{
-  display: none;
-}
+    nav.sidebar.close .menu-links span {
+      display: none;
+    }
 
     nav.sidebar.close li.nav-link a:after {
-         right: 5px;
-    top: 12px;
+      right: 5px;
+      top: 12px;
     }
 
 
@@ -638,10 +658,10 @@ nav.sidebar.close .menu-links span
       display: none;
     }
 
-nav.sidebar.close  li.nav-link a.hoveradd   ,
-nav.sidebar.close  li.nav-link ul  a.hoveradd2 {
-  position: relative;
-}
+    nav.sidebar.close li.nav-link a.hoveradd,
+    nav.sidebar.close li.nav-link ul a.hoveradd2 {
+      position: relative;
+    }
 
 
     /*tablet css*/
@@ -660,29 +680,30 @@ nav.sidebar.close  li.nav-link ul  a.hoveradd2 {
 
       }
     }
-nav.sidebar.close  li.nav-link .d-none.mobile_hide{
-       background: linear-gradient(45deg, #3860a4 0%, #3694cc 100%);
-    color: #ffff;
-    font-weight: 300;
-    font-size: 13px;
-    padding: 10px 10px;
-    border-radius: 12px;
-    position: absolute;
-    right: -293%;
-    top: 6%;
-    z-index: 9999999;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    transition: var(--tran-05);
-    width: 100%;
-    min-width: 161px
-} 
 
-body nav.sidebar.close  li.nav-link a.hoveradd:hover    .d-none.mobile_hide ,body nav.sidebar.close  li.nav-link ul li a.hoveradd2:hover    .d-none.mobile_hide{
-  display: block !important;
-} 
+    nav.sidebar.close li.nav-link .d-none.mobile_hide {
+      background: linear-gradient(45deg, #3860a4 0%, #3694cc 100%);
+      color: #ffff;
+      font-weight: 300;
+      font-size: 13px;
+      padding: 10px 10px;
+      border-radius: 12px;
+      position: absolute;
+      right: -293%;
+      top: 6%;
+      z-index: 9999999;
+      border-top-left-radius: 0;
+      border-bottom-left-radius: 0;
+      transition: var(--tran-05);
+      width: 100%;
+      min-width: 161px
+    }
 
- </style>
+    body nav.sidebar.close li.nav-link a.hoveradd:hover .d-none.mobile_hide,
+    body nav.sidebar.close li.nav-link ul li a.hoveradd2:hover .d-none.mobile_hide {
+      display: block !important;
+    }
+  </style>
   <!-- Scripts -->
 </head>
 
@@ -696,7 +717,7 @@ body nav.sidebar.close  li.nav-link a.hoveradd:hover    .d-none.mobile_hide ,bod
 
     <nav class="sidebar">
       <header>
-        <div class="logo"><a href="{{ url('customers') }}" class="simple-text logo-normal">
+        <div class="logo rounded"><a href="{{ url('customers') }}" class="simple-text logo-normal">
             <!-- GAJRA GEARS -->
             <div class="logo-main desktop">
               <img src="{{ url('/').'/'.asset('assets/img/brand_logo.png') }}" class="rounded" alt="...">
@@ -711,7 +732,7 @@ body nav.sidebar.close  li.nav-link a.hoveradd:hover    .d-none.mobile_hide ,bod
         <div class="image-text mt-2">
           <span class="image">
             <img
-              src="{!! (count(Auth::user()->getMedia('profile_image')) > 0 ? Auth::user()->getMedia('profile_image')[0]->getFullUrl() : asset('assets/img/placeholder.jpg')) !!}"
+              src="{!! (count(Auth::user()->getMedia('profile_image')) > 0 ? Auth::user()->getMedia('profile_image')[0]->getFullUrl() : asset('assets/img/profileuser.png?')) !!}"
               alt="">
           </span>
           <div class="text logo-text">
@@ -735,18 +756,18 @@ body nav.sidebar.close  li.nav-link a.hoveradd:hover    .d-none.mobile_hide ,bod
             @endif
 
             @if(auth()->user()->can(['customer_access']))
-            <li 
+            <li
               class="nav-link {{ request()->is('customers*') || request()->is('customertype*') || request()->is('firmtype*') || request()->is('customersLogin*') || request()->is('customers-survey*') || request()->is('fields*') ? 'active' : '' }}">
               <a class="collapsed hoveradd" data-toggle="collapse" href="#customerMenu" aria-expanded="false">
                 <i class="material-icons icon">contact_emergency</i>
                 <span> {!! trans('panel.sidemenu.customers_master') !!}
 
                 </span>
-                  <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.customers_master') !!}
+                <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.customers_master') !!}
 
                 </div>
               </a>
-               
+
               <div class="collapse {{ request()->is('customers*') || request()->is('customertype*') || request()->is('firmtype*') ? 'show' : '' }}" id="customerMenu" style="">
                 <ul class="navd">
                   @if(auth()->user()->can(['customer_access']))
@@ -754,11 +775,11 @@ body nav.sidebar.close  li.nav-link a.hoveradd:hover    .d-none.mobile_hide ,bod
                     <a class="hoveradd2" href="{{ url('customers') }}">
                       <i class="material-icons icon">diversity_3</i>
                       <span>{!! trans('panel.sidemenu.customers') !!}</span>
-                          <div class="d-none mobile_hide">{!! trans('panel.sidemenu.customers') !!}
+                      <div class="d-none mobile_hide">{!! trans('panel.sidemenu.customers') !!}
 
-                </div>
+                      </div>
                     </a>
-                
+
                   </li>
                   @endif
 
@@ -776,9 +797,9 @@ body nav.sidebar.close  li.nav-link a.hoveradd:hover    .d-none.mobile_hide ,bod
                     <a class="hoveradd2" href="{{ url('customertype') }}">
                       <i class="material-icons icon">transcribe</i>
                       <span>{!! trans('panel.sidemenu.customertype') !!}</span>
-                         <div class="d-none mobile_hide">{!! trans('panel.sidemenu.customertype') !!}
+                      <div class="d-none mobile_hide">{!! trans('panel.sidemenu.customertype') !!}
 
-                </div>
+                      </div>
                     </a>
                   </li>
                   @endif
@@ -836,60 +857,49 @@ body nav.sidebar.close  li.nav-link a.hoveradd:hover    .d-none.mobile_hide ,bod
             @endif
             @if(auth()->user()->can('product_access'))
             <li
-            
+
               class="nav-link {{ request()->is('categories*') || request()->is('subcategories*') || request()->is('brands*') || request()->is('products*') || request()->is('units*') || request()->is('production*') ? 'active' : '' }}">
-              <a class="collapsed hoveradd2" data-toggle="collapse" href="#productMenu" aria-expanded="false">
+              <a class="collapsed hoveradd" data-toggle="collapse" href="#productMenu" aria-expanded="false">
                 <i class="material-icons icon">conveyor_belt</i>
                 <span> {!! trans('panel.sidemenu.product_master') !!}
 
                 </span>
-                 <div class="d-none mobile_hide">{!! trans('panel.sidemenu.product_master') !!}
+                <div class="d-none mobile_hide">{!! trans('panel.sidemenu.product_master') !!}
 
                 </div>
               </a>
               <div class="collapse {{ request()->is('categories*') || request()->is('subcategories*') || request()->is('brands*') || request()->is('products*') || request()->is('units*') || request()->is('production*') ? 'show' : '' }}" id="productMenu" style="">
                 <ul class="navd">
-                  @if(auth()->user()->can('category_access'))
-                  <li class="nav-link-btn  {{ request()->is('categories*') ? 'active' : '' }}" >
-                    <a class="hoveradd2" href="{{ url('categories') }}">
-                      <i class="material-icons icon">category</i>
-                      <span>{!! trans('panel.sidemenu.categories') !!}</span>
-                        <div class="d-none mobile_hide">{!! trans('panel.sidemenu.categories') !!}
-
-                </div>
-                    </a>
-                  </li>
-                  @endif
                   @if(auth()->user()->can('subcategory_access'))
-                  <li class="nav-link-btn {{ request()->is('subcategories*') ? 'active' : '' }}" >
+                  <li class="nav-link-btn {{ request()->is('subcategories*') ? 'active' : '' }}">
                     <a class="hoveradd2" href="{{ url('subcategories') }}">
                       <i class="material-icons icon">subtitles</i>
                       <span>{!! trans('panel.sidemenu.subcategories') !!}</span>
-                        <div class="d-none mobile_hide">{!! trans('panel.sidemenu.subcategories') !!}
+                      <div class="d-none mobile_hide">{!! trans('panel.sidemenu.subcategories') !!}
 
-                </div>
-                    </a>
-                  </li>
-                  @endif
-                  @if(auth()->user()->can('brand_access'))
-                  <li class="nav-link-btn {{ request()->is('brands*') ? 'active' : '' }}" >
-                    <a class="hoveradd2" href="{{ url('brands') }}">
-                      <i class="material-icons icon">branding_watermark</i>
-                      <span>{!! trans('panel.sidemenu.brands') !!}</span>
-                        <div class="d-none mobile_hide">{!! trans('panel.sidemenu.brands') !!}
-
-                </div>
+                      </div>
                     </a>
                   </li>
                   @endif
                   @if(auth()->user()->can('product_access'))
-                  <li class="nav-link-btn {{ request()->is('products*') ? 'active' : '' }}" >
+                  <li class="nav-link-btn {{ request()->is('products*') ? 'active' : '' }}">
                     <a class="hoveradd2" href="{{ url('products') }}">
                       <i class="material-icons icon">widgets</i>
                       <span>{!! trans('panel.sidemenu.products') !!}</span>
-                        <div class="d-none mobile_hide">{!! trans('panel.sidemenu.products') !!}
+                      <div class="d-none mobile_hide">{!! trans('panel.sidemenu.products') !!}
 
-                </div>
+                      </div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('brand_access'))
+                  <li class="nav-link-btn {{ request()->is('brands*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('brands') }}">
+                      <i class="material-icons icon">branding_watermark</i>
+                      <span>{!! trans('panel.sidemenu.brands') !!}</span>
+                      <div class="d-none mobile_hide">{!! trans('panel.sidemenu.brands') !!}
+
+                      </div>
                     </a>
                   </li>
                   @endif
@@ -902,13 +912,24 @@ body nav.sidebar.close  li.nav-link a.hoveradd:hover    .d-none.mobile_hide ,bod
                 </li> -->
                   @endif
                   @if(auth()->user()->can('unit_access'))
-                  <li class="nav-link-btn {{ request()->is('units*') ? 'active' : '' }}" >
+                  <li class="nav-link-btn {{ request()->is('units*') ? 'active' : '' }}">
                     <a class="hoveradd2" href="{{ url('units') }}">
                       <i class="material-icons icon">apartment</i>
-                      <span>{!! trans('panel.sidemenu.units') !!}</span>
-                        <div class="d-none mobile_hide">{!! trans('panel.sidemenu.units') !!}
+                      <span>Grade</span>
+                      <div class="d-none mobile_hide">Grade
 
-                </div>
+                      </div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('category_access'))
+                  <li class="nav-link-btn  {{ request()->is('categories*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('categories') }}">
+                      <i class="material-icons icon">category</i>
+                      <span>Size</span>
+                      <div class="d-none mobile_hide">{!! trans('panel.sidemenu.categories') !!}
+
+                      </div>
                     </a>
                   </li>
                   @endif
@@ -930,6 +951,17 @@ body nav.sidebar.close  li.nav-link a.hoveradd:hover    .d-none.mobile_hide ,bod
                   @endif
                 </ul>
               </div>
+            </li>
+            @endif
+            @if(auth()->user()->can('prices_access'))
+            <li class="single-menu nav-link {{ request()->is('prices*') ? 'active' : '' }}">
+              <a class="hoveradd" href="{{ url('prices') }}">
+                <i class="material-icons icon">payments</i>
+                <span>Prices</span>
+                <div class="d-none mobile_hide">{!! trans('panel.sidemenu.prices') !!}
+
+                </div>
+              </a>
             </li>
             @endif
 
@@ -954,8 +986,8 @@ body nav.sidebar.close  li.nav-link a.hoveradd:hover    .d-none.mobile_hide ,bod
     <div class="main-panel">
       <!-- Navbar -->
       <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
-        <div class="container-fluid bg-theme p-2" style="background: #fff !important">
-          <img src="{!! url('/').'/'.asset('assets/img/mini_logo.png') !!}" width="250">
+        <div class="container-fluid  p-2" style="background: transparent; !important">
+          <img class="rounded ml-2" src="{!! url('/').'/'.asset('assets/img/mini_logo.png?') !!}" width="60">
           <!-- <img src="{!! url('/').'/'.asset('assets/img/logo.png') !!}" width="50"> -->
           <div class="navbar-wrapper">
             <div class="navbar-minimize">
@@ -1143,7 +1175,7 @@ body nav.sidebar.close  li.nav-link a.hoveradd:hover    .d-none.mobile_hide ,bod
   </script>
 
 
- <!--  <script>
+  <!--  <script>
     $(document).ready(function(){
         // Initialize tooltips
         $('[data-toggle="tooltip"]').tooltip();
