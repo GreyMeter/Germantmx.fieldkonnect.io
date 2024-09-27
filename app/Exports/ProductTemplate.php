@@ -11,19 +11,59 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Illuminate\Support\Facades\Auth;
 
-class ProductTemplate implements FromCollection,WithHeadings,ShouldAutoSize
+class ProductTemplate implements FromCollection,WithHeadings,ShouldAutoSize,WithEvents
 {
     public function collection()
     {
-        return Product::select('product_name', 'display_name', 'description', 'subcategory_id', 'category_id', 'brand_id', 'product_image', 'unit_id', 'specification', 'part_no', 'product_no', 'model_no','suc_del')->limit(0)->get();
+        return Product::limit(0)->get();
     }
 
     public function headings(): array
     {
+        return ['Product ID','Grade ID', 'Brand ID', 'Size ID', 'Standard Weight Kg/Mtr', 'No. of Pcs. Per 40Ft. Bundle', 'Weight Per Bundle in Kg.', 'Product Code', 'GST'];
+    }
 
-        return ['product_name', 'display_name', 'description', 'subcategory_id', 'category_id', 'brand_id', 'product_image', 'unit_id','detail_title', 'detail_description', 'product_id', 'detail_image','mrp', 'price', 'discount', 'max_discount', 'selling_price', 'gst', 'isprimary', 'hsn_code', 'ean_code', 'hp', 'kw', 'product_stage', 'model_no','suc_del'];
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $lastRow = $event->sheet->getHighestDataRow() + 2;
+                $lastColumn = $event->sheet->getHighestDataColumn();
 
-        // return ['product_name', 'display_name', 'description', 'subcategory_id', 'category_id', 'brand_id', 'product_image', 'unit_id','detail_title', 'detail_description', 'product_id', 'detail_image','SUC x DEL','mrp', 'price', 'discount', 'max_discount', 'selling_price', 'gst', 'isprimary', 'hsn_code', 'ean_code', 'HP', 'kW', 'Product Stage', 'model_no','suc_del'];
+                $event->sheet->getStyle('A1:' . $lastColumn . '1')->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'color' => ['rgb' => 'FFFFFF'],
+                    ],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                    ],
+                    'fill' => [
+                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => '336677'],
+                    ],
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'color' => ['argb' => '000000'],
+                        ],
+                    ],
+                ]);
+
+                $event->sheet->getStyle('A2:' . $lastColumn . '' . ($lastRow - 2))->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'color' => ['argb' => '000000'],
+                        ],
+                    ],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT,
+                    ],
+                ]);
+            },
+        ];
     }
 
 }

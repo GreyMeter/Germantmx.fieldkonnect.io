@@ -6,7 +6,7 @@
         <div class="card-icon">
           <i class="material-icons">perm_identity</i>
         </div>
-        <h4 class="card-title ">{!! trans('panel.unit.title_singular') !!}{!! trans('panel.global.list') !!}
+        <h4 class="card-title ">Grade {!! trans('panel.global.list') !!}
               <span class="">
                 <div class="btn-group header-frm-btn">
                    <div class="next-btn">
@@ -70,9 +70,9 @@
             <thead class=" text-primary">
               <th>{!! trans('panel.global.no') !!}</th>
               <th>{!! trans('panel.global.action') !!}</th>
-              <th>{!! trans('panel.global.active') !!}</th>
-              <th>{!! trans('panel.unit.fields.unit_name') !!}</th>
-              <th>{!! trans('panel.unit.fields.unit_code') !!}</th>
+              <!-- <th>{!! trans('panel.global.active') !!}</th> -->
+              <th>Grade Name</th>
+              <!-- <th>{!! trans('panel.unit.fields.unit_code') !!}</th> -->
               <th>{!! trans('panel.global.created_by') !!}</th>
               <th>{!! trans('panel.global.created_at') !!}</th>
             </thead>
@@ -92,7 +92,7 @@
         <div class="card-icon">
           <i class="material-icons">perm_identity</i>
         </div>
-        <h4 class="card-title"><span class="modal-title">{!! trans('panel.global.add') !!}</span> {!! trans('panel.unit.title_singular') !!}
+        <h4 class="card-title"><span class="modal-title">{!! trans('panel.global.add') !!}</span> Grade
           <span class="pull-right" >
             <a href="javascript:void(0)" class="btn btn-just-icon btn-danger" data-dismiss="modal"><i class="material-icons">clear</i></a>
           </span>
@@ -104,7 +104,7 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="row">
-                  <label class="col-md-3 col-form-label">{!! trans('panel.unit.fields.unit_name') !!} <span class="text-danger"> *</span></label>
+                  <label class="col-md-3 col-form-label">Grade Name <span class="text-danger"> *</span></label>
                   <div class="col-md-9">
                     <div class="form-group has-default bmd-form-group">
                       <input type="text" name="unit_name" id="unit_name" class="form-control" value="{!! old( 'unit_name') !!}" maxlength="200" required>
@@ -115,7 +115,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-md-6">
+              <!-- <div class="col-md-6">
                 <div class="row">
                   <label class="col-md-3 col-form-label">{!! trans('panel.unit.fields.unit_code') !!} <span class="text-danger"> *</span></label>
                   <div class="col-md-9">
@@ -127,7 +127,7 @@
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> -->
           </div>
         <div class="clearfix"></div>
         <div class="modal-footer">
@@ -155,12 +155,12 @@
         ajax: "{{ route('units.index') }}",
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
-            {data: 'action', name: 'action',"defaultContent": '',className: 'td-actions text-center', orderable: false, searchable: false},
-             {data: 'active', name: 'active',"defaultContent": '',className: 'td-actions text-center', orderable: false, searchable: false},
-            {data: 'unit_name', name: 'unit_name',"defaultContent": ''},
-            {data: 'unit_code', name: 'unit_code',"defaultContent": ''},
-            {data: 'createdbyname.name', name: 'createdbyname.name',"defaultContent": ''},
-            {data: 'created_at', name: 'created_at',"defaultContent": ''},
+            {data: 'action', name: 'action',"defaultContent": '',className: 'remove-sort-icon', orderable: false, searchable: false},
+            //  {data: 'active', name: 'active',"defaultContent": '',className: 'remove-sort-icon', orderable: false, searchable: false},
+            {data: 'unit_name', name: 'unit_name',"defaultContent": '', orderable: false},
+            // {data: 'unit_code', name: 'unit_code',"defaultContent": ''},
+            {data: 'createdbyname.name', name: 'createdbyname.name',"defaultContent": '', orderable: false},
+            {data: 'created_at', name: 'created_at',"defaultContent": '', orderable: false},
         ]
     });
          

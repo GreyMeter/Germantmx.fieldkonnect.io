@@ -22,13 +22,13 @@ class UnitRequest extends FormRequest
             case !empty($this->id) :
                 $rules = [
                     'unit_name'      => 'required|min:2|max:100|string|regex:/[a-zA-Z0-9\s]+/',
-                    'unit_code'    => 'required|min:2|max:100|string|regex:/[a-zA-Z0-9\s]+/',
+                    // 'unit_code'    => 'required|min:2|max:100|string|regex:/[a-zA-Z0-9\s]+/',
                 ];
                 break;
             default :
                 $rules = [
                     'unit_name'      => 'required|min:2|max:200|string|regex:/[a-zA-Z0-9\s]+/',
-                    'unit_code'    => 'required|min:2|max:200|string|regex:/[a-zA-Z0-9\s]+/',
+                    // 'unit_code'    => 'required|min:2|max:200|string|regex:/[a-zA-Z0-9\s]+/',
                 ];
                 break;
         }

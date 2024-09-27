@@ -20,13 +20,13 @@ class CategoryRequest extends FormRequest
         switch($this) {
             case !empty($this->id) :
                 $rules = [
-                    'category_name'    => 'required|min:2|max:100|string|regex:/[a-zA-Z0-9\s]+/',
+                    'category_name'    => 'required|min:1|max:100|string|regex:/[a-zA-Z0-9\s]+/',
                     'image'         => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
                 ];
                 break;
             default:
                 $rules = [
-                    'category_name'    => 'required|min:2|max:100|string|regex:/[a-zA-Z0-9\s]+/',
+                    'category_name'    => 'required|min:1|max:100|string|regex:/[a-zA-Z0-9\s]+/',
                     'image'         => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
                 ];
                 break;

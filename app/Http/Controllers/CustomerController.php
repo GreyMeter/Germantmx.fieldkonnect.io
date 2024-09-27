@@ -213,14 +213,14 @@ class CustomerController extends Controller
                                         </div>';
                 })
                 ->addColumn('image', function ($query) {
-                    $profileimage = !empty($query->profile_image) ? '/steel/public/uploads/' . $query->profile_image : asset('assets/img/placeholder.jpg');
+                    $profileimage = !empty($query->profile_image) ? '/steel_fieldKonnect/public/uploads/' . $query->profile_image : asset('assets/img/placeholder.jpg');
                     return '<img src="' . $profileimage . '" border="0" width="70" class="rounded imageDisplayModel" align="center" />';
                 })
                 ->addColumn('createdbyname.name', function ($query) {
                     return $query->created_by ? $query->createdbyname->name : 'Self';
                 })
                 ->addColumn('profileimage', function ($query) {
-                    $profileimage = !empty($query->shop_image) ? '/steel/public/uploads/' . $query->shop_image : asset('assets/img/placeholder.jpg');
+                    $profileimage = !empty($query->shop_image) ? '/steel_fieldKonnect/public/uploads/' . $query->shop_image : asset('assets/img/placeholder.jpg');
                     return '<img src="' . $profileimage . '" border="0" width="70" class="rounded imageDisplayModel" align="center" />';
                 })
                 ->addColumn('createdbyname.name', function ($query) {

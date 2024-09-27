@@ -7,7 +7,7 @@ $(document).ready(function () {
       category_name:
       {
         required: true,
-        minlength: 3,
+        minlength: 0,
         maxlength: 250,
         remote: {
           url: base_url + "/uniqueValidation",
@@ -30,8 +30,8 @@ $(document).ready(function () {
     },
     messages: {
       category_name: {
-        remote: "This Category Name already exits.",
-        required: "Please enter Category Name",
+        remote: "This Size already exits.",
+        required: "Please enter Size",
       },
     }
   });
@@ -65,8 +65,8 @@ $(document).ready(function () {
       },
       messages: {
         category_name: {
-          remote: "This Category Name already exits.",
-          required: "Please enter Category Name",
+          remote: "This Size already exits.",
+        required: "Please enter Size",
         },
       }
     });
@@ -214,29 +214,6 @@ $(document).ready(function () {
   /*=============== Leave Validation =====================*/
   $('#createProductForm').validate({
     rules: {
-      product_name:
-      {
-        required: true,
-        minlength: 3,
-        maxlength: 250,
-      },
-      display_name:
-      {
-        required: true,
-        minlength: 3,
-        maxlength: 250,
-      },
-      description:
-      {
-        required: true,
-        minlength: 3,
-        maxlength: 250,
-      },
-      subcategory_id:
-      {
-        required: true,
-        number: true,
-      },
       category_id:
       {
         required: true,
@@ -300,11 +277,8 @@ $(document).ready(function () {
       description: {
         required: "Please enter Product Description",
       },
-      subcategory_id: {
-        required: "Please Select SubCategory",
-      },
       category_id: {
-        required: "Please Select Category",
+        required: "Please Select Size",
       },
       brand_id: {
         required: "Please Select Brand",

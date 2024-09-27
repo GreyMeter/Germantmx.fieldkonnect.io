@@ -1,13 +1,3 @@
-#Disable index view
-options -Indexes
-
-#hide a Specifuc File
-
-<Files .env>
-order allow,deny
-Deny from all
-</Files>
-
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
@@ -28,5 +18,4 @@ Deny from all
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
-    php_value max_input_vars 10000
 </IfModule>

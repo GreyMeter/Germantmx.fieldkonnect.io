@@ -4,14 +4,13 @@
 .color-white{
 	color: white !important;
 }
-.card .card-header-theme .card-icon, .card .card-header-theme:not(.card-header-icon):not(.card-header-text), .card.bg-theme, .card.card-rotate.bg-theme .front, .card.card-rotate.bg-theme .back {
-    background: linear-gradient(60deg, #fdd835, #fbeb3b);
-    color: #1d1a07;
-    background-color: #00aadb!important;
-    background: unset;
+body .card .card-header-theme .card-icon,body  .card .card-header-theme:not(.card-header-icon):not(.card-header-text),body  .card.bg-theme, .card.card-rotate.bg-theme .front,body  .card.card-rotate.bg-theme .back {
+   background: linear-gradient(45deg, #3860a4 0%, #3694cc 100%) !important;
+    color: #fff;
+
 }
 .bg-theme {
-    background-color: #00aadb !important;
+    background-color: #4070f4 !important;
 }
 @media (max-width: 767px) {
 	.logo-main img{
