@@ -13,13 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('prices', function (Blueprint $table) {
+        Schema::create('additional_prices', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('brand_id');
-            $table->unsignedBigInteger('grade_id');
-            $table->unsignedBigInteger('zone_id');
-            $table->unsignedBigInteger('size_id');
-            $table->decimal('base_price', 10, 2);
+            $table->foreignId('price_id')->constrained('prices')->onDelete('cascade');
+            $table->string('model_name'); 
+            $table->unsignedBigInteger('model_id'); 
+            $table->decimal('price_adjustment', 10, 2); 
             $table->timestamps();
         });
     }
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('prices');
+        Schema::dropIfExists('additional_prices');
     }
 };

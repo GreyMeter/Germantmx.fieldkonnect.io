@@ -6,7 +6,7 @@
         <div class="card-icon">
           <i class="material-icons">perm_identity</i>
         </div>
-        <h4 class="card-title ">{!! trans('panel.product.title_singular') !!}{!! trans('panel.global.list') !!}
+        <h4 class="card-title ">{!! trans('panel.product.title_singular') !!} {!! trans('panel.global.list') !!}
               <span class="">
                 <div class="btn-group header-frm-btn">
                   <div class="next-btn">
