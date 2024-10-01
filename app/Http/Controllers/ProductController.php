@@ -27,6 +27,7 @@ use App\Exports\ProductTemplate;
 use App\Imports\BranchStockImport;
 use App\Models\Branch;
 use App\Models\BranchStock;
+use App\Models\Price;
 use Excel;
 use Illuminate\Support\Facades\Validator;
 
@@ -71,7 +72,7 @@ class ProductController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(ProductRequest $request)
+    public function store(Request $request)
     {
         try
         { 
@@ -219,6 +220,7 @@ class ProductController extends Controller
             $product->unit_id = !empty($request['unit_id']) ? $request['unit_id'] :null;
             $product->part_no = !empty($request['weight_per_bundle']) ? $request['weight_per_bundle'] :'';
             $product->product_no = !empty($request['pcs_per_forty']) ? $request['pcs_per_forty'] :'';
+            $product->gst = !empty($request['gst']) ? $request['gst'] :'';
             if($request->file('image')){
                 $image = $request->file('image');
                 $filename = 'category'.$id;

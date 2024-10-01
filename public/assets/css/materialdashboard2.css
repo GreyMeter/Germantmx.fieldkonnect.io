@@ -28607,7 +28607,7 @@ select.selectpicker {
     overflow-y: scroll;
   }
   .navbar.navbar-transparent .navbar-toggler .navbar-toggler-icon {
-    background-color: #fff;
+    background-color: #fff !important;
   }
   #bodyClick {
     height: 100%;
@@ -28839,9 +28839,15 @@ body .sidebar {
     height: 100%;
     width: 260px;
     padding: 10px 14px;
-    background: var(--sidebar-color);
+    /* background: var(--sidebar-color); */
     transition: var(--tran-05);
     z-index: 100;
+    display: block !important;
+}
+
+
+body .main-panel>.content {
+   margin-top: 0px;
 }
 body .main-panel.ps-container.ps-theme-default {
     position: relative;

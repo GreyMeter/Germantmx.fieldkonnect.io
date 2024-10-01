@@ -6,11 +6,11 @@
         <div class="card-icon">
           <i class="material-icons">perm_identity</i>
         </div>
-        <h4 class="card-title ">{!! trans('panel.product.title_singular') !!}{!! trans('panel.global.list') !!}
+        <h4 class="card-title ">Price {!! trans('panel.global.list') !!}
               <span class="">
                 <div class="btn-group header-frm-btn">
                   <div class="next-btn">
-                  @if(auth()->user()->can(['product_upload']))
+                  @if(auth()->user()->can(['price_upload']))
                   <form action="{{ URL::to('products-upload') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
                   {{ csrf_field() }}
                   <div class="input-group">
@@ -32,14 +32,14 @@
                   </form>
                   @endif
                   
-                  @if(auth()->user()->can(['product_download']))
+                  @if(auth()->user()->can(['price_download']))
                   <a href="{{ URL::to('products-download') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.download') !!} {!! trans('panel.product.title') !!}"><i class="material-icons">cloud_download</i></a>
                   @endif
-                  @if(auth()->user()->can(['product_template']))
+                  @if(auth()->user()->can(['price_template']))
                   <a href="{{ URL::to('products-template') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.template') !!} {!! trans('panel.product.title_singular') !!}"><i class="material-icons">text_snippet</i></a>
                   @endif
-                  @if(auth()->user()->can(['product_create']))
-                  <a href="{{ route('products.create') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.add') !!} {!! trans('panel.product.title_singular') !!}"><i class="material-icons">add_circle</i></a>
+                  @if(auth()->user()->can(['price_create']))
+                  <a href="{{ route('prices.create') }}" class="btn btn-just-icon btn-theme" title="Price {!! trans('panel.product.title_singular') !!}"><i class="material-icons">add_circle</i></a>
                   @endif
                 </div>
                 </div>
@@ -59,6 +59,14 @@
           </span>
         </div>
         @endif
+        @if(session('success'))
+          <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Success!</strong> {{ session('success') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          @endif
         <div class="alert " style="display: none;">
           <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <i class="material-icons">close</i>
@@ -70,14 +78,11 @@
             <thead class=" text-primary">
               <th>{!! trans('panel.global.no') !!}</th>
               <th>{!! trans('panel.global.action') !!}</th>
-              <th>Grade Name</th>
-              <th>{!! trans('panel.product.fields.brand_name') !!}</th>
-              <th>Size</th>
-              <th>Standard Weight Kg/Mtr</th>
-              <th>No. of Pcs. Per 40Ft. Bundle</th>
-              <th>Weight Per Bundle in Kg.</th>
-              <th>Product Code</th>
-              <th>{!! trans('panel.product.fields.gst') !!}</th>
+              <th>Base Grade Name</th>
+              <th>Base {!! trans('panel.product.fields.brand_name') !!}</th>
+              <th>Base Zone Name</th>
+              <th>Base Size</th>
+              <th>Price</th>
               <th>{!! trans('panel.global.created_at') !!}</th>
             </thead>
             <tbody>
@@ -102,8 +107,8 @@
         serverSide: true,
         "order": [ [0, 'desc'] ],
         "ajax": {
-          'type': 'POST',
-          'url': "{{ url('products-list') }}",
+          'type': 'GET',
+          'url': "{{ url('prices') }}",
           data: {
             "_token": token,
           }
@@ -111,14 +116,11 @@
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
             {data: 'action', name: 'action',"defaultContent": '',className: 'remove-sort-icon', orderable: false, searchable: false},
-            {data: 'unitmeasures.unit_name', name: 'unitmeasures.unit_name',"defaultContent": '', orderable: false},
+            {data: 'grade.unit_name', name: 'grade.unit_name',"defaultContent": '', orderable: false},
             {data: 'brands.brand_name', name: 'brands.brand_name',"defaultContent": '', orderable: false},
-            {data: 'categories.category_name', name: 'categories.category_name',"defaultContent": '', orderable: false},
-            {data: 'description', name: 'description',"defaultContent": '', orderable: false},
-            {data: 'product_no', name: 'product_no',"defaultContent": '', orderable: false},
-            {data: 'part_no', name: 'part_no',"defaultContent": '', orderable: false},
-            {data: 'product_code', name: 'product_code',"defaultContent": '', orderable: false},
-            {data: 'gst', name: 'gst',"defaultContent": '', orderable: false},
+            {data: 'size.category_name', name: 'size.category_name',"defaultContent": '', orderable: false},
+            {data: 'zone.city_name', name: 'zone.city_name',"defaultContent": '', orderable: false},
+            {data: 'base_price', name: 'base_price',"defaultContent": '', orderable: false},
             {data: 'created_at', name: 'created_at',"defaultContent": '', orderable: false},
         ]
     });

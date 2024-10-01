@@ -8,19 +8,19 @@
 
   <title>{{ config('app.name', 'Laravel') }}</title>
   <!--  <link href="{{ url('/').'/'.asset('assets/css/testdash2.css') }}" rel="stylesheet" /> -->
-  <link href="{{ url('/').'/'.asset('assets/css/materialdashboard2.css?') }}" rel="stylesheet" />
+  <link href="{{ url('/').'/'.asset('assets/css/materialdashboard2.css?v=' . now()->timestamp) }}" rel="stylesheet" />
   <link rel="stylesheet" type="text/css"
     href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons" />
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
   <!-- CSS Files -->
 
-  <link href="{{ url('/').'/'.asset('assets/css/newdesign.css?') }}" rel="stylesheet" />
-  <link href="{{ url('/').'/'.asset('assets/css/custom1.css?') }}" rel="stylesheet" />
+  <link href="{{ url('/').'/'.asset('assets/css/newdesign.css??') }}" rel="stylesheet" />
+  <link href="{{ url('/').'/'.asset('assets/css/custom1.css??') }}" rel="stylesheet" />
   <!-- CSS Just for demo purpose, don't include it in your project -->
-  <link href="{{ url('/').'/'.asset('assets/demo/demo.css?') }}" rel="stylesheet" />
+  <link href="{{ url('/').'/'.asset('assets/demo/demo.css??') }}" rel="stylesheet" />
   <!-- <link href="{{ url('/').'/'.asset('assets/css/jquery-ui.css') }}" rel="stylesheet" /> -->
-  <link href="{{ url('/').'/'.asset('assets/css/responsive.bootstrap4.css?') }}" rel="stylesheet" />
-  <link rel="stylesheet" href="{{ url('/').'/'.asset('assets/plugins/select2/css/select2.css') }}">
+  <link href="{{ url('/').'/'.asset('assets/css/responsive.bootstrap4.css??') }}" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url('/').'/'.asset('assets/plugins/select2/css/select2.css?') }}">
   <link href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" rel="stylesheet">
   <script src="{{ url('/').'/'.asset('assets/js/core/jquery.min.js') }}"></script>
   <script src="{{ url('/').'/'.asset('assets/js/core/jquery-ui.js') }}"></script>
@@ -668,7 +668,7 @@
 
     @media (max-width: 996px) {
       body nav.sidebar {
-        display: none !important;
+        /* display: none !important; */
       }
 
       body .main-panel {
@@ -955,7 +955,7 @@
             @endif
             @if(auth()->user()->can('prices_access'))
             <li class="single-menu nav-link {{ request()->is('prices*') ? 'active' : '' }}">
-              <a class="hoveradd" href="{{ url('prices') }}">
+              <a class="hoveradd" href="{{ url('prices/create') }}">
                 <i class="material-icons icon">payments</i>
                 <span>Prices</span>
                 <div class="d-none mobile_hide">{!! trans('panel.sidemenu.prices') !!}
