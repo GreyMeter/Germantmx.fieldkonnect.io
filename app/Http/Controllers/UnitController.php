@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use DataTables;
 use Validator;
 use Gate;
+use Excel;
 use App\DataTables\UnitDataTable;
 use App\Imports\UnitImport;
 use App\Exports\UnitExport;
@@ -111,7 +112,7 @@ class UnitController extends Controller
         abort_if(Gate::denies('unit_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
-        return Excel::download(new UnitExport, 'units.xlsx');
+        return Excel::download(new UnitExport, 'grade.xlsx');
     }
     public function template()
     {

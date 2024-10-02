@@ -33,7 +33,6 @@ class ProductImport implements ToCollection,WithValidation,WithHeadingRow, WithB
     public function collection(Collection $rows)
     {
         foreach ($rows as $row) {
-            dd($row);
             if( $product = Product::updateOrCreate(['id' => $row['product_id'] ],[
                 'active' => 'Y',
                 'product_code' => isset($row['product_code'])? $row['product_code']:'',

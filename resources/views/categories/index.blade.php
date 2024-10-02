@@ -66,9 +66,10 @@
           <span class="message"></span>
         </div>
         <div class="table-responsive">
-          <table id="getcategory" class="table table-striped- table-bordered table-hover table-checkable responsive no-wrap">
+          <table id="getcategory" class="table table-striped- table-bordered table-hover table-checkable no-wrap">
             <thead class=" text-primary">
               <th>{!! trans('panel.global.no') !!}</th>
+              <th>ID</th>
               <th>{!! trans('panel.global.action') !!}</th>
               <!-- <th>{!! trans('panel.global.active') !!}</th> -->
               <!-- <th>{!! trans('panel.category.fields.category_image') !!}</th> -->
@@ -159,6 +160,7 @@
         ajax: "{{ route('categories.index') }}",
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+            {data: 'id', name: 'id',"defaultContent": '',orderable: false, searchable: false},
             {data: 'action', name: 'action',"defaultContent": '',orderable: false, searchable: false},
             //  {data: 'active', name: 'active',"defaultContent": '', orderable: false, searchable: false},
             // {data: 'image', name: 'image',"defaultContent": '', orderable: false, searchable: false},
