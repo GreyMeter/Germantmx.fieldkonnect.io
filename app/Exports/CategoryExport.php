@@ -19,7 +19,7 @@ class CategoryExport implements FromCollection,WithHeadings,ShouldAutoSize,WithM
 
     public function headings(): array
     {
-        return ['id','category_name', 'category_image'];
+        return ['ID','Size'];
     }
 
     public function map($data): array
@@ -27,7 +27,7 @@ class CategoryExport implements FromCollection,WithHeadings,ShouldAutoSize,WithM
         return [
             $data['id'],
             $data['category_name'],
-            $data['category_image'],
+            // $data['category_image'],
         ];
     }
 

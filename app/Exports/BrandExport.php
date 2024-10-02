@@ -19,7 +19,7 @@ class BrandExport implements FromCollection,WithHeadings,ShouldAutoSize,WithMapp
 
     public function headings(): array
     {
-        return ['id','brand_name','brand_image'];
+        return ['id','brand_name'];
     }
 
     public function map($data): array
@@ -27,7 +27,7 @@ class BrandExport implements FromCollection,WithHeadings,ShouldAutoSize,WithMapp
         return [
             $data['id'],
             $data['brand_name'],
-            $data['brand_image'],
+            // $data['brand_image'],
         ];
     }
 }

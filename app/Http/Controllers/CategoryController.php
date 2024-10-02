@@ -116,7 +116,7 @@ class CategoryController extends Controller
       //abort_if(Gate::denies('category_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
-        return Excel::download(new CategoryExport, 'categorys.xlsx');
+        return Excel::download(new CategoryExport, 'size.xlsx');
     }
     public function template()
     {

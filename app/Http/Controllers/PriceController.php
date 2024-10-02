@@ -28,9 +28,6 @@ class PriceController extends Controller
      */
     public function index(PriceDataTable $dataTable, Request $request)
     {
-        if ($request->ip() != '111.118.252.250') {
-            return view('work_in_progress');
-        }
         abort_if(Gate::denies('prices_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         return $dataTable->render('price.index');
     }
@@ -44,6 +41,15 @@ class PriceController extends Controller
     {
         abort_if(Gate::denies('price_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $this->price = Price::first()?? new Price();
+        // $brand_id = 1;
+        // $grade_id = 2;
+        // $size_id = 2;
+        // $base_price = $this->price->base_price;
+        // $brand_price = AdditionalPrice::where(['model_name'=>'brand','model_id'=>$brand_id])->pluck('price_adjustment')->first();
+        // $grade_price = AdditionalPrice::where(['model_name'=>'grade','model_id'=>$grade_id])->pluck('price_adjustment')->first();
+        // $size_price = AdditionalPrice::where(['model_name'=>'size','model_id'=>$size_id])->pluck('price_adjustment')->first();
+        // $final_price = $base_price+$brand_price+$grade_price+$size_price;
+        // dd($base_price,$brand_price,$grade_price,$size_price,$final_price);
         $sizes = Category::where('active', '=', 'Y')->select('id', 'category_name')->get();
         $brands = Brand::where('active', '=', 'Y')->select('id', 'brand_name')->get();
         $grades = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name')->get();
@@ -63,7 +69,7 @@ class PriceController extends Controller
         $validatedData = $request->validate([
             'brand_id' => 'required|array',
             'grade_id' => 'required|array',
-            'zone_id' => 'required|integer',
+            // 'zone_id' => 'required|integer',
             'size_id' => 'required|integer',
             'base_price' => 'required|numeric|min:0',
             'size.id' => 'sometimes|array',
@@ -163,7 +169,7 @@ class PriceController extends Controller
         $validatedData = $request->validate([
             'brand_id' => 'required|array',
             'grade_id' => 'required|array',
-            'zone_id' => 'required|integer',
+            // 'zone_id' => 'required|integer',
             'size_id' => 'required|integer',
             'base_price' => 'required|numeric|min:0',
             'size.id' => 'sometimes|array',

@@ -20,7 +20,7 @@ class UnitExport implements FromCollection,WithHeadings,ShouldAutoSize,WithMappi
 
     public function headings(): array
     {
-        return ['id','unit_name', 'unit_code'];
+        return ['id','Grade Name'];
     }
 
     public function map($data): array
@@ -28,7 +28,7 @@ class UnitExport implements FromCollection,WithHeadings,ShouldAutoSize,WithMappi
         return [
             $data->id,
             $data->unit_name,
-            $data->unit_code,
+            // $data->unit_code,
         ];
     }
 

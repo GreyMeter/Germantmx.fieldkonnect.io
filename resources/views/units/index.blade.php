@@ -66,9 +66,10 @@
           <span class="message"></span>
         </div>
         <div class="table-responsive">
-          <table id="getunit" class="table table-striped- table-bordered table-hover table-checkable responsive no-wrap">
+          <table id="getunit" class="table table-striped- table-bordered table-hover table-checkable no-wrap">
             <thead class=" text-primary">
               <th>{!! trans('panel.global.no') !!}</th>
+              <th>ID</th>
               <th>{!! trans('panel.global.action') !!}</th>
               <!-- <th>{!! trans('panel.global.active') !!}</th> -->
               <th>Grade Name</th>
@@ -155,6 +156,7 @@
         ajax: "{{ route('units.index') }}",
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+            { data: 'id', name: 'id', orderable: false, searchable: false },
             {data: 'action', name: 'action',"defaultContent": '',className: 'remove-sort-icon', orderable: false, searchable: false},
             //  {data: 'active', name: 'active',"defaultContent": '',className: 'remove-sort-icon', orderable: false, searchable: false},
             {data: 'unit_name', name: 'unit_name',"defaultContent": '', orderable: false},
