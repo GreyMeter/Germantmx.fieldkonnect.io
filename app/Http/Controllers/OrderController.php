@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTables\OrderConfirmDataTable;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Models\OrderDetails;
@@ -27,9 +28,14 @@ use App\Exports\OrderExport;
 use App\Exports\OrderTemplate;
 use App\Http\Requests\OrderRequest;
 use App\Mail\OrderMailWithAttachment;
+use App\Models\Brand;
 use App\Models\Category;
 use App\Models\CustomerType;
 use App\Models\Division;
+use App\Models\OrderConfirm;
+use App\Models\OrderDispatch;
+use App\Models\Price;
+use App\Models\UnitMeasure;
 // use App\Models\Customers;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -46,13 +52,17 @@ class OrderController extends Controller
     public function index(OrderDataTable $dataTable)
     {
         abort_if(Gate::denies('order_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $sellers_ids = $this->orders->distinct()->pluck('seller_id');
-        $buyer_ids = $this->orders->distinct()->pluck('buyer_id');
         $divisions = Category::where('active', 'Y')->get();
-        $retailers = Customers::whereIn("id" , $buyer_ids)->get();
-        $distributors = Customers::whereIn("id" , $sellers_ids)->get();
         $customer_types = CustomerType::where('active', 'Y')->get();
-        return $dataTable->render('orders.index', compact('divisions','retailers','distributors','customer_types'));
+        return $dataTable->render('orders.index', compact('divisions', 'customer_types'));
+    }
+
+    public function confirm_orders(OrderConfirmDataTable $dataTable)
+    {
+        abort_if(Gate::denies('order_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $divisions = Category::where('active', 'Y')->get();
+        $customer_types = CustomerType::where('active', 'Y')->get();
+        return $dataTable->render('orders.confirm_orders', compact('divisions', 'customer_types'));
     }
 
     /**
@@ -63,69 +73,14 @@ class OrderController extends Controller
     public function create()
     {
         abort_if(Gate::denies('order_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $products = Product::where('active', '=', 'Y')->select('id', 'product_name', 'product_image', 'display_name', 'product_code')->orderBy('product_name', 'asc')->get();
-
-        // $products = Product::where('active','=','Y')->select('id', 'product_name','product_image','display_name','product_code')->get();
-        $userids = getUsersReportingToAuth();
-
-
-        // $sellers = Customers::whereHas('customertypes', function($query){
-        //                         $query->where('type_name', '=', 'distributor');
-        //                     })
-        //                     ->where(function($query) use($userids){
-        //                         if(!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin'))
-        //                         {
-        //                             $query->whereIn('executive_id',$userids);
-        //                         }
-        //                     })
-        //                     ->where('active','=','Y')
-        //                     ->select('id', 'name','mobile')
-        //                     ->get();
-
-
-        // $sellers = Customers::where(function($query) use($userids){
-        //                         if(!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin'))
-        //                         {
-        //                             $query->whereIn('executive_id',$userids);
-        //                         }
-        //                     })
-        //                     ->where('active','=','Y')
-        //                     ->select('id', 'name','mobile','customertype')
-        //                     ->get();
-
-
-        $sellers = array();
-
-
-        // $buyers = Customers::whereIn('customertype', ['2','3','4','5','6'])
-        //                     ->where(function($query) use($userids){
-        //                         if(!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin'))
-        //                         {
-        //                             $query->whereIn('executive_id',$userids);
-        //                         }
-        //                     })
-        //                     ->where('active','=','Y')
-        //                     ->select('id', 'name','mobile')
-        //                     ->get();
-
-        $buyers = Customers::whereIn('customertype', ['1', '3', '4', '5', '6'])
-            ->where(function ($query) use ($userids) {
-                if (!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin')) {
-                    $query->whereIn('executive_id', $userids);
-                }
-            })
-            ->where('active', '=', 'Y')
-            ->select('id', 'name', 'mobile')
-            ->get();
-
-        $users = User::where(function ($query) use ($userids) {
-            if (!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin')) {
-                $query->whereIn('id', $userids);
-            }
-        })->select('id', 'name')->orderBy('id', 'desc')->get();
-
-        $category = Category::where('active', 'Y')->get();
-        return view('orders.create', compact('products', 'sellers', 'buyers', 'users', 'category'))->with('orders', $this->orders);
+        $categories = Category::where('active', '=', 'Y')->select('id', 'category_name')->get();
+        $customers = Customers::where('active', '=', 'Y')->select('id', 'name', 'order_limit')->get();
+        $brands = Brand::where('active', '=', 'Y')->select('id', 'brand_name')->get();
+        $units = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name')->get();
+        $base_price = optional(Price::select('base_price')->first())->base_price;
+        $po_no = $this->generatePoNumber();
+        $totalOrderConfirmQty = 0;
+        return view('orders.create', compact('categories', 'brands', 'customers', 'units', 'base_price', 'po_no', 'totalOrderConfirmQty'))->with('orders', $this->orders);
     }
 
     /**
@@ -139,96 +94,10 @@ class OrderController extends Controller
         try {
             abort_if(Gate::denies('order_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
             $request['created_by'] = Auth::user()->id;
-            $request['orderno'] = isset($request['orderno']) ? $request['orderno'] : date('Ymd') . '_' . autoIncrementId('Order', 'id');
+            $request['po_no'] = $this->generatePoNumber();
+            $order = Order::create($request->all());
 
-
-            if (!empty($request['buyer_id'])) {
-                $buyer = $request['buyer_id'];
-            } else {
-                $buyer = $request['seller_id'];
-            }
-
-
-            $request['buyer_id'] = isset($request['seller_id']) ? $request['seller_id'] : null;
-            $request['seller_id'] = $buyer;
-            $request['cluster_amount'] = $request['extra_cluster_discount'];
-            $request['deal_discount'] = $request['extra_discount'] ?? NULL;
-            $request['deal_amount'] = $request['extra_discount_amount'] ?? NULL;
-            $request['distributor_amount'] = $request['distributor_discount_amount'];
-            $request['frieght_amount'] = $request['frieght_discount_amount'];
-            $request['special_amount'] = $request['special_discount_amount'];
-            $request['ebd_amount'] = $request['extra_ebd_discount'];
-            $request['gst5_amt'] = $request['5_gst'];
-            $request['gst12_amt'] = $request['12_gst'];
-            $request['gst18_amt'] = $request['18_gst'];
-            $request['gst28_amt'] = $request['28_gst'];
-
-
-            $response =  $this->orders->save_data($request);
-            // dd($response);
-            if ($response['status'] == 'success') {
-                $orderdetail = collect([]);
-                foreach ($request['orderdetail'] as $key => $rows) {
-
-                    $single_product_amount = $rows['line_total'] + $rows['tax_amount'];
-                    $single_product_amount = number_format((float)$single_product_amount, 2, '.', '');
-
-                    $orderdetail->push([
-                        'active' => 'Y',
-                        'order_id' => isset($response['order_id']) ? $response['order_id'] : null,
-                        'product_id' => isset($rows['product_id']) ? $rows['product_id'] : null,
-                        'product_detail_id' => isset($rows['product_detail']) ? $rows['product_detail'] : null,
-                        'quantity' => isset($rows['quantity']) ? $rows['quantity'] : 0,
-                        'shipped_qty' => isset($rows['shipped_qty']) ? $rows['shipped_qty'] : 0,
-                        'price' => isset($rows['mrp']) ? $rows['mrp'] : 0.00,
-                        'tax_amount' => isset($rows['tax_amount']) ? $rows['tax_amount'] : 0.00,
-                        'line_total' => isset($rows['line_total']) ? $rows['line_total'] : 0.00,
-                        'gst' => isset($rows['gst']) ? $rows['gst'] : 0.00,
-                        'gst_amount' => $single_product_amount ?? 0.00,
-                        'discount' => isset($rows['discount']) ? $rows['discount'] : 0.00,
-                        'scheme_discount' => isset($rows['scheme_dis']) ? $rows['scheme_dis'] : 0.00,
-                        'scheme_name' => isset($rows['scheme_name']) ? $rows['scheme_name'] : null,
-                        'scheme_amount' => isset($rows['scheme_amount']) ? $rows['scheme_amount'] : 0.00,
-                        'cluster_discount' => isset($rows['clustered_dis']) ? $rows['clustered_dis'] : 0.00,
-                        'cluster_amount' => isset($rows['clus_amounts']) ? $rows['clus_amounts'] : 0.00,
-                        'distributor_discount' => isset($rows['distributot_dis']) ? $rows['distributot_dis'] : 0.00,
-                        'distributor_amount' => isset($rows['distributot_amounts']) ? $rows['distributot_amounts'] : 0.00,
-                        'deal_discount' => isset($rows['deal_dis']) ? $rows['deal_dis'] : 0.00,
-                        'deal_amount' => isset($rows['deal_amounts']) ? $rows['deal_amounts'] : 0.00,
-                        'ebd_dis' => isset($rows['ebd_dis']) ? $rows['ebd_dis'] : 0.00,
-                        'ebd_amount' => isset($rows['ebd_amounts']) ? $rows['ebd_amounts'] : 0.00,
-                        'special_dis' => isset($rows['special_dis']) ? $rows['special_dis'] : 0.00,
-                        'special_amounts' => isset($rows['special_amounts']) ? $rows['special_amounts'] : 0.00,
-                        'frieght_discount' => isset($rows['frieght_dis']) ? $rows['frieght_dis'] : 0.00,
-                        'frieght_amount' => isset($rows['frieght_amounts']) ? $rows['frieght_amounts'] : 0.00,
-                        'created_at' => getcurentDateTime(),
-                    ]);
-                }
-
-                OrderDetails::insert($orderdetail->toArray());
-                $exportData = new Request();
-                $exportData->merge([
-                    'order_id' => $response['order_id'],
-                ]);
-
-                Excel::store(new OrderEmailExport($exportData), '/assets/orderDetails.xlsx', 'local');
-
-                $user = User::find($request->executive_id);
-
-                if ($user->userinfo->order_mails  && $user->userinfo->order_mails != null && $user->userinfo->order_mails != '') {
-                    $mail_id_array = explode(',', $user->userinfo->order_mails);
-                    $buyer = Customers::find($request['buyer_id']);
-                    $seller = Customers::find($request['seller_id']);
-                    $attachmentPath = base_path('storage/app/assets/orderDetails.xlsx');
-
-                    // foreach ($mail_id_array as $k => $val) {
-                    //  Mail::to($val)->send(new OrderMailWithAttachment($attachmentPath, $orderdetail, Order::find($response['order_id'])));
-                    // }
-                }
-
-                return Redirect::to('orders')->with('message_success', 'Order Store Successfully');
-            }
-            return redirect()->back()->with('message_danger', 'Error in Purchases Store')->withInput();
+            return Redirect::to('orders')->with('message_success', 'Soda Store Successfully And order PO Number is <span title="Copy" id="copyText">' . $request['po_no'] . '</span>');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage())->withInput();
         }
@@ -244,24 +113,20 @@ class OrderController extends Controller
     {
         abort_if(Gate::denies('order_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $id = decrypt($id);
-        $orders = $this->orders->with('sellers', 'createdbyname')->find($id);
-        $orderdetails = OrderDetails::with('products')->where('order_id', '=', $id)->get();
-            if ($orders->product_cat_id == '1') {
-                $totalLP = 0;
-                foreach ($orderdetails as $key => $value) {
-                    $totalLP += $value->price*$value->quantity;
-                }
-                if($totalLP > 0){
-                    $ttdis = number_format(((1-($orders->sub_total/$totalLP))*100),2);
-                }else{
-                    $ttdis = false;
-                }
-            }else{
-                $ttdis = false;
-                $totalLP = false;
-            }
-        
-        return view('orders.show', compact('orderdetails', 'orders', 'ttdis', 'totalLP'));
+        $orders = $this->orders->with('brands', 'sizes', 'grades', 'customer', 'createdbyname')->find($id);
+        $totalOrderConfirmQty = OrderConfirm::where('order_id', $id)->sum('qty');
+
+        return view('orders.show', compact('orders','totalOrderConfirmQty'));
+    }
+
+    public function confirm_orders_show($id, Request $request)
+    {
+        abort_if(Gate::denies('order_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $id = decrypt($id);
+        $totalOrderDispatchQty = OrderDispatch::where('order_confirm_id', $id)->sum('qty');
+        $orders = OrderConfirm::with('order','brands', 'sizes', 'grades', 'order.customer', 'createdbyname')->find($id);
+
+        return view('orders.confirm_show', compact('orders', 'totalOrderDispatchQty'));
     }
 
     /**
@@ -270,83 +135,34 @@ class OrderController extends Controller
      * @param  \App\Models\Order  $order
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit($id, Request $request)
     {
         abort_if(Gate::denies('order_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $id = decrypt($id);
-        $userids = getUsersReportingToAuth();
-        $orders = $this->orders->with('orderdetails')->find($id);
-        $orderdetail = OrderDetails::with('products')->where('order_id', '=', $id)->get();
-        $products = Product::where('active', '=', 'Y')->select('id', 'display_name', 'product_image')->get();
+        $orders = Order::find($id);
+        $totalOrderConfirmQty = OrderConfirm::where('order_id', $id)->sum('qty');
+        $categories = Category::where('active', '=', 'Y')->select('id', 'category_name')->get();
+        $customers = Customers::where('active', '=', 'Y')->select('id', 'name', 'order_limit')->get();
+        $brands = Brand::where('active', '=', 'Y')->select('id', 'brand_name')->get();
+        $units = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name')->get();
+        $base_price = $orders->base_price;
+        $cnf = $request->cnf ?? false;
+        return view('orders.create', compact('categories', 'customers', 'brands', 'units', 'base_price', 'cnf', 'totalOrderConfirmQty'))->with('orders', $orders);
+    }
 
-
-
-        // Optionally, you can save the PDF file path to your database or perform any other necessary actions
-
-        // $sellers = Customers::whereHas('customertypes', function($query){
-        //                         $query->where('type_name', '=', 'distributor');
-        //                     })
-        //                     ->where(function($query) use($userids){
-        //                         if(!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin'))
-        //                         {
-        //                             $query->whereIn('executive_id',$userids);
-        //                         }
-        //                     })
-        //                     ->where('active','=','Y')
-        //                     ->select('id', 'name','mobile')
-        //                     ->get();
-
-        $sellers = Customers::where(function ($query) use ($userids) {
-            if (!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin')) {
-                $query->whereIn('executive_id', $userids)
-                      ->orWhereIn('created_by', $userids);
-            }
-        })
-            ->where('active', '=', 'Y')
-            ->select('id', 'name', 'mobile')
-            ->get();
-
-        //$sellers = array();
-
-
-
-        // $buyers = Customers::whereIn('customertype', ['2','3','4','5','6'])
-        //                     ->where(function($query) use($userids){
-        //                         if(!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin'))
-        //                         {
-        //                             $query->whereIn('executive_id',$userids);
-        //                         }
-        //                     })
-        //                     ->where('active','=','Y')
-        //                     ->select('id', 'name','mobile')
-        //                     ->get();
-
-        $buyers = Customers::whereIn('customertype', ['1', '3', '4', '5', '6'])
-            ->where(function ($query) use ($userids) {
-                if (!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin')) {
-                    $query->whereIn('executive_id', $userids)
-                          ->orWhereIn('created_by', $userids);
-                }
-            })
-            ->where('active', '=', 'Y')
-            ->select('id', 'name', 'mobile')
-            ->get();
-
-        // $users = User::where(function($query) use($userids){
-        //                         if(!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin'))
-        //                         {
-        //                             $query->whereIn('id',$userids);
-        //                         }
-        //                     })->select('id','name')->orderBy('id','desc')->get();  
-
-        $users = User::where(function ($query) use ($userids) {
-            if (!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin')) {
-                $query->whereIn('id', $userids);
-            }
-        })->where('active', 'Y')->select('id', 'name')->orderBy('id', 'desc')->get();
-
-        $category = Category::where('active', 'Y')->get();
-        return view('orders.edit', compact('products', 'sellers', 'buyers', 'orderdetail', 'users', 'category'))->with('orders', $orders);
+    public function confirm_orders_edit($id, Request $request)
+    {
+        abort_if(Gate::denies('order_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $id = decrypt($id);
+        $orders = OrderConfirm::find($id);
+        $totalOrderDispatchQty = OrderDispatch::where('order_confirm_id', $id)->sum('qty');
+        $categories = Category::where('active', '=', 'Y')->select('id', 'category_name')->get();
+        $customers = Customers::where('active', '=', 'Y')->select('id', 'name', 'order_limit')->get();
+        $brands = Brand::where('active', '=', 'Y')->select('id', 'brand_name')->get();
+        $units = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name')->get();
+        $base_price = $orders->base_price;
+        $cnf = $request->cnf ?? false;
+        return view('orders.dispatch_order', compact('categories', 'customers', 'brands', 'units', 'base_price', 'cnf', 'totalOrderDispatchQty'))->with('orders', $orders);
     }
 
     /**
@@ -652,7 +468,7 @@ class OrderController extends Controller
 
                 $status_id = Status::where('status_name', '=', 'Dispatched')->pluck('id')->first();
                 $partiallystatus = Status::where('status_name', '=', 'Partially Dispatched')->pluck('id')->first();
-              
+
                 if ($request['orderdetail']) {
                     foreach ($request['orderdetail'] as $key => $rows) {
                         // code chnanges
@@ -660,8 +476,8 @@ class OrderController extends Controller
                         //     ->where('product_detail_id', '=', $rows['product_detail'])->first();
                         $orderdetail = OrderDetails::where('order_id', '=', $request['order_id'])
                             ->where('product_id', '=', ($rows['product_id'] ?? ''))->first();
-                        
-                        if(isset($orderdetail)){
+
+                        if (isset($orderdetail)) {
                             if ($orderdetail['shipped_qty'] + $rows['quantity'] == $orderdetail['quantity']) {
                                 $orderdetail->status_id = $status_id;
                             } else {
@@ -743,8 +559,8 @@ class OrderController extends Controller
                 if (isset($request['orderdetail'])) {
                     foreach ($request['orderdetail'] as $key => $rows) {
                         $orderdetail = OrderDetails::where('order_id', '=', $request['order_id'])
-                        ->where('product_id', '=', ($rows['product_id'] ?? ''))->first();
-                        if(isset($orderdetail)){
+                            ->where('product_id', '=', ($rows['product_id'] ?? ''))->first();
+                        if (isset($orderdetail)) {
                             $orderdetail->cash_dis = $rows['cash_dis'];
                             $orderdetail->cash_amounts = $rows['cash_amounts'];
                             $orderdetail->status_id = $partiallystatus;
@@ -791,6 +607,47 @@ class OrderController extends Controller
     {
         OrderDetails::where('id', $request->detailID)->delete();
 
-        return response()->json(['status'=>'success']);
+        return response()->json(['status' => 'success']);
+    }
+
+    function generatePoNumber()
+    {
+        $lastOrder = Order::latest('id')->first();
+        $lastOrderId = $lastOrder ? $lastOrder->id : 0;
+        $poNumber = 1000000 + $lastOrderId + 1;
+
+        return $poNumber;
+    }
+
+    public function confirm($id, Request $request)
+    {
+        $id = decrypt($id);
+        $orders = Order::find($id);
+
+        $totalOrderConfirm = OrderConfirm::where('order_id', $id)->count('id');
+        $request['confirm_po_no'] = $orders->po_no . '-' . $totalOrderConfirm + 1;
+        $request['order_id'] = $id;
+        $request['created_by'] = Auth::user()->id;
+
+        $orderConfirm = OrderConfirm::create($request->all());
+
+        return Redirect::to('orders')->with('message_success', 'Soda Confirm Successfully.');
+    }
+
+    public function dispatch_order($id, Request $request)
+    {
+        $id = decrypt($id);
+        $orders = OrderConfirm::find($id);
+
+        $totalOrderDispacth = OrderDispatch::where('order_confirm_id', $id)->count('id');
+        $request['dispatch_po_no'] = $orders->confirm_po_no . '-' . $totalOrderDispacth + 1;
+        $request['order_confirm_id'] = $id;
+        $request['order_id'] = $orders->order_id;
+        $request['confirm_po_no'] = $orders->confirm_po_no;
+        $request['created_by'] = Auth::user()->id;
+
+        $orderConfirm = OrderDispatch::create($request->all());
+
+        return Redirect::to('orders_confirm')->with('message_success', 'Order Dispatch Successfully.');
     }
 }

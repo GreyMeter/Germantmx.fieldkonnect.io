@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use DataTables;
 use Validator;
 use Gate;
-use App\Models\{Pincode, City, District, State, Country, Customers, Category, Product, Address, Attachment, Attendance, Order, Status, Settings, Tasks, ProductDetails, Sales, UserReporting, CheckIn, Complaint, ComplaintTimeline, ComplaintWorkDone, CustomerDetails, DealerAppointment, DealerAppointmentKyc, EndUser, Expenses, GiftModel, GiftSubcategory, Notes, OrderSchemeDetail, PrimarySales, Redemption, SchemeDetails, ServiceBill, ServiceChargeCategories, ServiceChargeProducts, Services, Subcategory, TourProgramme, TransactionHistory, User, UserCityAssign, WarrantyActivation};
+use App\Models\{AdditionalPrice, Pincode, City, District, State, Country, Customers, Category, Product, Address, Attachment, Attendance, Order, Status, Settings, Tasks, ProductDetails, Sales, UserReporting, CheckIn, Complaint, ComplaintTimeline, ComplaintWorkDone, CustomerDetails, DealerAppointment, DealerAppointmentKyc, EndUser, Expenses, GiftModel, GiftSubcategory, Notes, OrderSchemeDetail, PrimarySales, Redemption, SchemeDetails, ServiceBill, ServiceChargeCategories, ServiceChargeProducts, Services, Subcategory, TourProgramme, TransactionHistory, User, UserCityAssign, WarrantyActivation};
 use App\Models\UserLiveLocation;
 use App\Models\UserActivity;
 use App\Http\Controllers\SendNotifications;
@@ -241,7 +241,7 @@ class AjaxController extends Controller
             $login_userid = Auth::user()->id;
             $all_users = User::all();
             $userinfo = User::where('id', '=', $login_userid)->first();
-            $data = User::where(function ($query) use ($beat_id, $userids, $payroll,$userinfo) {
+            $data = User::where(function ($query) use ($beat_id, $userids, $payroll, $userinfo) {
                 if (isset($beat_id)) {
                     $query->whereHas('userbeats', function ($query) use ($beat_id) {
                         $query->where('beat_id', '=', $beat_id);
@@ -1356,15 +1356,15 @@ class AjaxController extends Controller
     public function changeAppointmentStatus(Request $request)
     {
         if ($request->status == '3') {
-            $update = DealerAppointment::where('id', $request->appo_id)->update(['approval_status' => $request->status,'ho_approve'=>auth()->user()->id]);
+            $update = DealerAppointment::where('id', $request->appo_id)->update(['approval_status' => $request->status, 'ho_approve' => auth()->user()->id]);
             DealerAppointmentKyc::updateOrCreate(
                 ['appointment_id' => $request->appo_id],
                 ['dealer_code' => $request->dealer_code]
             );
         } else {
             if ($request->status == '1') {
-            $update = DealerAppointment::where('id', $request->appo_id)->update(['approval_status' => $request->status,'sales_approve'=>auth()->user()->id]);
-            }else{
+                $update = DealerAppointment::where('id', $request->appo_id)->update(['approval_status' => $request->status, 'sales_approve' => auth()->user()->id]);
+            } else {
                 $update = DealerAppointment::where('id', $request->appo_id)->update(['approval_status' => $request->status]);
             }
         }
@@ -1375,21 +1375,22 @@ class AjaxController extends Controller
         }
     }
 
-    public function getWorkDoneTime(Request $request)
+    public function getOrderLimit(Request $request)
     {
-        $work_done = ComplaintWorkDone::where('complaint_id', $request->complaint_id)->latest()->first();
-        $service_center = ComplaintTimeline::where('complaint_id', $request->complaint_id)->where('status', '101')->latest()->first();
+        $today_order_qty = Order::where('customer_id', $request->customer_id)
+            ->whereDate('created_at', today())
+            ->sum('qty');
 
-        $start_date_time = $service_center->created_at;
-        $end_date_time = $work_done->created_at;
+        return response()->json(['status' => 'success', 'today_order_qty' => $today_order_qty]);
+    }
 
-        $diff = $start_date_time->diff($end_date_time);
+    public function getAdditionalPrice(Request $request)
+    {
+        $model_id = $request->model_id;
+        $model_name = $request->model_name;
 
-        $hoursDifference = $diff->h;
-        $minutesDifference = $diff->i;
+        $additional_price = optional(AdditionalPrice::where(['model_id' => $model_id, 'model_name' => $model_name])->first())->price_adjustment;
 
-        $totalHours = $diff->days * 24 + $hoursDifference + ($minutesDifference / 60);
-
-        return response()->json(['status' => 'success', 'hours' => $totalHours]);
+        return response()->json(['status' => 'success', 'additional_price' => $additional_price]);
     }
 }

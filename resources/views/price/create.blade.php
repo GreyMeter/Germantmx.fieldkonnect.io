@@ -32,6 +32,12 @@
   @endif
   <div class="row">
     <div class="col-md-12">
+      {!! Form::model($price,[
+      'route' => $price->exists ? ['prices.update', $price->id] : 'prices.store',
+      'method' => $price->exists ? 'PUT' : 'POST',
+      'id' => 'createProductForm',
+      'files'=>true
+      ]) !!}
       <div class="card">
         <div class="card-header card-header-icon card-header-theme">
           <div class="card-icon">
@@ -62,12 +68,6 @@
             </span>
           </div>
           @endif
-          {!! Form::model($price,[
-          'route' => $price->exists ? ['prices.update', $price->id] : 'prices.store',
-          'method' => $price->exists ? 'PUT' : 'POST',
-          'id' => 'createProductForm',
-          'files'=>true
-          ]) !!}
 
           <!-- Base Price Fields -->
           <div class="row">
@@ -149,7 +149,6 @@
       <div class="card">
         <div class="card-body">
 
-          <!-- Additional Price Section -->
           @php
           $add_size = $price->additionalPrices->where('model_name', 'size')->pluck('price_adjustment','model_id')->toArray();
           $add_grade = $price->additionalPrices->where('model_name', 'grade')->pluck('price_adjustment','model_id')->toArray();
@@ -216,26 +215,7 @@
                 </tbody>
               </table>
             </div>
-            <!-- <div class="col-md-3">
-              <h5>Additional Prices</h5>
-              <table class="table table-bordered" id="price_table">
-                <thead>
-                  <tr>
-                    <th>Zone</th>
-                    <th>Price (+/-)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @foreach($sizes as $category)
-                  <tr>
-                    <td>{{$category->category_name}}</td>
-                    <input type="hidden" name="size[id][]" value="{{$category->id}}">
-                    <td><input type="number" class="form-control" name="size[price][]"></td>
-                  </tr>
-                  @endforeach
-                </tbody>
-              </table>
-            </div> -->
+
           </div>
 
           <div class="row mt-4">
@@ -243,10 +223,9 @@
               <button type="submit" class="btn btn-primary">{{$price->exists ? 'Update Price':'Save Price'}}</button>
             </div>
           </div>
-
-          {!! Form::close() !!}
         </div>
       </div>
+      {!! Form::close() !!}
     </div>
   </div>
   </div>

@@ -409,6 +409,12 @@ Route::group(['middleware' => ['auth']], function () {
 
     //Orders
     Route::resource('orders', OrderController::class);
+    Route::any('orders-confirm/{id}', [OrderController::class, 'confirm'])->name('orders.confirm');
+    Route::any('orders_confirm', [OrderController::class, 'confirm_orders'])->name('orders.confirm.list');
+    Route::any('orders_confirm/{id}', [OrderController::class, 'confirm_orders_show'])->name('orders.confirm.show');
+    Route::any('orders_confirm/{id}/edit', [OrderController::class, 'confirm_orders_edit'])->name('orders.confirm.edit');
+    Route::any('orders_dispatch/{id}', [OrderController::class, 'dispatch_order'])->name('orders.dispatch');
+
     Route::any('orders-download', [OrderController::class, 'download'])->name('orders.download');
     Route::any('orders-template', [OrderController::class, 'template'])->name('orders.template');
     Route::post('orders-upload', [OrderController::class, 'upload'])->name('orders.upload');
@@ -953,7 +959,8 @@ Route::any('/getPrimaryTotal', [AjaxController::class, 'getPrimaryTotal'])->name
 Route::any('getServiceProduct', [AjaxController::class, 'getServiceProduct'])->name('getServiceProduct');
 Route::any('getServiceProductDetails', [AjaxController::class, 'getServiceProductDetails'])->name('getServiceProductDetails');
 Route::any('changeAppointmentStatus', [AjaxController::class, 'changeAppointmentStatus']);
-Route::any('getWorkDoneTime', [AjaxController::class, 'getWorkDoneTime']);
+Route::any('getOrderLimit', [AjaxController::class, 'getOrderLimit']);
+Route::any('getAdditionalPrice', [AjaxController::class, 'getAdditionalPrice']);
 
 
 

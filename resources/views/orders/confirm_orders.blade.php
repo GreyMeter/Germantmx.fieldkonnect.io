@@ -14,7 +14,7 @@
           <div class="card-icon">
             <i class="material-icons">perm_identity</i>
           </div>
-          <h4 class="card-title ">Soda {!! trans('panel.global.list') !!}
+          <h4 class="card-title ">{!! trans('panel.order.title_singular') !!} {!! trans('panel.global.list') !!}
             <span class="">
               <div class="btn-group header-frm-btn">
 
@@ -143,6 +143,7 @@
               <thead class=" text-primary">
                 <th>{!! trans('panel.global.action') !!}</th>
                 <th>PO No.</th>
+                <th>Order No.</th>
                 <th>Customer Name</th>
                 <th>Brand</th>
                 <th>Grade</th>
@@ -172,7 +173,7 @@
         processing: true,
         serverSide: true,
         ajax: {
-          url: "{{ route('orders.index') }}",
+          url: "{{ route('orders.confirm.list') }}",
           data: function(d) {
             d.retailers_id = $('#retailers_id').val();
             d.distributor_id = $('#distributor_id').val();
@@ -194,8 +195,15 @@
             orderable: false
           },
           {
-            data: 'customer.name',
-            name: 'customer.name',
+            data: 'confirm_po_no',
+            name: 'confirm_po_no',
+            "defaultContent": '',
+            orderable: false,
+            searchable: false
+          },
+          {
+            data: 'order.customer.name',
+            name: 'order.customer.name',
             "defaultContent": '',
             orderable: false
           },

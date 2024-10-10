@@ -307,11 +307,27 @@
                   <label class="col-md-3 col-form-label">Creation Date</label>
                   <div class="col-md-9">
                     <div class="form-group has-default bmd-form-group">
-                      <input type="text" name="creation_date" id="creation_date" class="form-control datepicker" value="{!! old( 'contact_number', $customers['creation_date']) !!}" autocomplete="off">
+                      <input type="text" name="creation_date" id="creation_date" class="form-control datepicker" value="{!! old( 'creation_date', $customers['creation_date']) !!}" autocomplete="off">
                     </div>
                     @if ($errors->has('creation_date'))
                     <div class="error col-lg-12">
                       <p class="text-danger">{{ $errors->first('creation_date') }}</p>
+                    </div>
+                    @endif
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="row">
+                  <label class="col-md-3 col-form-label">Order Limit <small>(Tonn/Day)</small></label>
+                  <div class="col-md-9">
+                    <div class="form-group has-default bmd-form-group">
+                      <input type="number" name="order_limit" id="order_limit" class="form-control datepicker" value="{!! old( 'order_limit', $customers['order_limit']) !!}" min="10" step="10" autocomplete="off">
+                    </div>
+                    @if ($errors->has('order_limit'))
+                    <div class="error col-lg-12">
+                      <p class="text-danger">{{ $errors->first('order_limit') }}</p>
                     </div>
                     @endif
                   </div>
