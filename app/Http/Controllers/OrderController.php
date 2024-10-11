@@ -22,6 +22,7 @@ use Validator;
 use Gate;
 use Excel;
 use App\DataTables\OrderDataTable;
+use App\DataTables\OrderDispatchDataTable;
 use App\Exports\OrderEmailExport;
 use App\Imports\OrderImport;
 use App\Exports\OrderExport;
@@ -63,6 +64,14 @@ class OrderController extends Controller
         $divisions = Category::where('active', 'Y')->get();
         $customer_types = CustomerType::where('active', 'Y')->get();
         return $dataTable->render('orders.confirm_orders', compact('divisions', 'customer_types'));
+    }
+
+    public function order_dispatch(OrderDispatchDataTable $dataTable)
+    {
+        abort_if(Gate::denies('order_dispatch'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $divisions = Category::where('active', 'Y')->get();
+        $customer_types = CustomerType::where('active', 'Y')->get();
+        return $dataTable->render('orders.dispatch_order', compact('divisions', 'customer_types'));
     }
 
     /**
@@ -162,7 +171,7 @@ class OrderController extends Controller
         $units = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name')->get();
         $base_price = $orders->base_price;
         $cnf = $request->cnf ?? false;
-        return view('orders.dispatch_order', compact('categories', 'customers', 'brands', 'units', 'base_price', 'cnf', 'totalOrderDispatchQty'))->with('orders', $orders);
+        return view('orders.confirm_despatch', compact('categories', 'customers', 'brands', 'units', 'base_price', 'cnf', 'totalOrderDispatchQty'))->with('orders', $orders);
     }
 
     /**

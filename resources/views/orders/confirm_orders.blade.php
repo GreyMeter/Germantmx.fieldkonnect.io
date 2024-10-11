@@ -102,7 +102,7 @@
                   <a href="{{ URL::to('orders-template') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.template') !!} {!! trans('panel.order.title_singular') !!}"><i class="material-icons">text_snippet</i></a>
                   @endif
                   @if(auth()->user()->can(['order_create']))
-                  <a href="{{ route('orders.create') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.add') !!} {!! trans('panel.order.title_singular') !!}"><i class="material-icons">add_circle</i></a>
+                  <!-- <a href="{{ route('orders.create') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.add') !!} {!! trans('panel.order.title_singular') !!}"><i class="material-icons">add_circle</i></a> -->
                   @endif
                 </div>
               </div>
@@ -240,8 +240,17 @@
           {
             data: 'soda_price',
             name: 'soda_price',
-            "defaultContent": '',
-            orderable: false
+            defaultContent: '',
+            orderable: false,
+            render: function(data, type, row) {
+              if (data) {
+                return '₹ '+parseFloat(data).toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                });
+              }
+              return '';
+            }
           },
           {
             data: 'createdbyname.name',

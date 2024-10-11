@@ -1,5 +1,5 @@
 <x-app-layout>
-<style>
+  <style>
     #copyText {
       cursor: pointer;
       font-weight: 800;
@@ -21,7 +21,7 @@
                 @if(auth()->user()->can(['order_download']))
                 <form method="GET" action="{{ URL::to('orders-download') }}">
                   <div class="d-flex flex-wrap flex-row">
-                  <div class="p-2" style="width:190px;">
+                    <div class="p-2" style="width:190px;">
                       <select class="select2" name="dividion_id" id="dividion_id" required>
                         <option value="">Select Division</option>
                         @foreach($divisions as $division)
@@ -110,7 +110,7 @@
           </h4>
         </div>
         <div class="card-body">
-        @if(session()->has('message_success'))
+          @if(session()->has('message_success'))
           <div class="alert alert-success">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
               <i class="material-icons">close</i>
@@ -149,7 +149,7 @@
                 <th>Size</th>
                 <th>Quantity<small>(Tonn)</small></th>
                 <th>Base Price<small>(1MT)</small></th>
-                <th>Soda Price</th>
+                <th>Soda Price </th>
                 <th>{!! trans('panel.global.created_by') !!}</th>
                 <th>{!! trans('panel.global.created_at') !!}</th>
               </thead>
@@ -180,8 +180,7 @@
             d.pending_status = $('#pending_status').val();
           }
         },
-        columns: [
-          {
+        columns: [{
             data: 'action',
             name: 'action',
             "defaultContent": '',
@@ -232,8 +231,17 @@
           {
             data: 'soda_price',
             name: 'soda_price',
-            "defaultContent": '',
-            orderable: false
+            defaultContent: '',
+            orderable: false,
+            render: function(data, type, row) {
+              if (data) {
+                return '₹ '+parseFloat(data).toLocaleString('en-US', {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2
+                });
+              }
+              return '';
+            }
           },
           {
             data: 'createdbyname.name',
