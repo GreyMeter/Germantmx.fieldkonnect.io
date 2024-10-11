@@ -1,5 +1,5 @@
 <x-app-layout>
-  <style>
+<style>
     #copyText {
       cursor: pointer;
       font-weight: 800;
@@ -14,14 +14,14 @@
           <div class="card-icon">
             <i class="material-icons">perm_identity</i>
           </div>
-          <h4 class="card-title ">Soda {!! trans('panel.global.list') !!}
+          <h4 class="card-title ">Dispatch {!! trans('panel.global.list') !!}
             <span class="">
               <div class="btn-group header-frm-btn">
 
                 @if(auth()->user()->can(['order_download']))
                 <form method="GET" action="{{ URL::to('orders-download') }}">
                   <div class="d-flex flex-wrap flex-row">
-                    <div class="p-2" style="width:190px;">
+                  <div class="p-2" style="width:190px;">
                       <select class="select2" name="dividion_id" id="dividion_id" required>
                         <option value="">Select Division</option>
                         @foreach($divisions as $division)
@@ -102,7 +102,7 @@
                   <a href="{{ URL::to('orders-template') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.template') !!} {!! trans('panel.order.title_singular') !!}"><i class="material-icons">text_snippet</i></a>
                   @endif
                   @if(auth()->user()->can(['order_create']))
-                  <a href="{{ route('orders.create') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.add') !!} {!! trans('panel.order.title_singular') !!}"><i class="material-icons">add_circle</i></a>
+                  <!-- <a href="{{ route('orders.create') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.add') !!} {!! trans('panel.order.title_singular') !!}"><i class="material-icons">add_circle</i></a> -->
                   @endif
                 </div>
               </div>
@@ -110,7 +110,7 @@
           </h4>
         </div>
         <div class="card-body">
-          @if(session()->has('message_success'))
+        @if(session()->has('message_success'))
           <div class="alert alert-success">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
               <i class="material-icons">close</i>
@@ -141,15 +141,17 @@
           <div class="table-responsive">
             <table id="getorder" class="table table-striped- table-bordered table-hover table-checkable no-wrap">
               <thead class=" text-primary">
-                <th>{!! trans('panel.global.action') !!}</th>
+                <!-- <th>{!! trans('panel.global.action') !!}</th> -->
                 <th>PO No.</th>
+                <th>Order No.</th>
+                <th>Dispatch No.</th>
                 <th>Customer Name</th>
                 <th>Brand</th>
                 <th>Grade</th>
                 <th>Size</th>
                 <th>Quantity<small>(Tonn)</small></th>
                 <th>Base Price<small>(1MT)</small></th>
-                <th>Soda Price </th>
+                <th>Soda Price</th>
                 <th>{!! trans('panel.global.created_by') !!}</th>
                 <th>{!! trans('panel.global.created_at') !!}</th>
               </thead>
@@ -172,7 +174,7 @@
         processing: true,
         serverSide: true,
         ajax: {
-          url: "{{ route('orders.index') }}",
+          url: "{{ route('orders.dispatch.list') }}",
           data: function(d) {
             d.retailers_id = $('#retailers_id').val();
             d.distributor_id = $('#distributor_id').val();
@@ -180,21 +182,29 @@
             d.pending_status = $('#pending_status').val();
           }
         },
-        columns: [{
-            data: 'action',
-            name: 'action',
-            "defaultContent": '',
-            orderable: false,
-            searchable: false
-          },
+        columns: [
           {
             data: 'po_no',
             name: 'po_no',
             orderable: false
           },
           {
-            data: 'customer.name',
-            name: 'customer.name',
+            data: 'confirm_po_no',
+            name: 'confirm_po_no',
+            "defaultContent": '',
+            orderable: false,
+            searchable: false
+          },
+          {
+            data: 'dispatch_po_no',
+            name: 'dispatch_po_no',
+            "defaultContent": '',
+            orderable: false,
+            searchable: false
+          },
+          {
+            data: 'order.customer.name',
+            name: 'order.customer.name',
             "defaultContent": '',
             orderable: false
           },

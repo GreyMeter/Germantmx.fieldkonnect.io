@@ -6,11 +6,11 @@
           <div class="card-icon">
             <i class="material-icons">perm_identity</i>
           </div>
-          <h4 class="card-title ">{{ $orders->exists?($cnf?'Confirm':trans('panel.global.edit')):trans('panel.global.create') }} Soda
+          <h4 class="card-title ">Dispatch Order
             <span class="pull-right">
               <div class="btn-group">
                 @if(auth()->user()->can(['order_access']))
-                <a href="{{ $orders->exists?url('orders/' . encrypt($orders->id)):url('orders') }}" class="btn btn-just-icon btn-theme" title="{!! trans('panel.order.title_singular') !!}{!! trans('panel.global.list') !!}"><i class="material-icons">next_plan</i></a>
+                <a href="{{ $orders->exists?url('orders_confirm/' . encrypt($orders->id)):url('orders') }}" class="btn btn-just-icon btn-theme" title="{!! trans('panel.order.title_singular') !!}{!! trans('panel.global.list') !!}"><i class="material-icons">next_plan</i></a>
                 @endif
               </div>
             </span>
@@ -30,8 +30,8 @@
           </div>
           @endif
           {!! Form::model($orders,[
-          'route' => $orders->exists ? ($cnf?['orders.confirm', encrypt($orders->id) ]:['orders.update', encrypt($orders->id) ]) : 'orders.store',
-          'method' => $orders->exists ? 'PUT' : 'POST',
+          'route' => ['orders.dispatch', encrypt($orders->id) ],
+          'method' => 'POST',
           'id' => 'createProductForm',
           'files'=>true
           ]) !!}
@@ -47,7 +47,7 @@
                       <option value="">Select Customer</option>
                       @if(@isset($customers ))
                       @foreach($customers as $customer)
-                      <option data-limit="{{$customer->order_limit}}" {{isset($cnf)?'disabled':''}} value="{!! $customer['id'] !!}" {{ old( 'customer_id' , (!empty($orders->customer_id)) ? ($orders->customer_id) :('') ) == $customer['id'] ? 'selected' : '' }}>{!! $customer['name'] !!}</option>
+                      <option data-limit="{{$customer->order_limit}}" {{isset($cnf)?'disabled':''}} value="{!! $customer['id'] !!}" {{ old( 'customer_id' , (!empty($orders->order->customer_id)) ? ($orders->order->customer_id) :('') ) == $customer['id'] ? 'selected' : '' }}>{!! $customer['name'] !!}</option>
                       @endforeach
                       @endif
                     </select>
@@ -82,7 +82,7 @@
                 <label class="col-md-3 col-form-label">Quantity<small>(Tonn)</small> <span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                    <input type="number" name="qty" id="qty" class="form-control" value="{!! old( 'qty', $orders['qty']-$totalOrderConfirmQty) !!}" min="10" max="{{isset($cnf)?$orders['qty']-$totalOrderConfirmQty:''}}" step="1" required>
+                    <input type="number" name="qty" id="qty" class="form-control" value="{!! old( 'qty', $orders['qty']-$totalOrderDispatchQty) !!}" min="10" max="{{$orders['qty']-$totalOrderDispatchQty}}" step="1" required>
                     @if ($errors->has('qty'))
                     <div class="error col-lg-12">
                       <p class="text-danger">{{ $errors->first('qty') }}</p>
@@ -179,7 +179,7 @@
             </div>
             <div class="col-md-6">
               <div class="row">
-                <label class="col-md-3 col-form-label">Soda Price (₹) <span class="text-danger"> *</span></label>
+                <label class="col-md-3 col-form-label">Soda Price<small>(₹)</small> <span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
                     <input readonly type="text" name="soda_price" id="soda_price" class="form-control" value="{!! old( 'soda_price', $orders['soda_price']) !!}" required>
@@ -192,14 +192,42 @@
                 </div>
               </div>
             </div>
+            @if(isset($cnf))
+            <div class="col-md-6">
+              <div class="row">
+                <label class="col-md-3 col-form-label">Freight Price </label>
+                <div class="col-md-9">
+                  <div class="form-group has-default bmd-form-group">
+                    <input type="text" name="rate" id="rate" class="form-control" value="{!! old( 'rate', $orders['rate']) !!}">
+                    @if ($errors->has('rate'))
+                    <div class="error col-lg-12">
+                      <p class="text-danger">{{ $errors->first('rate') }}</p>
+                    </div>
+                    @endif
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="row">
+                <label class="col-md-3 col-form-label">Final Rate <span class="text-danger"> *</span></label>
+                <div class="col-md-9">
+                  <div class="form-group has-default bmd-form-group">
+                    <input readonly type="text" name="final_rate" id="final_rate" class="form-control" value="{!! old( 'final_rate', $orders['soda_price']) !!}">
+                    @if ($errors->has('final_rate'))
+                    <div class="error col-lg-12">
+                      <p class="text-danger">{{ $errors->first('final_rate') }}</p>
+                    </div>
+                    @endif
+                  </div>
+                </div>
+              </div>
+            </div>
+            @endif
           </div>
         </div>
         <div class="card-footer">
-          @if(isset($cnf))
-            {{ Form::submit('Confirm Order', array('class' => 'btn btn-theme pull-right', 'id'=>'smt-btn')) }}
-          @else
-            {{ Form::submit('Submit', array('class' => 'btn btn-theme pull-right', 'id'=>'smt-btn')) }}
-          @endif
+          {{ Form::submit('Dispatch', array('class' => 'btn btn-theme pull-right', 'id'=>'smt-btn')) }}
         </div>
         {{ Form::close() }}
       </div>
@@ -209,9 +237,6 @@
   <script src="{{ url('/').'/'.asset('assets/js/jquery.custom.js') }}"></script>
   <script src="{{ url('/').'/'.asset('assets/js/validation_orders.js?') }}"></script>
   <script type="text/javascript">
-    $(document).ready(function(){
-      calcualteSodaPrice();
-    })
     $('#customer_id').on('select2:select', function(e) {
       var customerId = $(this).val();
       if(customerId != ''){
@@ -317,5 +342,10 @@
       var sodaPrice = parseFloat((mtLimit * {{$base_price}}).toFixed(2)) || 0.00;
       $("#soda_price").val(sodaPrice+additionalBrandPrice+additionalGradePrice+additionalSizePrice);
     }
+
+    $("#rate").on('keyup', function(){
+      var rate = $(this).val();
+      $("#final_rate").val(parseFloat($("#soda_price").val())+parseFloat(rate));
+    })
   </script>
 </x-app-layout>

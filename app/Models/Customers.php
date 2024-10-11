@@ -14,7 +14,7 @@ class Customers extends Authenticatable
 
     protected $table = 'customers';
 
-    protected $fillable = [ 'active', 'name', 'first_name', 'last_name', 'mobile', 'email', 'password', 'notification_id', 'latitude', 'longitude', 'device_type', 'gender', 'profile_image', 'shop_image', 'customer_code', 'status_id', 'region_id', 'customertype', 'firmtype', 'created_by', 'updated_by', 'executive_id', 'otp', 'deleted_at', 'created_at', 'updated_at', 'beatscheduleid', 'manager_name', 'manager_phone','contact_number','parent_id'];
+    protected $fillable = [ 'active', 'name', 'first_name', 'last_name', 'mobile', 'email', 'password', 'notification_id', 'latitude', 'longitude', 'device_type', 'gender', 'profile_image', 'shop_image', 'customer_code', 'status_id', 'region_id', 'customertype', 'firmtype', 'created_by', 'updated_by', 'executive_id', 'otp', 'deleted_at', 'created_at', 'updated_at', 'beatscheduleid','order_limit', 'manager_name', 'manager_phone','contact_number','parent_id'];
 
     public function message()
     {
@@ -78,7 +78,7 @@ class Customers extends Authenticatable
                 'last_name' => !empty($request['last_name'])? ucfirst($request['last_name']):'',
                 'mobile' => $request['mobile'],
                 'email' => !empty($request['email'])? $request['email']:null,
-                'working_status' => !empty($request['working_status'])? $request['working_status']:null,
+                'order_limit' => !empty($request['order_limit'])? $request['order_limit']:null,
                 'creation_date' => !empty($request['creation_date'])? $request['creation_date']:null,
                 'password' => !empty($request['password'])? Hash::make($request['password']) :'',
                 'contact_number' => !empty($request['contact_number'])? $request['contact_number']:'',
@@ -123,7 +123,7 @@ class Customers extends Authenticatable
             $customers = Customers::find($request['customer_id']);
             $customers->name = !empty($request['name'])? $request['name'] :'';
             $customers->first_name = !empty($request['first_name'])? ucfirst($request['first_name']):'';
-            $customers->working_status = !empty($request['working_status'])? $request['working_status']:null;
+            $customers->order_limit = !empty($request['order_limit'])? $request['order_limit']:null;
             $customers->creation_date = !empty($request['creation_date'])? $request['creation_date']:null;
             $customers->last_name = !empty($request['last_name'])? ucfirst($request['last_name']):'';
             $customers->gender = !empty($request['gender'])? ucfirst($request['gender']):'';

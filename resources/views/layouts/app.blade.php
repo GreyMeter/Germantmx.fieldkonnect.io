@@ -298,7 +298,7 @@
       transform: rotate(45deg);
     }
 
-    .sidebar li.nav-link.single-menu a:after{
+    .sidebar li.nav-link.single-menu a:after {
       display: none;
     }
 
@@ -962,6 +962,56 @@
 
                 </div>
               </a>
+            </li>
+            @endif
+            @if(auth()->user()->can('order_access'))
+            <li class="nav-link {{ request()->is('orders*') ? 'active' : '' }}">
+              <a class="collapsed hoveradd" data-toggle="collapse" href="#orderMenu" aria-expanded="false">
+                <i class="material-icons icon">app_registration</i>
+                <span> {!! trans('panel.sidemenu.orders') !!}
+
+                </span>
+                <div class="d-none mobile_hide">{!! trans('panel.sidemenu.orders') !!}
+
+                </div>
+              </a>
+              <div class="collapse {{ request()->is('orders*') ? 'show' : '' }}" id="orderMenu" style="">
+                <ul class="navd">
+                  @if(auth()->user()->can('order_access'))
+                  <li class="nav-link-btn {{ request()->is('orders') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('orders') }}">
+                      <i class="material-icons icon">list_alt</i>
+                      <span>Soda</span>
+                      <div class="d-none mobile_hide">Soda
+
+                      </div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('order_access'))
+                  <li class="nav-link-btn {{ request()->is('orders_confirm') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('orders_confirm') }}">
+                      <i class="material-icons icon">app_registration</i>
+                      <span>Orders</span>
+                      <div class="d-none mobile_hide">Orders
+
+                      </div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('order_dispatch'))
+                  <li class="nav-link-btn {{ request()->is('orders_dispatch') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('orders_dispatch') }}">
+                      <i class="material-icons icon">send_time_extension</i>
+                      <span>Orders Dispatch</span>
+                      <div class="d-none mobile_hide">Orders Dispatch
+
+                      </div>
+                    </a>
+                  </li>
+                  @endif
+                </ul>
+              </div>
             </li>
             @endif
 

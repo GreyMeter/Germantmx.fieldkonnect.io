@@ -2,7 +2,7 @@
 
 namespace App\DataTables;
 
-use App\Models\Order;
+use App\Models\OrderConfirm;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Html\Editor\Editor;
@@ -11,7 +11,7 @@ use Yajra\DataTables\Services\DataTable;
 
 use Illuminate\Support\Facades\Auth;
 
-class OrderDataTable extends DataTable
+class OrderConfirmDataTable extends DataTable
 {
 
     public function dataTable($query)
@@ -30,8 +30,8 @@ class OrderDataTable extends DataTable
                 //                     <i class="material-icons">edit</i>
                 //                 </a>';
                 // }
-                if (auth()->user()->can(['soda_show'])) {
-                    $btn = $btn . '<a href="' . url("orders/" . encrypt($query->id)) . '" class="btn btn-theme btn-just-icon btn-sm" title="' . trans('panel.global.show') . ' ' . trans('panel.order.title_singular') . '">
+                if (auth()->user()->can(['order_show'])) {
+                    $btn = $btn . '<a href="' . url("orders_confirm/" . encrypt($query->id)) . '" class="btn btn-theme btn-just-icon btn-sm" title="' . trans('panel.global.show') . ' ' . trans('panel.order.title_singular') . '">
                                     <i class="material-icons">visibility</i>
                                 </a>';
                 }
@@ -63,11 +63,11 @@ class OrderDataTable extends DataTable
      * @return \Illuminate\Database\Eloquent\Builder
      */
 
-    public function query(Order $model)
+    public function query(OrderConfirm $model)
     {
         $userids = getUsersReportingToAuth();
 
-        $query = $model->with('brands', 'sizes', 'grades', 'customer', 'createdbyname');
+        $query = $model->with('order','brands', 'sizes', 'grades', 'order.customer', 'createdbyname');
 
         
         $query->newQuery();
