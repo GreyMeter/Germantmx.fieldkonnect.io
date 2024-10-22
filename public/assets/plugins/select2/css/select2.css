@@ -504,3 +504,17 @@
   .select2-container--default{
     width: 100% !important;
   }
+
+
+
+
+@media(max-width: 996px) {
+
+body span.select2-dropdown.select2-dropdown--below{
+    width: 160px !important;
+}
+
+body .d-flex.flex-row {
+    flex-flow: wrap !important;
+}
+}

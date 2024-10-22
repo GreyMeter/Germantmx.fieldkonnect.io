@@ -85,7 +85,6 @@ use App\Http\Controllers\PriceController;
 | contains the "web" middleware group. Now create something great!
 |
 */
-
 Route::get('/', function () {
     return view('auth.login');
 });

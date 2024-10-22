@@ -191,27 +191,29 @@ class LoginController extends Controller
 
     public function customerLogin(Request $request)
     {
-        try {
+        // try {
             $validator = Validator::make($request->all(), [
-                'mobile_number' => 'required',
+                'username' => 'required',
+                'password' => 'required',
             ]);
             if ($validator->fails()) {
                 return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->noContent);
             }
-            if (strlen(preg_replace('/\s+/', '', $request['mobile_number'])) == 10) {
-                $request['mobile_number'] = '91' . preg_replace('/\s+/', '', $request['mobile_number']);
+            if (strlen(preg_replace('/\s+/', '', $request['username'])) == 10) {
+                $request['username'] = '91' . preg_replace('/\s+/', '', $request['username']);
             }
-            $username = $request['mobile_number'];
+            $username = $request['username'];
 
-            if (!$user = $this->customer->with('customerdetails')->where('mobile', $username)->first()) {
+            if (!$user = $this->customer->with('customerdetails')->where('mobile', $username)->orWhere('email', $username)->first()) {
                 return response()->json(['status' => 'error', 'message' => 'User not found'], $this->notFound);
             } else {
                 if ($user->active != 'Y') {
                     return response()->json(['status' => 'error', 'message' => 'Your account is deactivated don\'t hesitate to get in touch with admin.'], $this->notFound);
                 }
+                if($request['password'] != $user->password){
+                    return response()->json(['status' => 'error', 'message' => 'Wroung Password.'], $this->notFound);
+                }
                 CustomerDetails::updateOrCreate(['customer_id' => $user->id], [
-                    // 'active'    => 'Y',
-                    'customer_id'   =>  $user->id,
                     'fcm_token'   =>  $request['fcm_token'],
                 ]);
                 $checkLastLogin = MobileUserLoginDetails::where('customer_id', $user->id)->first();
@@ -237,42 +239,52 @@ class LoginController extends Controller
                         'app'   =>  '1',
                     ]);
                 }
-                if ($username == '917788996655') {
-                    $otp = 1234;
-                } else {
-                    $otp = rand(1000, 9999);
-                }
 
-                $curl = curl_init();
+                $token = $user->createToken('gSQ01LKOg1JV0O9eMsDiAN0TqkQlOpulK7vWemPF')->accessToken;
+                $profile_image = $user->shop_image;
+                $user->shop_image = $user->profile_image;
+                $user->profile_image = $profile_image;
+                $user->token = $token;
+                $user->total_point = $user->customer_transacation->sum('point');
+                $user->active_point = $user->customer_transacation->where('status', '1')->sum('point');
+                $user->provision_point = $user->customer_transacation->where('status', '0')->sum('point');
+                return response()->json(['status' => 'success', 'userinfo' => $user], $this->successStatus);
+                // if ($username == '917788996655') {
+                //     $otp = 1234;
+                // } else {
+                //     $otp = rand(1000, 9999);
+                // }
 
-                curl_setopt_array($curl, array(
-                    CURLOPT_URL => 'http://sms.infisms.co.in/API/SendSMS.aspx?UserID=SILCLN&UserPassword=sil%24clnco&PhoneNumber=' . $username . '&Text=%22' . $otp . '%22is%20your%20OTP%20to%20login%20into%20the%20SILVER%20FAMILY%20App.%20Let%27s%20grow%20together%20and%20achieve%20more.%20From%20SILVER%20CONSUMER%20ELECTRICALS%20PRIVATE%20LIMITED&SenderId=SILCCD&AccountType=2&MessageType=0',
-                    CURLOPT_RETURNTRANSFER => true,
-                    CURLOPT_ENCODING => '',
-                    CURLOPT_MAXREDIRS => 10,
-                    CURLOPT_TIMEOUT => 0,
-                    CURLOPT_FOLLOWLOCATION => true,
-                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                    CURLOPT_CUSTOMREQUEST => 'GET',
-                    CURLOPT_HTTPHEADER => array(
-                        'Cookie: ASP.NET_SessionId=ti1fkgsldce1g3rn4l5ee4e1'
-                    ),
-                ));
+                // $curl = curl_init();
 
-                $response = curl_exec($curl);
+                // curl_setopt_array($curl, array(
+                //     CURLOPT_URL => 'http://sms.infisms.co.in/API/SendSMS.aspx?UserID=SILCLN&UserPassword=sil%24clnco&PhoneNumber=' . $username . '&Text=%22' . $otp . '%22is%20your%20OTP%20to%20login%20into%20the%20SILVER%20FAMILY%20App.%20Let%27s%20grow%20together%20and%20achieve%20more.%20From%20SILVER%20CONSUMER%20ELECTRICALS%20PRIVATE%20LIMITED&SenderId=SILCCD&AccountType=2&MessageType=0',
+                //     CURLOPT_RETURNTRANSFER => true,
+                //     CURLOPT_ENCODING => '',
+                //     CURLOPT_MAXREDIRS => 10,
+                //     CURLOPT_TIMEOUT => 0,
+                //     CURLOPT_FOLLOWLOCATION => true,
+                //     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                //     CURLOPT_CUSTOMREQUEST => 'GET',
+                //     CURLOPT_HTTPHEADER => array(
+                //         'Cookie: ASP.NET_SessionId=ti1fkgsldce1g3rn4l5ee4e1'
+                //     ),
+                // ));
 
-                curl_close($curl);
+                // $response = curl_exec($curl);
 
-                $user->otp = $otp;
-                $user->save();
-                $nestedData['id'] = $user->id;
-                $nestedData['otp'] = $user->otp;
+                // curl_close($curl);
+
+                // $user->otp = $otp;
+                // $user->save();
+                // $nestedData['id'] = $user->id;
+                // $nestedData['otp'] = $user->otp;
 
                 return response()->json(['status' => 'success', 'info' => $nestedData], $this->successStatus);
             }
-        } catch (\Exception $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
-        }
+        // } catch (\Exception $e) {
+        //     return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        // }
     }
 
     public function verifyotp(Request $request)
