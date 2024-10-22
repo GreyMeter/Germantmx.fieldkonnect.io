@@ -323,7 +323,7 @@
                   <label class="col-md-3 col-form-label">Order Limit <small>(Tonn/Day)</small></label>
                   <div class="col-md-9">
                     <div class="form-group has-default bmd-form-group">
-                      <input type="number" name="order_limit" id="order_limit" class="form-control datepicker" value="{!! old( 'order_limit', $customers['order_limit']) !!}" min="10" step="10" autocomplete="off">
+                      <input type="number" name="order_limit" id="order_limit" class="form-control" value="{!! old( 'order_limit', $customers['order_limit']) !!}" min="10" step="10" >
                     </div>
                     @if ($errors->has('order_limit'))
                     <div class="error col-lg-12">

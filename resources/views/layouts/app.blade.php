@@ -1015,6 +1015,222 @@
             </li>
             @endif
 
+            @if(auth()->user()->can('hr_access'))
+            <li class="nav-link {{ request()->is('reports/attendancereport*') || request()->is('reports/attendancereportSummary*') || request()->is('holidays*') || request()->is('leaves*') || request()->is('appraisal*') || request()->is('sales_weightage*') || request()->is('users*') || request()->is('targets*') || request()->is('livelocation*') || request()->is('roles*') || request()->is('permissions*') || request()->is('tours*') || request()->is('usercity*') || request()->is('new-joinings*') ? 'active' : '' }}">
+              <a class="collapsed hoveradd" data-toggle="collapse" href="#hr" aria-expanded="false">
+                <i class="material-icons icon">family_restroom</i>
+                <span> {!! trans('panel.sidemenu.hr') !!}
+                </span>
+                <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.hr') !!}</div>
+              </a>
+              <div class="collapse" id="hr">
+                <ul class="navd">
+                  @if(auth()->user()->can('role_access'))
+                  <li class="nav-link-btn {{ request()->is('roles*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('roles') }}">
+                      <i class="material-icons icon">vertical_shades_closed</i>
+                      <span>{!! trans('panel.sidemenu.roles') !!}</span>
+                      <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.roles') !!}</div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('attendance_report'))
+                  <li class="nav-link-btn {{ request()->is('reports/attendancereport') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('reports/attendancereport') }}">
+                      <i class="material-icons icon">report</i>
+                      <span>Attendance Detail Report</span>
+                      <div class="d-none mobile_hide"> Attendance Detail Report</div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('attendance_summary_report'))
+                  <li class="nav-link-btn {{ request()->is('reports/attendancereportSummary') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('reports/attendancereportSummary') }}">
+                      <i class="material-icons icon">summarize</i>
+                      <span>Attendance Summary Report</span>
+                      <div class="d-none mobile_hide">Attendance Summary Report</div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('holiday_access'))
+                  <li class="nav-link-btn {{ request()->is('holidays*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('holidays') }}">
+                      <i class="material-icons icon">holiday_village</i>
+                      <span>Holidays</span>
+                      <div class="d-none mobile_hide"> Holidays</div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('leave_access'))
+                  <li class="nav-link-btn {{ request()->is('leaves*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('leaves') }}">
+                      <i class="material-icons icon">energy_savings_leaf</i>
+                      <span>Leaves</span>
+                      <div class="d-none mobile_hide"> Leaves</div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('appraisal_pms'))
+                  <li class="nav-link-btn {{ request()->is('appraisal*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('appraisal/index') }}">
+                      <i class="material-icons icon">verified_user</i>
+                      <span>Appraisal(PMS)</span>
+                      <div class="d-none mobile_hide"> Appraisal(PMS)</div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('sales_weightage'))
+                  <li class="nav-link-btn {{ request()->is('sales_weightage*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('sales_weightage') }}">
+                      <i class="material-icons icon">checkroom</i>
+                      <span>{!! trans('panel.sales_weightage.title') !!}</span>
+                      <div class="d-none mobile_hide"> {!! trans('panel.sales_weightage.title') !!}</div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('branch'))
+                  <li class="nav-link-btn {{ request()->is('branch*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('branches') }}">
+                      <i class="material-icons icon">meeting_room</i>
+                      <span>Branch</span>
+                      <div class="d-none mobile_hide"> Branch</div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('division'))
+                  <li class="nav-link-btn {{ request()->is('division*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('division') }}">
+                      <i class="material-icons icon">safety_divider</i>
+                      <span>Division</span>
+                      <div class="d-none mobile_hide"> Division</div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('designation'))
+                  <li class="nav-link-btn {{ request()->is('designation*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('designation') }}">
+                      <i class="material-icons icon">shopping_bag</i>
+                      <span>Designation</span>
+                      <div class="d-none mobile_hide"> Designation</div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('departments'))
+                  <li class="nav-link-btn {{ request()->is('departments*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('departments') }}">
+                      <i class="material-icons icon">local_fire_department</i>
+                      <span>Departments</span>
+                      <div class="d-none mobile_hide"> Departments</div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('tasks_access'))
+                  <li class="nav-link-btn {{ request()->is('tasks*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('tasks') }}">
+                      <i class="material-icons icon">check_circle</i>
+                      <span>{!! trans('panel.sidemenu.task') !!}</span>
+                      <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.task') !!}</div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('user_access'))
+                  <li class="nav-link-btn add_icon {{ request()->is('users*') || request()->is('targets*') || request()->is('livelocation*') || request()->is('roles*') || request()->is('permissions*') || request()->is('tours*') || request()->is('usercity*') || request()->is('new-joinings*') ? 'active' : '' }}">
+                    <a class="hoveradd" data-toggle="collapse" href="#userMenu" aria-expanded="false">
+                      <i class="material-icons icon">badge</i>
+                      <span> {!! trans('panel.sidemenu.users_master') !!}
+                      </span>
+                      <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.users_master') !!}</div>
+                    </a>
+                    <div class="collapse" id="userMenu" style="">
+                      <ul class="navd">
+                        <!--                 @if(auth()->user()->can('appraisal_pms'))
+                                          <li class="nav-item {{ request()->is('appraisal/create') ? 'active' : '' }}">
+                                            <a class="hoveradd2" href="{{ url('appraisal/index') }}">
+                                              <i class="material-icons">verified_user</i>
+                                              <p>Appraisal(PMS)</p>
+                                            </a>
+                                          </li>
+                                          @endif
+                                          @if(auth()->user()->can('sales_weightage'))
+                                          <li class="nav-item {{ request()->is('sales_weightage') ? 'active' : '' }}">
+                                            <a class="nav-link" href="{{ url('sales_weightage') }}">
+                                              <i class="material-icons">check</i>
+                                              <p>{!! trans('panel.sales_weightage.title') !!}</p>
+                                            </a>
+                                          </li>
+                                          @endif -->
+                        @if(auth()->user()->can('new_joining_access'))
+                        <li class="nav-link-btn {{ request()->is('new-joinings*') ? 'active' : '' }}">
+                          <a class="hoveradd2" href="{{ url('new-joinings') }}">
+                            <i class="material-icons icon">verified_user</i>
+                            <span>New Joining</span>
+                            <div class="d-none mobile_hide"> New Joining</div>
+                          </a>
+                        </li>
+                        @endif
+                        @if(auth()->user()->can('user_access'))
+                        <li class="nav-link-btn {{ request()->is('users*') ? 'active' : '' }}">
+                          <a class="hoveradd2" href="{{ url('users') }}">
+                            <i class="material-icons icon">assignment_ind</i>
+                            <span>{!! trans('panel.sidemenu.users') !!}</span>
+                            <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.users') !!}</div>
+                          </a>
+                        </li>
+                        @endif
+                        @if(auth()->user()->can('user_app_details_access'))
+                        <li class="nav-link-btn {{ request()->is('user_app_details*') ? 'active' : '' }}">
+                          <a class="hoveradd2" href="{{ url('user_app_details') }}">
+                            <i class="material-icons icon">details</i>
+                            <span>User App details</span>
+                            <div class="d-none mobile_hide"> User App details</div>
+                          </a>
+                        </li>
+                        @endif
+                        @if(auth()->user()->can('target_access'))
+                        <li class="nav-link-btn {{ request()->is('targets*') ? 'active' : '' }}">
+                          <a class="hoveradd2" href="{{ url('targets') }}">
+                            <i class="material-icons icon">loupe</i>
+                            <span>User Target</span>
+                            <div class="d-none mobile_hide">User Target</div>
+                          </a>
+                        </li>
+                        @endif
+                        @if(auth()->user()->can('user_location'))
+                        <li class="nav-link-btn {{ request()->is('livelocation*') ? 'active' : '' }}">
+                          <a class="hoveradd2" href="{{ url('livelocation') }}">
+                            <i class="material-icons icon">share_location</i>
+                            <span>User Live Location</span>
+                            <div class="d-none mobile_hide"> User Live Location</div>
+                          </a>
+                        </li>
+                        @endif
+                        @if(auth()->user()->can('tours'))
+                        <li class="nav-link-btn {{ request()->is('tours*') ? 'active' : '' }}">
+                          <a class="nav-link" href="{{ url('tours') }}">
+                            <i class="material-icons icon">tour</i>
+                            <span>Tours</span>
+                            <div class="d-none mobile_hide">Tours</div>
+                          </a>
+                        </li>
+                        @endif
+                        @if(auth()->user()->can('city_assigned'))
+                        <li class="nav-link-btn {{ request()->is('usercity*') ? 'active' : '' }}">
+                          <a class="hoveradd2" href="{{ url('usercity') }}">
+                            <i class="material-icons icon">location_city</i>
+                            <span>City Assigned</span>
+                            <div class="d-none mobile_hide">City Assigned</div>
+                          </a>
+                        </li>
+                        @endif
+                      </ul>
+                    </div>
+                  </li>
+                  @endif
+                </ul>
+              </div>
+            </li>
+            @endif
+
           </ul>
         </div>
         <!--   <div class="bottom-content">

@@ -97,7 +97,7 @@ Route::group(['middleware' => ['auth:customers']], function () {
     Route::post('customers-active', [CustomerController::class, 'active']);
     // Order Master
     Route::post('customer/insertOrder', [OrderController::class, 'customerInsertOrder']);
-    Route::any('customer/getOrderList', [OrderController::class, 'customerOrderList']);
+    Route::any('customer/getSodaList', [OrderController::class, 'customerOrderList']);
     Route::any('customer/getOrderDetails', [OrderController::class, 'customerOrderDetails']);
     //Coupon Scan
     Route::post('customer/couponScans', [CouponController::class, 'customerCouponScans']);

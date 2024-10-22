@@ -661,4 +661,12 @@ class OrderController extends Controller
 
         return response()->json(['status' => 'success', 'message' => 'Order deleted successfully.'], 200);
     }
+
+    public function customerOrderList(Request $request)
+    {
+        $customer = $request->user();
+        $data = Order::where('customer_id', $customer->id)->get();
+
+        return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
+    }
 }
