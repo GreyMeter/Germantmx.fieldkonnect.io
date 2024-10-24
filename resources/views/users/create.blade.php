@@ -57,7 +57,7 @@
                            <label class="col-md-3 col-form-label">Assign Cities</label>
                            <div class="col-md-9">
                               <div class="form-group has-default bmd-form-group">
-                                 <select class="form-control select2 {{ $errors->has('cities') ? 'is-invalid' : '' }}" name="cities[]" id="cities" multiple required>
+                                 <select class="form-control select2 {{ $errors->has('cities') ? 'is-invalid' : '' }}" name="cities[]" id="cities" multiple>
                                     @foreach($cities as $id => $cities)
                                     <option value="{{ $id }}" {{ (in_array($id, old('cities', [])) || $user->cities->contains($id)) ? 'selected' : '' }}>{{ $cities }}</option>
                                     @endforeach
@@ -253,7 +253,7 @@
                            <label class="col-md-3 col-form-label">{!! trans('panel.user.marital_status') !!}</label>
                            <div class="col-md-9">
                               <div class="form-group has-default bmd-form-group">
-                                 <select class="form-control" name="marital_status" required>
+                                 <select class="form-control" name="marital_status">
                                     <option value="" disabled selected>Marital Status</option>
                                     <option {{ ($user->userinfo?$user->userinfo->marital_status:'' == 'Single') ? 'selected' : '' }} value="Single">Single</option>
                                     <option {{ (old('marital_status') ?? ($user->userinfo ? $user->userinfo->marital_status : '')) == 'Married' ? 'selected' : '' }} value="Married">Married</option>
@@ -783,7 +783,7 @@
                            <div class="col-md-9">
                               <div class="form-group has-default bmd-form-group">
                                  <div class="form-group has-default bmd-form-group">
-                                    <select class="form-control" name="payroll" required>
+                                    <select class="form-control" name="payroll">
                                        <option value="" disabled selected>Select Pay Roll</option>
                                        @foreach($pay_rolls as $key=> $pay_roll)
                                        <option {{ (($key == old('payroll', $user->payroll?$user->payroll:''))) ? 'selected' : '' }} value="{{$key}}">{{$pay_roll}}</option>
@@ -1102,7 +1102,7 @@
                            <label class="col-md-3 col-form-label">{!! trans('panel.user.employee_codes') !!}</label>
                            <div class="col-md-9">
                               <div class="form-group has-default bmd-form-group">
-                                 <input type="text" name="employee_codes" id="employee_codes" class="form-control" value="{!! old( 'employee_codes', $user['employee_codes']) !!}" required>
+                                 <input type="text" name="employee_codes" id="employee_codes" class="form-control" value="{!! old( 'employee_codes', $user['employee_codes']) !!}">
                                  @if ($errors->has('employee_codes'))
                                  <div class="error col-lg-12">
                                     <p class="text-danger">{{ $errors->first('employee_codes') }}</p>
@@ -1156,7 +1156,7 @@
                            <div class="col-md-9">
                               <div class="form-group has-default bmd-form-group">
                                  <div class="form-group has-default bmd-form-group">
-                                    <select class="form-control" name="branch_id" required>
+                                    <select class="form-control" name="branch_id">
                                        <option value="" disabled selected>Select Branch</option>
 
                                        <?php
@@ -1262,7 +1262,7 @@
                            <label class="col-md-3 col-form-label">Order Mails Type<span class="text-danger"> *</span></label>
                            <div class="col-md-9">
                               <div class="form-group has-default bmd-form-group">
-                                 <select class="form-control select2" multiple name="order_mails_type[]" style="width: 100%;" required id="type">
+                                 <select class="form-control select2" multiple name="order_mails_type[]" style="width: 100%;" id="type">
                                     <option value="">Select {!! trans('panel.customers.fields.customertype') !!}</option>
                                     @if(@isset($customertype ))
                                     @foreach($customertype as $type)
@@ -1406,7 +1406,7 @@
       </div>
    </div>
    <script src="{{ url('/').'/'.asset('assets/js/jquery.custom.js') }}"></script>
-   <script src="{{ url('/').'/'.asset('assets/js/validation_users.js') }}"></script>
+   <script src="{{ url('/').'/'.asset('assets/js/validation_users.js?') }}"></script>
    <script type="text/javascript">
       $(document).ready(function() {
          $('.submituser').click(function() {
