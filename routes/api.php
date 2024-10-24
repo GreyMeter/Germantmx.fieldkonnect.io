@@ -80,6 +80,7 @@ Route::group(['middleware' => ['auth:customers']], function () {
     // Dashboard
     Route::any('customer/todayRate', [DashboardController::class, 'today_rate']);
     Route::any('customer/logout', [LoginController::class, 'customerlogout']);
+    Route::post('customer/delete', [LoginController::class, 'customerdelete']);
     Route::any('customer/dashboard', [DashboardController::class, 'customerDashboard']);
     Route::any('customer/getKyc', [DashboardController::class, 'getKyc']);
     Route::post('customer/addKyc', [DashboardController::class, 'addKyc']);
