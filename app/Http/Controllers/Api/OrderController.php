@@ -18,11 +18,14 @@ use Gate;
 use App\Models\Order;
 use App\Models\OrderDetails;
 use App\Models\Attachment;
+use App\Models\Brand;
 use App\Models\Cart;
+use App\Models\Category;
 use App\Models\Customers;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Sales;
+use App\Models\UnitMeasure;
 use Excel;
 use Illuminate\Support\Facades\Mail;
 use stdClass;
@@ -662,10 +665,31 @@ class OrderController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Order deleted successfully.'], 200);
     }
 
-    public function customerOrderList(Request $request)
+    public function customerSodaList(Request $request)
     {
         $customer = $request->user();
-        $data = Order::where('customer_id', $customer->id)->get();
+        $data = Order::where('customer_id', $customer->id)->select('po_no','qty','base_price','created_at')->get();
+
+        return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
+    }
+
+    public function get_brand(Request $request)
+    {
+        $data = Brand::where('active', '=', 'Y')->select('id', 'brand_name')->get();
+
+        return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
+    }
+
+    public function get_grade(Request $request)
+    {
+        $data = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name as grade_name')->get();
+
+        return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
+    }
+
+    public function get_size(Request $request)
+    {
+        $data = Category::where('active', '=', 'Y')->select('id', 'category_name as size')->get();
 
         return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
     }

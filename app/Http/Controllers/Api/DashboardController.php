@@ -43,6 +43,7 @@ use App\Models\TourProgramme;
 use App\Models\TransactionHistory;
 use Carbon\Carbon;
 use App\Models\FieldKonnectAppSetting;
+use App\Models\Price;
 use App\Models\PrimarySales;
 
 class DashboardController extends Controller
@@ -712,5 +713,10 @@ class DashboardController extends Controller
         ];
 
         return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data], 200);
+    }
+
+    public function today_rate(){
+        $data = Price::first()->base_price;
+        return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'todayrate' => $data], 200);
     }
 }
