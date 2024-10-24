@@ -73,8 +73,8 @@ class LoginController extends Controller
                     'device_type' => isset($request['device_type']) ? $request['device_type'] : ''
                 ]);
                 $todayDate = Carbon::today()->toDateString();
-                $todayBeatSchedule = BeatSchedule::where('user_id',$user['id'])->where('beat_date',$todayDate)->get();
-                $beatUser = BeatUser::where('user_id',$user['id'])->get();
+                $todayBeatSchedule = BeatSchedule::where('user_id', $user['id'])->where('beat_date', $todayDate)->get();
+                $beatUser = BeatUser::where('user_id', $user['id'])->get();
                 $nestedData['id'] = isset($user['id']) ? $user['id'] : 0;
                 $nestedData['name'] = isset($user['name']) ? $user['name'] : '';
                 $nestedData['first_name'] = isset($user['first_name']) ? $user['first_name'] : '';
@@ -84,8 +84,8 @@ class LoginController extends Controller
                 $nestedData['profile_image'] = isset($user['profile_image']) ? $user['profile_image'] : '';
                 $nestedData['gender'] = isset($user['gender']) ? $user['gender'] : '';
                 $nestedData['payroll_id'] = isset($user['payroll']) ? $user['payroll'] : '';
-                $nestedData['todayBeatSchedule'] = count($todayBeatSchedule) > 0 ? true:false;
-                $nestedData['beatUser'] = count($beatUser) > 0 ? true:false;
+                $nestedData['todayBeatSchedule'] = count($todayBeatSchedule) > 0 ? true : false;
+                $nestedData['beatUser'] = count($beatUser) > 0 ? true : false;
                 $nestedData['access_token'] = $token;
                 $nestedData['roles'] = $user->roles->pluck('id')->toArray();
                 $user['provider'] = 'users';
@@ -192,96 +192,100 @@ class LoginController extends Controller
     public function customerLogin(Request $request)
     {
         // try {
-            $validator = Validator::make($request->all(), [
-                'username' => 'required',
-                'password' => 'required',
+        $validator = Validator::make($request->all(), [
+            'username' => 'required',
+            'password' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->noContent);
+        }
+        if (strlen(preg_replace('/\s+/', '', $request['username'])) == 10) {
+            $request['username'] = '91' . preg_replace('/\s+/', '', $request['username']);
+        }
+        $username = $request['username'];
+
+        if (!$user = $this->customer->with('customerdetails')->where('active', 'Y')->where(function ($query) use ($username) {
+            $query->where('mobile', $username)
+                ->orWhere('email', $username);
+        })->first()) {
+            return response()->json(['status' => 'error', 'message' => 'User not found'], $this->notFound);
+        } else {
+
+            if ($user->active != 'Y') {
+                return response()->json(['status' => 'error', 'message' => 'Your account is deactivated don\'t hesitate to get in touch with admin.'], $this->notFound);
+            }
+            if ($request['password'] != $user->password) {
+                return response()->json(['status' => 'error', 'message' => 'Wroung Password.'], $this->notFound);
+            }
+            CustomerDetails::updateOrCreate(['customer_id' => $user->id], [
+                'fcm_token'   =>  $request['fcm_token'],
             ]);
-            if ($validator->fails()) {
-                return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->noContent);
-            }
-            if (strlen(preg_replace('/\s+/', '', $request['username'])) == 10) {
-                $request['username'] = '91' . preg_replace('/\s+/', '', $request['username']);
-            }
-            $username = $request['username'];
-
-            if (!$user = $this->customer->with('customerdetails')->where('mobile', $username)->orWhere('email', $username)->first()) {
-                return response()->json(['status' => 'error', 'message' => 'User not found'], $this->notFound);
-            } else {
-                if ($user->active != 'Y') {
-                    return response()->json(['status' => 'error', 'message' => 'Your account is deactivated don\'t hesitate to get in touch with admin.'], $this->notFound);
-                }
-                if($request['password'] != $user->password){
-                    return response()->json(['status' => 'error', 'message' => 'Wroung Password.'], $this->notFound);
-                }
-                CustomerDetails::updateOrCreate(['customer_id' => $user->id], [
-                    'fcm_token'   =>  $request['fcm_token'],
+            $checkLastLogin = MobileUserLoginDetails::where('customer_id', $user->id)->first();
+            if ($checkLastLogin) {
+                MobileUserLoginDetails::updateOrCreate(['customer_id' => $user->id], [
+                    'customer_id'   =>  $user->id,
+                    'app_version'   =>  $request['app_version'],
+                    'device_type'   =>  $request['device_type'],
+                    'device_name'   =>  $request['device_name'],
+                    'last_login_date'   =>  Carbon::now(),
+                    'login_status'   =>  '1',
+                    'app'   =>  '1',
                 ]);
-                $checkLastLogin = MobileUserLoginDetails::where('customer_id', $user->id)->first();
-                if ($checkLastLogin) {
-                    MobileUserLoginDetails::updateOrCreate(['customer_id' => $user->id], [
-                        'customer_id'   =>  $user->id,
-                        'app_version'   =>  $request['app_version'],
-                        'device_type'   =>  $request['device_type'],
-                        'device_name'   =>  $request['device_name'],
-                        'last_login_date'   =>  Carbon::now(),
-                        'login_status'   =>  '1',
-                        'app'   =>  '1',
-                    ]);
-                } else {
-                    MobileUserLoginDetails::updateOrCreate(['customer_id' => $user->id], [
-                        'customer_id'   =>  $user->id,
-                        'app_version'   =>  $request['app_version'],
-                        'device_type'   =>  $request['device_type'],
-                        'device_name'   =>  $request['device_name'],
-                        'first_login_date'   =>  Carbon::now(),
-                        'last_login_date'   =>  Carbon::now(),
-                        'login_status'   =>  '1',
-                        'app'   =>  '1',
-                    ]);
-                }
-
-                $token = $user->createToken('gSQ01LKOg1JV0O9eMsDiAN0TqkQlOpulK7vWemPF')->accessToken;
-                $profile_image = $user->shop_image;
-                $user->shop_image = $user->profile_image;
-                $user->profile_image = $profile_image;
-                $user->token = $token;
-                $user->total_point = $user->customer_transacation->sum('point');
-                $user->active_point = $user->customer_transacation->where('status', '1')->sum('point');
-                $user->provision_point = $user->customer_transacation->where('status', '0')->sum('point');
-                return response()->json(['status' => 'success', 'userinfo' => $user], $this->successStatus);
-                // if ($username == '917788996655') {
-                //     $otp = 1234;
-                // } else {
-                //     $otp = rand(1000, 9999);
-                // }
-
-                // $curl = curl_init();
-
-                // curl_setopt_array($curl, array(
-                //     CURLOPT_URL => 'http://sms.infisms.co.in/API/SendSMS.aspx?UserID=SILCLN&UserPassword=sil%24clnco&PhoneNumber=' . $username . '&Text=%22' . $otp . '%22is%20your%20OTP%20to%20login%20into%20the%20SILVER%20FAMILY%20App.%20Let%27s%20grow%20together%20and%20achieve%20more.%20From%20SILVER%20CONSUMER%20ELECTRICALS%20PRIVATE%20LIMITED&SenderId=SILCCD&AccountType=2&MessageType=0',
-                //     CURLOPT_RETURNTRANSFER => true,
-                //     CURLOPT_ENCODING => '',
-                //     CURLOPT_MAXREDIRS => 10,
-                //     CURLOPT_TIMEOUT => 0,
-                //     CURLOPT_FOLLOWLOCATION => true,
-                //     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-                //     CURLOPT_CUSTOMREQUEST => 'GET',
-                //     CURLOPT_HTTPHEADER => array(
-                //         'Cookie: ASP.NET_SessionId=ti1fkgsldce1g3rn4l5ee4e1'
-                //     ),
-                // ));
-
-                // $response = curl_exec($curl);
-
-                // curl_close($curl);
-
-                // $user->otp = $otp;
-                // $user->save();
-                // $nestedData['id'] = $user->id;
-                // $nestedData['otp'] = $user->otp;
-
-                return response()->json(['status' => 'success', 'info' => $nestedData], $this->successStatus);
+            } else {
+                MobileUserLoginDetails::updateOrCreate(['customer_id' => $user->id], [
+                    'customer_id'   =>  $user->id,
+                    'app_version'   =>  $request['app_version'],
+                    'device_type'   =>  $request['device_type'],
+                    'device_name'   =>  $request['device_name'],
+                    'first_login_date'   =>  Carbon::now(),
+                    'last_login_date'   =>  Carbon::now(),
+                    'login_status'   =>  '1',
+                    'app'   =>  '1',
+                ]);
             }
+
+            $token = $user->createToken('gSQ01LKOg1JV0O9eMsDiAN0TqkQlOpulK7vWemPF')->accessToken;
+            $profile_image = $user->shop_image;
+            $user->shop_image = $user->profile_image;
+            $user->profile_image = $profile_image;
+            $user->token = $token;
+            $user->total_point = $user->customer_transacation->sum('point');
+            $user->active_point = $user->customer_transacation->where('status', '1')->sum('point');
+            $user->provision_point = $user->customer_transacation->where('status', '0')->sum('point');
+            return response()->json(['status' => 'success', 'userinfo' => $user], $this->successStatus);
+            // if ($username == '917788996655') {
+            //     $otp = 1234;
+            // } else {
+            //     $otp = rand(1000, 9999);
+            // }
+
+            // $curl = curl_init();
+
+            // curl_setopt_array($curl, array(
+            //     CURLOPT_URL => 'http://sms.infisms.co.in/API/SendSMS.aspx?UserID=SILCLN&UserPassword=sil%24clnco&PhoneNumber=' . $username . '&Text=%22' . $otp . '%22is%20your%20OTP%20to%20login%20into%20the%20SILVER%20FAMILY%20App.%20Let%27s%20grow%20together%20and%20achieve%20more.%20From%20SILVER%20CONSUMER%20ELECTRICALS%20PRIVATE%20LIMITED&SenderId=SILCCD&AccountType=2&MessageType=0',
+            //     CURLOPT_RETURNTRANSFER => true,
+            //     CURLOPT_ENCODING => '',
+            //     CURLOPT_MAXREDIRS => 10,
+            //     CURLOPT_TIMEOUT => 0,
+            //     CURLOPT_FOLLOWLOCATION => true,
+            //     CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            //     CURLOPT_CUSTOMREQUEST => 'GET',
+            //     CURLOPT_HTTPHEADER => array(
+            //         'Cookie: ASP.NET_SessionId=ti1fkgsldce1g3rn4l5ee4e1'
+            //     ),
+            // ));
+
+            // $response = curl_exec($curl);
+
+            // curl_close($curl);
+
+            // $user->otp = $otp;
+            // $user->save();
+            // $nestedData['id'] = $user->id;
+            // $nestedData['otp'] = $user->otp;
+
+            return response()->json(['status' => 'success', 'info' => $nestedData], $this->successStatus);
+        }
         // } catch (\Exception $e) {
         //     return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
         // }
@@ -450,6 +454,22 @@ class LoginController extends Controller
                 return response()->json(['status' => 'success', 'message' => 'Logout Successfully'], $this->successStatus);
             }
             return response()->json(['status' => 'error', 'message' => 'Error in Logout'], $this->badrequest);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        }
+    }
+
+    public function customerdelete(Request $request)
+    {
+        try {
+            $customer = $request->user();
+
+            $inactive = Customers::where('id', $customer->id)->update(['active' => 'N']);
+
+            if ($inactive) {
+                return response()->json(['status' => 'success', 'message' => 'Account Deleted Successfully'], $this->successStatus);
+            }
+            return response()->json(['status' => 'error', 'message' => 'Error in delete account'], $this->badrequest);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
         }
