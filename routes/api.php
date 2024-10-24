@@ -78,6 +78,7 @@ Route::group(['middleware' => ['auth:customers']], function () {
     // Route::any('customer/getProfile', [LoginController::class, 'getCustomerProfile']);
     // Route::any('customer/updateProfile', [LoginController::class, 'updateCustomerProfile']);
     // Dashboard
+    Route::any('customer/todayRate', [DashboardController::class, 'today_rate']);
     Route::any('customer/logout', [LoginController::class, 'customerlogout']);
     Route::any('customer/dashboard', [DashboardController::class, 'customerDashboard']);
     Route::any('customer/getKyc', [DashboardController::class, 'getKyc']);
@@ -96,8 +97,11 @@ Route::group(['middleware' => ['auth:customers']], function () {
     Route::any('customer/getRetailers', [CustomerController::class, 'customerRetailers']);
     Route::post('customers-active', [CustomerController::class, 'active']);
     // Order Master
+    Route::any('customer/getSodaList', [OrderController::class, 'customerSodaList']);
+    Route::any('customer/getBrand', [OrderController::class, 'get_brand']);
+    Route::any('customer/getGrade', [OrderController::class, 'get_grade']);
+    Route::any('customer/getSize', [OrderController::class, 'get_size']);
     Route::post('customer/insertOrder', [OrderController::class, 'customerInsertOrder']);
-    Route::any('customer/getSodaList', [OrderController::class, 'customerOrderList']);
     Route::any('customer/getOrderDetails', [OrderController::class, 'customerOrderDetails']);
     //Coupon Scan
     Route::post('customer/couponScans', [CouponController::class, 'customerCouponScans']);
