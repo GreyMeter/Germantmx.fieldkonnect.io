@@ -159,23 +159,11 @@ $(document).ready(function () {
       {
         maxlength: 50,
       },
-      date_of_joining:
-      {
-        required:true,
-        //anyDate: true
-      },
+      
       salary:
       {
         number: true,
         maxlength: 50,
-      },
-      order_mails:
-      {
-        required:true,
-      },
-      order_mails_type:
-      {
-        required:true,
       },
       designation_id:
       {
@@ -373,24 +361,13 @@ $(document).ready(function () {
       {
         maxlength: 50,
       },
-      date_of_joining:
-      {
-        required:true,
-        //anyDate: true
-      },
+    
       salary:
       {
         number: true,
         maxlength: 50,
       },
-      order_mails:
-      {
-        required:true,
-      },
-      order_mails_type:
-      {
-        required:true,
-      },
+     
       designation_id:
       {
         number: true,

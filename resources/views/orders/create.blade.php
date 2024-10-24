@@ -93,6 +93,7 @@
                 </div>
               </div>
             </div>
+            @if($orders->exists)
             <div class="col-md-6">
               <div class="row">
                 <label class="col-md-3 col-form-label">Grade<span class="text-danger"> *</span></label>
@@ -162,6 +163,7 @@
                 </div>
               </div>
             </div>
+            @endif
             <div class="col-md-6">
               <div class="row">
                 <label class="col-md-3 col-form-label">Base Price<small>(1MT)</small> <span class="text-danger"> *</span></label>
@@ -177,7 +179,7 @@
                 </div>
               </div>
             </div>
-            <div class="col-md-6">
+            <!-- <div class="col-md-6">
               <div class="row">
                 <label class="col-md-3 col-form-label">Soda Price (₹) <span class="text-danger"> *</span></label>
                 <div class="col-md-9">
@@ -191,7 +193,7 @@
                   </div>
                 </div>
               </div>
-            </div>
+            </div> -->
           </div>
         </div>
         <div class="card-footer">
