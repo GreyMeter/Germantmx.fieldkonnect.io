@@ -9,7 +9,7 @@ class OrderConfirm extends Model
 {
     use HasFactory;
 
-    protected $fillable = [ 'order_id','po_no','confirm_po_no','qty','unit_id','brand_id','category_id','base_price','soda_price','rate','status','created_by', 'updated_by','deleted_at','created_at','updated_at'];
+    protected $fillable = [ 'order_id','po_no','confirm_po_no','consignee_details','qty','unit_id','brand_id','category_id','base_price','soda_price','rate','status','created_by', 'updated_by','deleted_at','created_at','updated_at'];
 
     public $timestamps = true;
 

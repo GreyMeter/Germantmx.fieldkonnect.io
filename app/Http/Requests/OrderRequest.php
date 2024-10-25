@@ -23,8 +23,7 @@ class OrderRequest extends FormRequest
                     'customer_id'      => 'required|numeric|exists:customers,id',
                     'po_no'     => 'required',
                     'qty'     => 'required|numeric',
-                    'base_price'   => 'required|numeric',
-                    'soda_price'       => 'required|numeric'
+                    'base_price'   => 'required|numeric'
                 ];
                 break;
             default :
@@ -32,8 +31,7 @@ class OrderRequest extends FormRequest
                     'customer_id'      => 'required|numeric|exists:customers,id',
                     'po_no'     => 'required',
                     'qty'     => 'required|numeric',
-                    'base_price'   => 'required|numeric',
-                    'soda_price'       => 'required|numeric'
+                    'base_price'   => 'required|numeric'
                 ];
                 break;
         }

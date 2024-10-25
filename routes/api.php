@@ -99,11 +99,15 @@ Route::group(['middleware' => ['auth:customers']], function () {
     Route::post('customers-active', [CustomerController::class, 'active']);
     // Order Master
     Route::any('customer/getSodaList', [OrderController::class, 'customerSodaList']);
+    Route::any('customer/getSodaCreateDetails', [OrderController::class, 'getSodaCreateDetails']);
+    Route::post('customer/insertSoda', [OrderController::class, 'insertSoda']);
+    Route::any('customer/getSoda', [OrderController::class, 'getSoda']);
     Route::any('customer/getBrand', [OrderController::class, 'get_brand']);
     Route::any('customer/getGrade', [OrderController::class, 'get_grade']);
     Route::any('customer/getSize', [OrderController::class, 'get_size']);
-    Route::post('customer/insertOrder', [OrderController::class, 'customerInsertOrder']);
-    Route::any('customer/getOrderDetails', [OrderController::class, 'customerOrderDetails']);
+    Route::post('customer/insertOrderConfirm', [OrderController::class, 'insertOrderConfirm']);
+    Route::any('customer/getorderList', [OrderController::class, 'customerorderList']);
+    Route::any('customer/getConfirmOrder', [OrderController::class, 'getConfirmOrder']);
     //Coupon Scan
     Route::post('customer/couponScans', [CouponController::class, 'customerCouponScans']);
     Route::post('customer/getScanedCoupons', [CouponController::class, 'customerScanedCouponList']);

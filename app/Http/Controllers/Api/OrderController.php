@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Carbon\Carbon;
-
+use App\Models\Price;
 use Validator;
 use Gate;
 use App\Models\Order;
@@ -22,9 +22,11 @@ use App\Models\Brand;
 use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Customers;
+use App\Models\OrderConfirm;
 use App\Models\Product;
 use App\Models\User;
 use App\Models\Sales;
+use App\Models\AdditionalPrice;
 use App\Models\UnitMeasure;
 use Excel;
 use Illuminate\Support\Facades\Mail;
@@ -67,19 +69,19 @@ class OrderController extends Controller
                 $startDate = date('Y-m-d', strtotime($start_date));
                 $endDate = date('Y-m-d', strtotime($end_date));
                 $query->whereDate('order_date', '>=', $startDate)
-                      ->whereDate('order_date', '<=', $endDate);
+                    ->whereDate('order_date', '<=', $endDate);
             }
 
-            if(!empty($customer_id)){
+            if (!empty($customer_id)) {
                 $query->where(function ($query) use ($customer_id) {
                     $query->where('buyer_id', '=', $customer_id)
-                          ->orWhere('seller_id', '=', $customer_id);
+                        ->orWhere('seller_id', '=', $customer_id);
                 });
             }
 
-            if(!empty($selecteduser_id)){
+            if (!empty($selecteduser_id)) {
                 $query->where('created_by', $selecteduser_id);
-            }else{
+            } else {
                 $query->whereIn('created_by', $user_ids);
             }
 
@@ -94,8 +96,8 @@ class OrderController extends Controller
             // dd($request->all());
             $db_data = (!empty($pageSize)) ? $query->paginate($pageSize) : $query->get();
             $data = collect([]);
-            $users = User::where('active', 'Y')->whereIn('id',$user_ids)->select('id', 'name')->get();
-            $all_status = [['id' => '0', 'name' => 'Pending'], ['id' => '1', 'name' => 'Dispatched'], ['id' => '2', 'name' => 'Partially Dispatched'], ['id' => '3', 'name' => 'Full Dispatch'] ,['id' => '4', 'name' => 'Cancel'] ];
+            $users = User::where('active', 'Y')->whereIn('id', $user_ids)->select('id', 'name')->get();
+            $all_status = [['id' => '0', 'name' => 'Pending'], ['id' => '1', 'name' => 'Dispatched'], ['id' => '2', 'name' => 'Partially Dispatched'], ['id' => '3', 'name' => 'Full Dispatch'], ['id' => '4', 'name' => 'Cancel']];
             if ($db_data->isNotEmpty()) {
                 foreach ($db_data as $key => $value) {
                     $data->push([
@@ -117,9 +119,9 @@ class OrderController extends Controller
                         'creatd_by'    => isset($value['createdbyname']) ? $value['createdbyname']['name'] : '',
                     ]);
                 }
-                return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data , 'users' => $users ,  'all_status' => $all_status ], $this->successStatus);
+                return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data, 'users' => $users,  'all_status' => $all_status], $this->successStatus);
             }
-            return response(['status' => 'error', 'message' => 'No Record Found.', 'data' => $data , 'users' => $users , 'all_status' => $all_status  ], 200);
+            return response(['status' => 'error', 'message' => 'No Record Found.', 'data' => $data, 'users' => $users, 'all_status' => $all_status], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
         }
@@ -137,16 +139,16 @@ class OrderController extends Controller
             $user = $request->user();
             $user_id = $user->id;
             $order_id = $request->input('order_id');
-            $data = $this->orders->with('orderdetails', 'orderdetails.products', 'statusname', 'orderdetails.productdetails', 'createdbyname' , 'getsalesdetail')->where('id', $order_id)->first();
-            $salesdetails = Sales::where('order_id' , $order_id)->first() ?? [];
+            $data = $this->orders->with('orderdetails', 'orderdetails.products', 'statusname', 'orderdetails.productdetails', 'createdbyname', 'getsalesdetail')->where('id', $order_id)->first();
+            $salesdetails = Sales::where('order_id', $order_id)->first() ?? [];
 
             $data['schme_amount'] = (string)$data['schme_amount'];
             $data['order_status'] = isset($data['statusname']) ? $data['statusname']['status_name'] : 'Pending';
             $data['dispatch_date'] = isset($salesdetails) ? (isset($salesdetails['dispatch_date']) ? Carbon::parse($salesdetails['dispatch_date'])->format('d-m-Y') : '') : '';
-            $data['lr_no'] = isset($salesdetails) ? isset($salesdetails['lr_no']) ? (string)$salesdetails['lr_no']  : '' :'';
-            $data['invoice_no'] = isset($salesdetails) ? (isset($salesdetails['invoice_no']) ? $salesdetails['invoice_no']  : '') :'';
-            $data['invoice_date'] = isset($salesdetails) ? (isset($salesdetails['invoice_date']) ? Carbon::parse($salesdetails['invoice_date'])->format('d-m-Y') : '') :'';
-            $data['transport_name'] = isset($salesdetails) ? (isset($salesdetails['transport_details']) ? $salesdetails['transport_details']  : '') :'';
+            $data['lr_no'] = isset($salesdetails) ? isset($salesdetails['lr_no']) ? (string)$salesdetails['lr_no']  : '' : '';
+            $data['invoice_no'] = isset($salesdetails) ? (isset($salesdetails['invoice_no']) ? $salesdetails['invoice_no']  : '') : '';
+            $data['invoice_date'] = isset($salesdetails) ? (isset($salesdetails['invoice_date']) ? Carbon::parse($salesdetails['invoice_date'])->format('d-m-Y') : '') : '';
+            $data['transport_name'] = isset($salesdetails) ? (isset($salesdetails['transport_details']) ? $salesdetails['transport_details']  : '') : '';
             $data['ebd_amount'] = (string)$data['ebd_amount'];
             $data['ebd_discount'] = (string)$data['ebd_discount'];
             $data['special_discount'] = (string)$data['special_discount'];
@@ -167,7 +169,7 @@ class OrderController extends Controller
             $data['gst12_amt'] = (string)$data['gst12_amt'];
             $data['gst18_amt'] = (string)$data['gst18_amt'];
             $data['gst28_amt'] = (string)$data['gst28_amt'];
-            $data['status_id'] = ($data['status_id'] && $data['status_id'] != NULL)?(string)$data['status_id']:"0";
+            $data['status_id'] = ($data['status_id'] && $data['status_id'] != NULL) ? (string)$data['status_id'] : "0";
             $data['address_id'] = (string)$data['address_id'];
             $data['suc_del'] = (string)$data['suc_del'];
             $data['gst_amount'] = (string)$data['gst_amount'];
@@ -180,14 +182,14 @@ class OrderController extends Controller
             $data['cash_discount'] = (string)$data['cash_discount'];
             $data['cash_amount'] = (string)$data['cash_amount'];
             $data['product_cat_id'] = (string)$data['product_cat_id'];
-            $data['extra_discount_amount'] = isset($data['extra_discount_amount']) && $data['extra_discount_amount'] > 0  ? (string)$data['extra_discount_amount'] : '' ;
-            $data['special_distribution_discount_amount'] = isset($data['special_distribution_discount_amount']) && $data['special_distribution_discount_amount'] > 0  ? (string)$data['special_distribution_discount_amount'] : '' ;
-            $data['distribution_margin_discount_amount'] = isset($data['distribution_margin_discount_amount']) && $data['distribution_margin_discount_amount'] > 0  ? (string)$data['distribution_margin_discount_amount'] : '' ;
-            $data['fan_extra_discount'] = isset($data['fan_extra_discount']) && $data['fan_extra_discount'] > 0  ? (string)$data['fan_extra_discount'] : '' ;
-            $data['fan_extra_discount_amount'] = isset($data['fan_extra_discount_amount']) && $data['fan_extra_discount_amount'] > 0  ? (string)$data['fan_extra_discount_amount'] : '' ;
-            $data['cash_discount'] = isset($data['cash_discount']) && $data['cash_discount'] > 0  ? (string)$data['cash_discount'] : '' ;
-            $data['cash_amount'] = isset($data['cash_amount']) && $data['cash_amount'] > 0  ? (string)$data['cash_amount'] : '' ;
-            $data['dod_discount_amount'] = isset($data['dod_discount_amount']) && $data['dod_discount_amount'] > 0  ? (string)$data['dod_discount_amount'] : '' ;
+            $data['extra_discount_amount'] = isset($data['extra_discount_amount']) && $data['extra_discount_amount'] > 0  ? (string)$data['extra_discount_amount'] : '';
+            $data['special_distribution_discount_amount'] = isset($data['special_distribution_discount_amount']) && $data['special_distribution_discount_amount'] > 0  ? (string)$data['special_distribution_discount_amount'] : '';
+            $data['distribution_margin_discount_amount'] = isset($data['distribution_margin_discount_amount']) && $data['distribution_margin_discount_amount'] > 0  ? (string)$data['distribution_margin_discount_amount'] : '';
+            $data['fan_extra_discount'] = isset($data['fan_extra_discount']) && $data['fan_extra_discount'] > 0  ? (string)$data['fan_extra_discount'] : '';
+            $data['fan_extra_discount_amount'] = isset($data['fan_extra_discount_amount']) && $data['fan_extra_discount_amount'] > 0  ? (string)$data['fan_extra_discount_amount'] : '';
+            $data['cash_discount'] = isset($data['cash_discount']) && $data['cash_discount'] > 0  ? (string)$data['cash_discount'] : '';
+            $data['cash_amount'] = isset($data['cash_amount']) && $data['cash_amount'] > 0  ? (string)$data['cash_amount'] : '';
+            $data['dod_discount_amount'] = isset($data['dod_discount_amount']) && $data['dod_discount_amount'] > 0  ? (string)$data['dod_discount_amount'] : '';
 
 
             if (!empty($data['orderdetails'])) {
@@ -225,7 +227,7 @@ class OrderController extends Controller
                 $data['buyer_address'] = isset($data['buyers']['customeraddress']) ? $data['buyers']['customeraddress'] : '';
                 $data['buyer_type'] = isset($data['buyers']['customertypes']) ? $data['buyers']['customertypes']['customertype_name'] : '';
                 $data['orderdetails'] = $orderdetails;
-                return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data ], $this->successStatus);
+                return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data], $this->successStatus);
             }
             return response(['status' => 'error', 'message' => 'No Record Found.', 'data' => $data], 200);
         } catch (\Exception $e) {
@@ -255,22 +257,22 @@ class OrderController extends Controller
                         $rows['discount'] = $product->productpriceinfo->discount;
                         if ($product->productpriceinfo->gst == '5') {
                             $gst = 5;
-                            $gst_amount = (($rows['quantity']*$rows['price'])*5)/100;
+                            $gst_amount = (($rows['quantity'] * $rows['price']) * 5) / 100;
                         } elseif ($product->productpriceinfo->gst == '12') {
                             $gst = 12;
-                            $gst_amount = (($rows['quantity']*$rows['price'])*12)/100;
+                            $gst_amount = (($rows['quantity'] * $rows['price']) * 12) / 100;
                         } elseif ($product->productpriceinfo->gst == '18') {
                             $gst = 18;
-                            $gst_amount = (($rows['quantity']*$rows['price'])*18)/100;
+                            $gst_amount = (($rows['quantity'] * $rows['price']) * 18) / 100;
                         } elseif ($product->productpriceinfo->gst == '28') {
                             $gst = 28;
-                            $gst_amount = (($rows['quantity']*$rows['price'])*28)/100;
+                            $gst_amount = (($rows['quantity'] * $rows['price']) * 28) / 100;
                         } else {
                             $gst = 0;
                             $gst_amount = 0;
                         }
                     }
-               
+
 
                     // calculate lime total for retailer/ please remove this code after adding app live
                     // if(isset($rows['line_total']) && isset($rows['quantity']) && isset($rows['price'])){
@@ -279,7 +281,7 @@ class OrderController extends Controller
                     //     }
                     // }
 
-                   
+
                     $orderdetail->push([
                         'active' => 'Y',
                         'order_id' => isset($response['order_id']) ? $response['order_id'] : null,
@@ -486,10 +488,10 @@ class OrderController extends Controller
                 $startDate = date('Y-m-d', strtotime($start_date));
                 $endDate = date('Y-m-d', strtotime($end_date));
                 $query->whereDate('order_date', '>=', $startDate)
-                        ->whereDate('order_date', '<=', $endDate);
+                    ->whereDate('order_date', '<=', $endDate);
             }
 
-            if(!empty($selecteduser_id)){
+            if (!empty($selecteduser_id)) {
                 $query->where('created_by', $selecteduser_id);
             }
 
@@ -497,7 +499,7 @@ class OrderController extends Controller
                 $query->where('discount_status', $selectedstatus_id);
             }
             $all_status = [['id' => '0', 'name' => 'Pending'], ['id' => '1', 'name' => 'Approved'], ['id' => '2', 'name' => 'Reject']];
-            $users = User::where('active', 'Y')->whereIn('id',$user_ids)->select('id', 'name')->get();
+            $users = User::where('active', 'Y')->whereIn('id', $user_ids)->select('id', 'name')->get();
             $db_data = (!empty($pageSize)) ? $query->paginate($pageSize) : $query->get();
             $data = collect([]);
             if ($db_data->isNotEmpty()) {
@@ -521,9 +523,9 @@ class OrderController extends Controller
                         'discount_status' => (($value['discount_status'] == '1') ? 'Approved' : (($value['discount_status'] == '2') ? 'Reject' : 'Pending')),
                     ]);
                 }
-                return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data , 'all_users' => $users , 'all_status' => $all_status], $this->successStatus);
+                return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data, 'all_users' => $users, 'all_status' => $all_status], $this->successStatus);
             }
-            return response(['status' => 'error', 'message' => 'No Record Found.', 'data' => $data , 'all_users' => $users , 'all_status' => $all_status], 200);
+            return response(['status' => 'error', 'message' => 'No Record Found.', 'data' => $data, 'all_users' => $users, 'all_status' => $all_status], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
         }
@@ -540,11 +542,11 @@ class OrderController extends Controller
             $query = $this->orders->where(function ($query) use ($user_ids) {
                 $query->whereIn('created_by', $user_ids);
             })
-            ->latest()
-            ->where(function ($query) {
-                $query->where('special_discount', '>', 0)
-                      ->orWhere('deal_discount', '>', 0);
-            });
+                ->latest()
+                ->where(function ($query) {
+                    $query->where('special_discount', '>', 0)
+                        ->orWhere('deal_discount', '>', 0);
+                });
 
             $start_date = $request->startdate ?? '';
             $end_date   = $request->enddate ?? '';
@@ -555,10 +557,10 @@ class OrderController extends Controller
                 $startDate = date('Y-m-d', strtotime($start_date));
                 $endDate = date('Y-m-d', strtotime($end_date));
                 $query->whereDate('order_date', '>=', $startDate)
-                        ->whereDate('order_date', '<=', $endDate);
+                    ->whereDate('order_date', '<=', $endDate);
             }
 
-            if(!empty($selecteduser_id)){
+            if (!empty($selecteduser_id)) {
                 $query->where('created_by', $selecteduser_id);
             }
 
@@ -566,7 +568,7 @@ class OrderController extends Controller
                 $query->where('discount_status', $selectedstatus_id);
             }
             $all_status = [['id' => '0', 'name' => 'Pending'], ['id' => '1', 'name' => 'Approved'], ['id' => '2', 'name' => 'Reject']];
-            $users = User::where('active', 'Y')->whereIn('id',$user_ids)->select('id', 'name')->get();
+            $users = User::where('active', 'Y')->whereIn('id', $user_ids)->select('id', 'name')->get();
             $db_data = (!empty($pageSize)) ? $query->paginate($pageSize) : $query->get();
             $data = collect([]);
             if ($db_data->isNotEmpty()) {
@@ -592,9 +594,9 @@ class OrderController extends Controller
                         'discount_status' => (($value['discount_status'] == '1') ? 'Approved' : (($value['discount_status'] == '2') ? 'Reject' : 'Pending')),
                     ]);
                 }
-                return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data , 'all_users' => $users , 'all_status' => $all_status], $this->successStatus);
+                return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data, 'all_users' => $users, 'all_status' => $all_status], $this->successStatus);
             }
-            return response(['status' => 'error', 'message' => 'No Record Found.', 'data' => $data , 'all_users' => $users , 'all_status' => $all_status], 200);
+            return response(['status' => 'error', 'message' => 'No Record Found.', 'data' => $data, 'all_users' => $users, 'all_status' => $all_status], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
         }
@@ -667,30 +669,239 @@ class OrderController extends Controller
 
     public function customerSodaList(Request $request)
     {
-        $customer = $request->user();
-        $data = Order::where('customer_id', $customer->id)->select('po_no','qty','base_price','created_at')->get();
+        try {
+            $customer = $request->user();
+            $data = Order::where('customer_id', $customer->id)->select('id','po_no', 'qty', 'base_price', 'created_at')->get();
 
-        return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
+            return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        }
     }
 
     public function get_brand(Request $request)
     {
-        $data = Brand::where('active', '=', 'Y')->select('id', 'brand_name')->get();
+        try {
+            $data = Brand::where('active', '=', 'Y')->select('id', 'brand_name')->get();
 
-        return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
+            return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        }
     }
 
     public function get_grade(Request $request)
     {
-        $data = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name as grade_name')->get();
+        try {
+            $data = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name as grade_name')->get();
 
-        return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
+            return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        }
     }
 
     public function get_size(Request $request)
     {
-        $data = Category::where('active', '=', 'Y')->select('id', 'category_name as size')->get();
+        try {
+            $data = Category::where('active', '=', 'Y')->select('id', 'category_name as size')->get();
 
-        return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
+            return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        }
+    }
+
+    public function getSodaCreateDetails(Request $request)
+    {
+        try {
+            $customer = $request->user();
+            $today_order_qty = Order::where('customer_id', $customer->id)
+                ->whereDate('created_at', today())
+                ->sum('qty');
+
+            $data['order_limit_remain'] = (int)($customer->order_limit ?? 500) - $today_order_qty;
+            $data['po_no'] = generatePoNumber();
+            $data['base_price'] = optional(Price::select('base_price')->first())->base_price;
+
+
+            return response()->json(['status' => 'success', 'message' => 'data retrieved successfully.', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        }
+    }
+
+    public function insertSoda(Request $request)
+    {
+        try {
+            $customer = $request->user();
+            $validator = Validator::make($request->all(), [
+                'qty' => 'required',
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
+            }
+            $today_order_qty = Order::where('customer_id', $customer->id)
+                ->whereDate('created_at', today())
+                ->sum('qty');
+            $order_limit_remain = (int)($customer->order_limit ?? 500) - $today_order_qty;
+            if ($order_limit_remain < $request->qty) {
+                return response()->json(['status' => 'error', 'message' =>  'The quantity is greater than today\'s limit.'], $this->badrequest);
+            }
+            $request['base_price'] = optional(Price::select('base_price')->first())->base_price;
+            $request['customer_id'] = $customer->id;
+            $request['created_by'] = NULL;
+            $request['po_no'] = generatePoNumber();
+            $soda = Order::create($request->all());
+            if ($soda) {
+                return response()->json(['status' => 'success', 'message' => 'Soda create successfully.', 'data' => $soda], 200);
+            }
+            return response()->json(['status' => 'error', 'message' =>  'Error in create soda.'], $this->badrequest);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        }
+    }
+
+    public function getSoda(Request $request)
+    {
+        try {
+            $customer = $request->user();
+            $validator = Validator::make($request->all(), [
+                'soda_id' => 'required',
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
+            }
+            $soda = Order::with('customer')->find($request->soda_id);
+            $confirm_qty = OrderConfirm::where('order_id', $request->soda_id)->sum('qty');
+            $soda['confirm_qty'] = $confirm_qty;
+            if ($soda) {
+                return response()->json(['status' => 'success', 'message' => 'data retrieved successfully.', 'data' => $soda], 200);
+            }
+            return response()->json(['status' => 'error', 'message' =>  'Soda not found.'], $this->badrequest);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        }
+    }
+
+    public function insertOrderConfirm(Request $request)
+    {
+        try {
+            $customer = $request->user();
+            $validator = Validator::make($request->all(), [
+                'soda_id' => 'required',
+                'consignee_details' => 'required',
+                'qty' => [
+                    'required',
+                    'array',
+                    function ($attribute, $value, $fail) {
+                        if (empty($value)) {
+                            $fail($attribute . ' cannot be an empty array.');
+                        } elseif (!isset($value[0]) || $value[0] === null) {
+                            $fail($attribute . ' must have a non-null value at index 0.');
+                        }
+                    },
+                ],
+                'grade_id' => [
+                    'required',
+                    'array',
+                    function ($attribute, $value, $fail) {
+                        if (empty($value)) {
+                            $fail($attribute . ' cannot be an empty array.');
+                        } elseif (!isset($value[0]) || $value[0] === null) {
+                            $fail($attribute . ' must have a non-null value at index 0.');
+                        }
+                    },
+                ],
+                'brand_id' => [
+                    'required',
+                    'array',
+                    function ($attribute, $value, $fail) {
+                        if (empty($value)) {
+                            $fail($attribute . ' cannot be an empty array.');
+                        } elseif (!isset($value[0]) || $value[0] === null) {
+                            $fail($attribute . ' must have a non-null value at index 0.');
+                        }
+                    },
+                ],
+                'size_id' => [
+                    'required',
+                    'array',
+                    function ($attribute, $value, $fail) {
+                        if (empty($value)) {
+                            $fail($attribute . ' cannot be an empty array.');
+                        } elseif (!isset($value[0]) || $value[0] === null) {
+                            $fail($attribute . ' must have a non-null value at index 0.');
+                        }
+                    },
+                ],
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
+            }
+            $soda = Order::with('customer')->find($request->soda_id);
+            foreach($request->qty as $k=>$qty){
+                $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'model_name' => 'size'])->first())->price_adjustment;
+                $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'model_name' => 'grade'])->first())->price_adjustment;
+                $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'model_name' => 'brand'])->first())->price_adjustment;
+                $after_soda_price = $soda->base_price+$additional_price_brand+$additional_price_grade+$additional_price_size;
+                $totalOrderConfirm = OrderConfirm::where('order_id', $request->soda_id)->count('id');
+                $data['confirm_po_no'] = $soda->po_no . '-' . $totalOrderConfirm + 1;
+                $data['order_id'] = $request->soda_id;
+                $data['created_by'] = NULL;
+                $data['po_no'] = $soda->po_no;
+                $data['consignee_details'] = $request->consignee_details;
+                $data['qty'] = $qty;
+                $data['unit_id'] = $request->grade_id[$k];
+                $data['brand_id'] = $request->brand_id[$k];
+                $data['category_id'] = $request->size_id[$k];
+                $data['base_price'] = $soda->base_price;
+                $data['soda_price'] = $after_soda_price*$qty;
+
+                $soda = OrderConfirm::create($data);
+            }
+            if ($soda) {
+                return response()->json(['status' => 'success', 'message' => 'Soda create successfully.', 'data' => $soda], 200);
+            }
+            return response()->json(['status' => 'error', 'message' =>  'Error in create soda.'], $this->badrequest);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        }
+    }
+
+    public function customerorderList(Request $request)
+    {
+        try {
+            $customer = $request->user();
+            $sodas = Order::where('customer_id', $customer->id)->pluck('id');
+            $data = OrderConfirm::whereIn('order_id', $sodas)->with('brands:id,brand_name','sizes:id,category_name','grades:id,unit_name')->get();
+
+            return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        }
+    }
+
+    public function getConfirmOrder(Request $request)
+    {
+        try {
+            $customer = $request->user();
+            $validator = Validator::make($request->all(), [
+                'confirm_order_id' => 'required',
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
+            }
+            $order = OrderConfirm::with('brands:id,brand_name','sizes:id,category_name','grades:id,unit_name')->where('id', $request->confirm_order_id)->first();
+            if ($order) {
+                $order->soda = $order->order;
+                $order->customer = $order->order->customer;
+                $order->customer_address = $order->order->customer->customeraddress?$order->order->customer->customeraddress->cityname->city_name.','.$order->order->customer->customeraddress->districtname->district_name.','.$order->order->customer->customeraddress->statename->state_name.','.$order->order->customer->customeraddress->countryname->country_name.','.$order->order->customer->customeraddress->pincodename->pincode:'-';
+                return response()->json(['status' => 'success', 'message' => 'data retrieved successfully.', 'data' => $order], 200);
+            }
+            return response()->json(['status' => 'error', 'message' =>  'Soda not found.'], $this->badrequest);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        }
     }
 }

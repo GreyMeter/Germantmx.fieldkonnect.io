@@ -36,6 +36,7 @@ use App\Models\Division;
 use App\Models\OrderConfirm;
 use App\Models\OrderDispatch;
 use App\Models\Price;
+use App\Models\AdditionalPrice;
 use App\Models\UnitMeasure;
 // use App\Models\Customers;
 use Dompdf\Dompdf;
@@ -87,7 +88,7 @@ class OrderController extends Controller
         $brands = Brand::where('active', '=', 'Y')->select('id', 'brand_name')->get();
         $units = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name')->get();
         $base_price = optional(Price::select('base_price')->first())->base_price;
-        $po_no = $this->generatePoNumber();
+        $po_no = generatePoNumber();
         $totalOrderConfirmQty = 0;
         return view('orders.create', compact('categories', 'brands', 'customers', 'units', 'base_price', 'po_no', 'totalOrderConfirmQty'))->with('orders', $this->orders);
     }
@@ -103,7 +104,7 @@ class OrderController extends Controller
         try {
             abort_if(Gate::denies('order_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
             $request['created_by'] = Auth::user()->id;
-            $request['po_no'] = $this->generatePoNumber();
+            $request['po_no'] = generatePoNumber();
             $order = Order::create($request->all());
 
             return Redirect::to('orders')->with('message_success', 'Soda Store Successfully And order PO Number is <span title="Copy" id="copyText">' . $request['po_no'] . '</span>');
@@ -125,7 +126,7 @@ class OrderController extends Controller
         $orders = $this->orders->with('brands', 'sizes', 'grades', 'customer', 'createdbyname')->find($id);
         $totalOrderConfirmQty = OrderConfirm::where('order_id', $id)->sum('qty');
 
-        return view('orders.show', compact('orders','totalOrderConfirmQty'));
+        return view('orders.show', compact('orders', 'totalOrderConfirmQty'));
     }
 
     public function confirm_orders_show($id, Request $request)
@@ -133,7 +134,7 @@ class OrderController extends Controller
         abort_if(Gate::denies('order_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $id = decrypt($id);
         $totalOrderDispatchQty = OrderDispatch::where('order_confirm_id', $id)->sum('qty');
-        $orders = OrderConfirm::with('order','brands', 'sizes', 'grades', 'order.customer', 'createdbyname')->find($id);
+        $orders = OrderConfirm::with('order', 'brands', 'sizes', 'grades', 'order.customer', 'createdbyname')->find($id);
 
         return view('orders.confirm_show', compact('orders', 'totalOrderDispatchQty'));
     }
@@ -619,26 +620,32 @@ class OrderController extends Controller
         return response()->json(['status' => 'success']);
     }
 
-    function generatePoNumber()
-    {
-        $lastOrder = Order::latest('id')->first();
-        $lastOrderId = $lastOrder ? $lastOrder->id : 0;
-        $poNumber = 1000000 + $lastOrderId + 1;
-
-        return $poNumber;
-    }
 
     public function confirm($id, Request $request)
     {
         $id = decrypt($id);
         $orders = Order::find($id);
 
-        $totalOrderConfirm = OrderConfirm::where('order_id', $id)->count('id');
-        $request['confirm_po_no'] = $orders->po_no . '-' . $totalOrderConfirm + 1;
-        $request['order_id'] = $id;
-        $request['created_by'] = Auth::user()->id;
+        foreach ($request->qty as $k => $qty) {
+            $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->category_id[$k], 'model_name' => 'size'])->first())->price_adjustment;
+            $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'model_name' => 'grade'])->first())->price_adjustment;
+            $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'model_name' => 'brand'])->first())->price_adjustment;
+            $after_soda_price = $orders->base_price + $additional_price_brand + $additional_price_grade + $additional_price_size;
+            $totalOrderConfirm = OrderConfirm::where('order_id', $id)->count('id');
+            $data['confirm_po_no'] = $orders->po_no . '-' . $totalOrderConfirm + 1;
+            $data['order_id'] = $id;
+            $data['created_by'] = Auth::user()->id;
+            $data['po_no'] = $orders->po_no;
+            $data['consignee_details'] = $request->consignee_details;
+            $data['qty'] = $qty;
+            $data['unit_id'] = $request->grade_id[$k];
+            $data['brand_id'] = $request->brand_id[$k];
+            $data['category_id'] = $request->category_id[$k];
+            $data['base_price'] = $orders->base_price;
+            $data['soda_price'] = $after_soda_price * $qty;
 
-        $orderConfirm = OrderConfirm::create($request->all());
+            $soda = OrderConfirm::create($data);
+        }
 
         return Redirect::to('orders')->with('message_success', 'Soda Confirm Successfully.');
     }

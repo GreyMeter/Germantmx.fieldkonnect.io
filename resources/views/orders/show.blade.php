@@ -53,7 +53,7 @@
                 <div class="col-4">
                   <h4> -->
                     <!-- <img src="" class="brand-image" width="70px" alt="Logo"> <span> </span> -->
-                    <!-- <small class="float-left">Created By: {!! $orders['createdbyname']['name'] !!}</small>
+                    <!-- <small class="float-left">Created By: {!! $orders['createdbyname']?$orders['createdbyname']['name']:'Self' !!}</small>
                   </h4>
                 </div> -->
                 <!-- /.col -->
@@ -78,7 +78,7 @@
                   <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
                   PO Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['po_no'] !!}</span> <br><br>
                   Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!} <br><br>
-                  Created By: {!! $orders['createdbyname']['name'] !!}
+                  Created By: {!! $orders['createdbyname']?$orders['createdbyname']['name']:'Self' !!}
                   </address>
                 </div>
               </div>
