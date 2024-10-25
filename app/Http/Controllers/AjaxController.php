@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use DataTables;
 use Validator;
 use Gate;
-use App\Models\{AdditionalPrice, Pincode, City, District, State, Country, Customers, Category, Product, Address, Attachment, Attendance, Order, Status, Settings, Tasks, ProductDetails, Sales, UserReporting, CheckIn, Complaint, ComplaintTimeline, ComplaintWorkDone, CustomerDetails, DealerAppointment, DealerAppointmentKyc, EndUser, Expenses, GiftModel, GiftSubcategory, Notes, OrderSchemeDetail, PrimarySales, Redemption, SchemeDetails, ServiceBill, ServiceChargeCategories, ServiceChargeProducts, Services, Subcategory, TourProgramme, TransactionHistory, User, UserCityAssign, WarrantyActivation};
+use App\Models\{AdditionalPrice, Pincode, City, District, State, Country, Customers, Category, Product, Address, Attachment, Attendance, Brand, Order, Status, Settings, Tasks, ProductDetails, Sales, UserReporting, CheckIn, Complaint, ComplaintTimeline, ComplaintWorkDone, CustomerDetails, DealerAppointment, DealerAppointmentKyc, EndUser, Expenses, GiftModel, GiftSubcategory, Notes, OrderSchemeDetail, PrimarySales, Redemption, SchemeDetails, ServiceBill, ServiceChargeCategories, ServiceChargeProducts, Services, Subcategory, TourProgramme, TransactionHistory, UnitMeasure, User, UserCityAssign, WarrantyActivation};
 use App\Models\UserLiveLocation;
 use App\Models\UserActivity;
 use App\Http\Controllers\SendNotifications;
@@ -1392,5 +1392,21 @@ class AjaxController extends Controller
         $additional_price = optional(AdditionalPrice::where(['model_id' => $model_id, 'model_name' => $model_name])->first())->price_adjustment;
 
         return response()->json(['status' => 'success', 'additional_price' => $additional_price]);
+    }
+
+    public function getBrand()
+    {
+        $brands = Brand::select('id', 'brand_name')->get();
+        return response()->json(['status' => 'success', 'brands' => $brands]);
+    }
+    public function getGrade()
+    {
+        $grade = UnitMeasure::select('id', 'unit_name')->get();
+        return response()->json(['status' => 'success', 'grade' => $grade]);
+    }
+    public function getSize()
+    {
+        $size = Category::select('id', 'category_name')->get();
+        return response()->json(['status' => 'success', 'size' => $size]);
     }
 }

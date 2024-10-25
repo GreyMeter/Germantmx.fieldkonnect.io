@@ -961,6 +961,9 @@ Route::any('getServiceProductDetails', [AjaxController::class, 'getServiceProduc
 Route::any('changeAppointmentStatus', [AjaxController::class, 'changeAppointmentStatus']);
 Route::any('getOrderLimit', [AjaxController::class, 'getOrderLimit']);
 Route::any('getAdditionalPrice', [AjaxController::class, 'getAdditionalPrice']);
+Route::any('getBrand', [AjaxController::class, 'getBrand']);
+Route::any('getGrade', [AjaxController::class, 'getGrade']);
+Route::any('getSize', [AjaxController::class, 'getSize']);
 
 
 
