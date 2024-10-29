@@ -82,7 +82,7 @@
                 <label class="col-md-3 col-form-label">Quantity<small>(Tonn)</small> <span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                    <input type="number" name="qty" id="qty" class="form-control" value="{!! old( 'qty', $orders['qty']-$totalOrderDispatchQty) !!}" min="10" max="{{$orders['qty']-$totalOrderDispatchQty}}" step="1" required>
+                    <input type="number" name="qty" id="qty" class="form-control" value="{!! old( 'qty', $orders['qty']-$totalOrderDispatchQty) !!}" min="1" max="{{$orders['qty']-$totalOrderDispatchQty}}" step="1" required>
                     @if ($errors->has('qty'))
                     <div class="error col-lg-12">
                       <p class="text-danger">{{ $errors->first('qty') }}</p>

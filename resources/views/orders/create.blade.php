@@ -49,7 +49,6 @@
                       <p class="text-danger">{{ $errors->first('qty') }}</p>
                     </div>
                     @endif
-                    <span id="qty-errors"></span>
                   </div>
                 </div>
               </div>
@@ -100,7 +99,7 @@
                 <label class="col-md-3 col-form-label">Quantity<small>(Tonn)</small> <span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                    <input type="number" name="qty" id="qty" class="form-control" value="{!! old( 'qty', $orders['qty']-$totalOrderConfirmQty) !!}" min="1" max="{{isset($cnf)?$orders['qty']-$totalOrderConfirmQty:''}}" step="1" required>
+                    <input type="number" name="qty" {{isset($cnf)?'disabled':''}} id="qty" class="form-control" value="{!! old( 'qty', $orders['qty']-$totalOrderConfirmQty) !!}" min="1" max="{{isset($cnf)?$orders['qty']-$totalOrderConfirmQty:''}}" step="1" required>
                     @if ($errors->has('qty'))
                     <div class="error col-lg-12">
                       <p class="text-danger">{{ $errors->first('qty') }}</p>
@@ -116,7 +115,7 @@
                 <label class="col-md-3 col-form-label">Base Price<small>(1MT)</small> <span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                    <input readonly type="text" name="base_price" id="base_price" class="form-control" value="{!! $orders['base_price']??$base_price !!}" maxlength="200" required>
+                    <input readonly type="text" name="base_price" id="base_price" class="form-control" value="{!! $orders['base_price']?$orders['base_price']-$orders['discount_amt']:$base_price !!}" maxlength="200" required>
                     @if ($errors->has('base_price'))
                     <div class="error col-lg-12">
                       <p class="text-danger">{{ $errors->first('base_price') }}</p>
@@ -127,6 +126,7 @@
               </div>
             </div>
             @if($orders->exists)
+            <span class="badge badge-danger" id="all-qty-errors"></span>
             <table class="table kvcodes-dynamic-rows-example" id="tab_logic">
               <thead>
                 <tr>
@@ -268,7 +268,7 @@
           '<tr> <td>' + counter + '</td>' +
           '<td class="group" style="width:30%"><div class="input_section"><select required name="brand_id[]" class="form-control brand' + counter + '"></select></div></td>' +
           '<td style="width:30%" class="subCat"><div class="input_section"><select required name="grade_id[]" class="form-control grade' + counter + '"></select></div></td>' +
-          '<td style="width:30%"><div class="input_section"><select required name="category_id[]" class="form-control size' + counter + '"></select></div></td>' +
+          '<td style="width:30%"><div class="input_section"><select required name="category_id[]" class="form-control allsizes size' + counter + '"></select></div></td>' +
           '<td><div class="input_section"><input required type="number" name="qty[]"class="form-control points rowchange" /></div></td>' +
           '<td class="td-actions text-center"><a class="remove-rows btn btn-danger btn-just-icon btn-sm"><i class="fa fa-minus"></i></a></td> </tr>';
         $table.append(newRow);
@@ -415,5 +415,21 @@
         }
       });
     }
+
+    $(document).on('keyup', '.points', function() {
+        let totalQty = 0;
+        let remainQty = {{$orders?$orders['qty']-$totalOrderConfirmQty:0}};
+        $('.points').each(function() {
+            let qtyValue = parseFloat($(this).val()) || 0;
+            totalQty += qtyValue;
+        });
+        if(totalQty > remainQty){
+          $("#smt-btn").prop("disabled", true);
+          $("#all-qty-errors").html("* Quantity can not be greater then total soda quantity.");
+        }else{
+          $("#smt-btn").prop("disabled", false);
+          $("#all-qty-errors").html("");
+        }
+    });
   </script>
 </x-app-layout>

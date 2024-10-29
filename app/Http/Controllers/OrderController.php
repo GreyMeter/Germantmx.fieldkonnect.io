@@ -54,9 +54,8 @@ class OrderController extends Controller
     public function index(OrderDataTable $dataTable)
     {
         abort_if(Gate::denies('order_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $divisions = Category::where('active', 'Y')->get();
-        $customer_types = CustomerType::where('active', 'Y')->get();
-        return $dataTable->render('orders.index', compact('divisions', 'customer_types'));
+        $customers = Customers::where('active', 'Y')->get();
+        return $dataTable->render('orders.index', compact('customers'));
     }
 
     public function confirm_orders(OrderConfirmDataTable $dataTable)
@@ -106,6 +105,14 @@ class OrderController extends Controller
             $request['created_by'] = Auth::user()->id;
             $request['po_no'] = generatePoNumber();
             $order = Order::create($request->all());
+            
+            $data['type'] = 'Soda Created';
+            $data['data'] = 'New soda created successfully with PO Number is '.$request['po_no'].'.';
+            $data['customer_id'] = $request['customer_id'];
+            addNotification($data);
+
+
+
 
             return Redirect::to('orders')->with('message_success', 'Soda Store Successfully And order PO Number is <span title="Copy" id="copyText">' . $request['po_no'] . '</span>');
         } catch (\Exception $e) {
@@ -625,7 +632,7 @@ class OrderController extends Controller
     {
         $id = decrypt($id);
         $orders = Order::find($id);
-
+        $tqty = 0;
         foreach ($request->qty as $k => $qty) {
             $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->category_id[$k], 'model_name' => 'size'])->first())->price_adjustment;
             $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'model_name' => 'grade'])->first())->price_adjustment;
@@ -643,9 +650,15 @@ class OrderController extends Controller
             $data['category_id'] = $request->category_id[$k];
             $data['base_price'] = $orders->base_price;
             $data['soda_price'] = $after_soda_price * $qty;
+            $tqty += $qty;
 
             $soda = OrderConfirm::create($data);
         }
+
+        $Ndata['type'] = 'Order Comfirmed';
+        $Ndata['data'] = $tqty.' Quantity confirmed of PO Number '.$request['po_no'].' .';
+        $Ndata['customer_id'] = $orders['customer_id'];
+        addNotification($Ndata);
 
         return Redirect::to('orders')->with('message_success', 'Soda Confirm Successfully.');
     }
@@ -654,7 +667,7 @@ class OrderController extends Controller
     {
         $id = decrypt($id);
         $orders = OrderConfirm::find($id);
-
+        
         $totalOrderDispacth = OrderDispatch::where('order_confirm_id', $id)->count('id');
         $request['dispatch_po_no'] = $orders->confirm_po_no . '-' . $totalOrderDispacth + 1;
         $request['order_confirm_id'] = $id;
@@ -663,6 +676,11 @@ class OrderController extends Controller
         $request['created_by'] = Auth::user()->id;
 
         $orderConfirm = OrderDispatch::create($request->all());
+
+        $Ndata['type'] = 'Order Disapatch';
+        $Ndata['data'] = $request['qty'].' Quantity dispatch of order Number '.$orders->confirm_po_no.' .';
+        $Ndata['customer_id'] = $orders->order->customer_id;
+        addNotification($Ndata);
 
         return Redirect::to('orders_confirm')->with('message_success', 'Order Dispatch Successfully.');
     }

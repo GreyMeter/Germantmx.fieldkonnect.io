@@ -18,7 +18,7 @@
             <span class="">
               <div class="btn-group header-frm-btn">
 
-                @if(auth()->user()->can(['order_download']))
+                @if(auth()->user()->can(['order_dispatch_download']))
                 <form method="GET" action="{{ URL::to('orders-download') }}">
                   <div class="d-flex flex-wrap flex-row">
                   <div class="p-2" style="width:190px;">

@@ -964,6 +964,7 @@ Route::any('getAdditionalPrice', [AjaxController::class, 'getAdditionalPrice']);
 Route::any('getBrand', [AjaxController::class, 'getBrand']);
 Route::any('getGrade', [AjaxController::class, 'getGrade']);
 Route::any('getSize', [AjaxController::class, 'getSize']);
+Route::any('sodaDiscount', [AjaxController::class, 'sodaDiscount']);
 
 
 

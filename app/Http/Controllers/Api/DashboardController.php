@@ -43,6 +43,7 @@ use App\Models\TourProgramme;
 use App\Models\TransactionHistory;
 use Carbon\Carbon;
 use App\Models\FieldKonnectAppSetting;
+use App\Models\Notification;
 use App\Models\Price;
 use App\Models\PrimarySales;
 
@@ -715,8 +716,23 @@ class DashboardController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data], 200);
     }
 
-    public function today_rate(){
+    public function today_rate(Request $request){
+        $customer = $request->user();
+        $notify = Customers::where('id', $customer->id)->first()->notify;
         $data = Price::first()->base_price;
-        return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'todayrate' => $data], 200);
+
+        return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'todayrate' => $data, 'notify' =>$notify], 200);
+    }
+
+    public function getCustomerNotification(Request $request)
+    {
+        try {
+            $customer = $request->user();
+            $all_noti = Notification::where('customer_id', $customer->id)->orderBy('id', 'desc')->get();
+            Customers::where('id', $customer->id)->update(['notify'=>false]);
+            return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $all_noti], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        }
     }
 }

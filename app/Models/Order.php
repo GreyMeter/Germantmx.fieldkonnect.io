@@ -11,7 +11,7 @@ class Order extends Model
 
     protected $table = 'orders';
 
-    protected $fillable = [ 'customer_id','po_no','qty','unit_id','brand_id','category_id','base_price','soda_price','status','created_by', 'updated_by','deleted_at','created_at','updated_at'];
+    protected $fillable = [ 'customer_id','po_no','qty','unit_id','brand_id','category_id','base_price', 'discount_amt','soda_price','status','created_by', 'updated_by','deleted_at','created_at','updated_at'];
 
     public $timestamps = true;
 

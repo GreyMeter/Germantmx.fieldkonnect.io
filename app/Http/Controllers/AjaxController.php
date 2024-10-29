@@ -1409,4 +1409,15 @@ class AjaxController extends Controller
         $size = Category::select('id', 'category_name')->get();
         return response()->json(['status' => 'success', 'size' => $size]);
     }
+
+    public function sodaDiscount(Request $request)
+    {
+        $update = Order::where('id', $request->soda_id)->update(['discount_amt'=>$request->dis_amt]);
+
+        if ($update) {
+            return response()->json(['status' => 'success', 'message' => 'Discount Add Successfully !!']);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Somthing went wrong.']);
+        }
+    }
 }

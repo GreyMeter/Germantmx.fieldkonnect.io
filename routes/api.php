@@ -79,6 +79,7 @@ Route::group(['middleware' => ['auth:customers']], function () {
     // Route::any('customer/updateProfile', [LoginController::class, 'updateCustomerProfile']);
     // Dashboard
     Route::any('customer/todayRate', [DashboardController::class, 'today_rate']);
+    Route::any('customer/getCustomerNotification', [DashboardController::class, 'getCustomerNotification']);
     Route::any('customer/logout', [LoginController::class, 'customerlogout']);
     Route::post('customer/delete', [LoginController::class, 'customerdelete']);
     Route::any('customer/dashboard', [DashboardController::class, 'customerDashboard']);
@@ -108,6 +109,8 @@ Route::group(['middleware' => ['auth:customers']], function () {
     Route::post('customer/insertOrderConfirm', [OrderController::class, 'insertOrderConfirm']);
     Route::any('customer/getorderList', [OrderController::class, 'customerorderList']);
     Route::any('customer/getConfirmOrder', [OrderController::class, 'getConfirmOrder']);
+    Route::any('customer/getdispatchList', [OrderController::class, 'customerdispatchList']);
+    Route::any('customer/getDispatchOrder', [OrderController::class, 'getDispatchOrder']);
     //Coupon Scan
     Route::post('customer/couponScans', [CouponController::class, 'customerCouponScans']);
     Route::post('customer/getScanedCoupons', [CouponController::class, 'customerScanedCouponList']);
