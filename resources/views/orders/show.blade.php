@@ -22,7 +22,7 @@
                 <a href="{{ url('orders/' . encrypt($orders->id) . '/edit?cnf=true') }}" class="btn btn-success">Confirm Order</a>
                 <a class="btn btn-danger bg-danger">Cancle Order</a>
                 @else
-                <button type="button" class="btn btn-success">This order has fully confirm</button>
+                <button type="button" class="btn btn-success">This order is fully confirmed</button>
                 @endif
                 @endif
                 <span class="pull-right">
@@ -33,6 +33,13 @@
                   </div>
                 </span>
               </div>
+            </div>
+
+            <div class="alert" style="display: none;" id="hide_check">
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <i class="material-icons">close</i>
+              </button>
+              <strong class="message"></strong>
             </div>
 
             <div class="invoice p-3 mb-4">
@@ -46,17 +53,17 @@
 
                 <div class="col-4">
                   <h4> -->
-                    <!-- <img src="" class="brand-image" width="70px" alt="Logo"> <span> </span> -->
-                    <!-- <small class="float-left">Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!}</small>
+              <!-- <img src="" class="brand-image" width="70px" alt="Logo"> <span> </span> -->
+              <!-- <small class="float-left">Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!}</small>
                   </h4>
                 </div>
                 <div class="col-4">
                   <h4> -->
-                    <!-- <img src="" class="brand-image" width="70px" alt="Logo"> <span> </span> -->
-                    <!-- <small class="float-left">Created By: {!! $orders['createdbyname']?$orders['createdbyname']['name']:'Self' !!}</small>
+              <!-- <img src="" class="brand-image" width="70px" alt="Logo"> <span> </span> -->
+              <!-- <small class="float-left">Created By: {!! $orders['createdbyname']?$orders['createdbyname']['name']:'Self' !!}</small>
                   </h4>
                 </div> -->
-                <!-- /.col -->
+              <!-- /.col -->
               <!-- </div> -->
               <hr>
               <!-- info row -->
@@ -74,11 +81,11 @@
                 <div class="col-sm-2 invoice-col"></div>
                 <!-- /.col -->
                 <div class="col-sm-5 invoice-col">
-                <h3 style="margin-bottom: 10px;font-weight: 500;">Soda Deatils:</h3>
+                  <h3 style="margin-bottom: 10px;font-weight: 500;">Soda Deatils:</h3>
                   <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
-                  PO Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['po_no'] !!}</span> <br><br>
-                  Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!} <br><br>
-                  Created By: {!! $orders['createdbyname']?$orders['createdbyname']['name']:'Self' !!}
+                    PO Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['po_no'] !!}</span> <br><br>
+                    Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!} <br><br>
+                    Created By: {!! $orders['createdbyname']?$orders['createdbyname']['name']:'Self' !!}
                   </address>
                 </div>
               </div>
@@ -90,23 +97,19 @@
                   <table class="table table-striped">
                     <thead>
                       <tr>
-                        <!-- <th>Brand</th>
-                        <th>Grade</th>
-                        <th>Size</th> -->
                         <th>Quantity<small>(Tonn)</small></th>
                         <th>Base Price<small>(1MT)</small></th>
-                        <!-- <th>Soda Price</th> -->
+                        <th>Discount<small>(₹)</small></th>
+                        <th style="text-align: center !important;">Action</th>
                       </tr>
                     </thead>
                     <tbody>
                       @if($orders->exists )
                       <tr>
-                        <!-- <td>{{$orders->brands?$orders->brands->brand_name:'-'}}</td>
-                        <td>{{$orders->grades?$orders->grades->unit_name:'-'}}</td>
-                        <td>{{$orders->sizes?$orders->sizes->category_name:'-'}}</td> -->
                         <td>{{$orders->qty}}</td>
                         <td>{{$orders->base_price}}</td>
-                        <!-- <td>{{$orders->soda_price}}</td> -->
+                        <td>{{$orders->discount_amt}}</td>
+                        <td style="text-align: center !important;"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter" {{$totalOrderConfirmQty > 0 ? 'disabled':''}}>{{$orders->discount_amt < 1 ? 'Give Discount':'Change Discount'}}</button></td>
                       </tr>
                       @endif
                     </tbody>
@@ -134,6 +137,30 @@
         <!-- /.col -->
       </div>
       <!-- /.row -->
+
+      <!-- Modal -->
+      <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="exampleModalLongTitle">Discount</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <label for="discount_amt">Discount <small>(₹)</small></label>
+              <input class="form-control" value="{{$orders->discount_amt}}" type="number" min="0" name="discount_amt" id="discount_amt">
+              <input type="hidden" name="soda_id" id="soda_id" value="{{$orders['id']}}">
+              <span class="badge badge-danger amt_err"></span>
+            </div>
+            <div class="modal-footer">
+              <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button> -->
+              <button type="button" class="btn btn-primary" id="give_dis">Give Discount</button>
+            </div>
+          </div>
+        </div>
+      </div>
   </section>
   <script>
     $("#cancleButton").on("click", function() {
@@ -177,6 +204,39 @@
         }
       });
 
+    })
+
+    $("#give_dis").on('click', function() {
+      var dis_amt = $("#discount_amt").val();
+      var soda_id = $("#soda_id").val();
+      if (dis_amt > 0 && dis_amt != '') {
+        $('.amt_err').html('');
+        $.ajax({
+          url: "{{ url('sodaDiscount') }}",
+          data: {
+            "dis_amt": dis_amt,
+            "soda_id": soda_id,
+          },
+          success: function(data) {
+            $('.message').empty();
+            $('.alert').show();
+            if (data.status == 'success') {
+              $('.alert').addClass("alert-success");
+              setTimeout(function() {
+                location.reload();
+              }, 500);
+
+            } else {
+              $('.alert').addClass("alert-danger");
+            }
+            $('.message').append(data.message);
+          }
+        });
+        $('#exampleModalCenter').modal('hide');
+      } else {
+        $('.amt_err').html('Discount must be greater than 0.');
+        return false;
+      }
     })
   </script>
   <!-- /.content -->

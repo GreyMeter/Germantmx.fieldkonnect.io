@@ -22,6 +22,7 @@ use App\Models\SchemeHeader;
 use App\Models\Coupons;
 use App\Models\Order;
 use App\Models\Payment;
+use Illuminate\Http\Request;
 
 if (! function_exists('sendmessage')) {
     function sendmessage($data, $mobile)
@@ -792,4 +793,20 @@ function generatePoNumber()
     $poNumber = 1000000 + $lastOrderId + 1;
 
     return $poNumber;
+}
+
+function addNotification(array $data)
+{
+    Notification::create([
+        'type' => $data['type'],
+        'data' => $data['data'],
+        'customer_id' => $data['customer_id'],
+    ]);
+    Customers::where('id', $data['customer_id'])->update(['notify'=>true]);
+
+    return true;
+}
+
+function getAllNotification(){
+    return Notification::where('active', 'Y')->orderBy('id', 'desc')->get();
 }

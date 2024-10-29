@@ -3,6 +3,7 @@
 namespace App\DataTables;
 
 use App\Models\Order;
+use Illuminate\Http\Request;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Html\Editor\Editor;
@@ -63,21 +64,24 @@ class OrderDataTable extends DataTable
      * @return \Illuminate\Database\Eloquent\Builder
      */
 
-    public function query(Order $model)
+    public function query(Order $model, Request $request)
     {
         $userids = getUsersReportingToAuth();
 
         $query = $model->with('brands', 'sizes', 'grades', 'customer', 'createdbyname');
-
         
         $query->newQuery();
 
-        if (request()->has('retailers_id') && request()->get('retailers_id') != '') {
-            $query->where('buyer_id', request()->get('retailers_id'));
+        if ($request->customer_id && !empty($request->customer_id) ) {
+            $query->where('customer_id', $request->customer_id);
         }
 
-        if (request()->has('retailers_id') && request()->get('retailers_id') != '') {
-            $query->where('buyer_id', request()->get('retailers_id'));
+        if ($request->start_date && !empty($request->start_date)) {
+            $query->whereDate('created_at','>=', $request->start_date);
+        }
+
+        if ($request->end_date && !empty($request->end_date)) {
+            $query->whereDate('created_at','<=', $request->end_date);
         }
 
         return $query->latest();

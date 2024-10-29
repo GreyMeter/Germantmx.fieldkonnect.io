@@ -22,50 +22,16 @@
                 <form method="GET" action="{{ URL::to('orders-download') }}">
                   <div class="d-flex flex-wrap flex-row">
                     <div class="p-2" style="width:190px;">
-                      <select class="select2" name="dividion_id" id="dividion_id" required>
-                        <option value="">Select Division</option>
-                        @foreach($divisions as $division)
-                        <option value="{{$division->id}}">{{$division->category_name}}</option>
+                      <select class="select2" name="customer_id" id="customer_id" required>
+                        <option value="">Select Customer</option>
+                        @foreach($customers as $customer)
+                        <option value="{{$customer->id}}">{{$customer->name}}</option>
                         @endforeach
                       </select>
                     </div>
-                    <div class="p-2" style="width:190px;">
-                      <select class="select2" name="retailers_id" id="retailers_id" title="Select Retailers">
-                        <option value="">Select Retailers</option>
-                        @foreach($retailers as $user)
-                        <option value="{!! $user['id'] !!}" {{ old( 'retailers_id') == $user->id ? 'selected' : '' }}>{!! $user['name'] !!}</option>
-                        @endforeach
-                      </select>
-                    </div>
-                    <div class="p-2" style="width:190px;">
-                      <select class="select2" name="customer_type_id" id="customer_type_id" title="Select Retailers">
-                        <option value="">Customer Type</option>
-                        @foreach($customer_types as $customer_type)
-                        <option value="{!! $customer_type['id'] !!}" {{ old( 'customer_type_id') == $customer_type->id ? 'selected' : '' }}>{!! $customer_type['customertype_name'] !!}</option>
-                        @endforeach
-                      </select>
-                    </div>
-                    <div class="p-2" style="width:190px;">
-                      <select class="select2" name="distributor_id" id="distributor_id" title="Select Distributor">
-                        <option value="">Select Distributor</option>
-                        @foreach($distributors as $user)
-                        <option value="{!! $user['id'] !!}" {{ old( 'distributor_id') == $user->id ? 'selected' : '' }}>{!! $user['name'] !!}</option>
-                        @endforeach
-                      </select>
-                    </div>
-
-                    <div class="p-2" style="width:190px;">
-                      <select class="selectpicker" name="pending_status" id="pending_status" data-style="select-with-transition">
-                        <option value="">Select Status</option>
-                        <option value="1">Dispatch</option>
-                        <option value="2">Partial Dispatch</option>
-                        <option value="0">Pending</option>
-                      </select>
-                    </div>
-
                     <div class="p-2"><input type="text" class="form-control datepicker" id="start_date" name="start_date" placeholder="Start Date" autocomplete="off" readonly></div>
                     <div class="p-2"><input type="text" class="form-control datepicker" id="end_date" name="end_date" placeholder="End Date" autocomplete="off" readonly></div>
-                    <div class="p-2"><button class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.download') !!} {!! trans('panel.order.title') !!}"><i class="material-icons">cloud_download</i></button></div>
+                    <!-- <div class="p-2"><button class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.download') !!} {!! trans('panel.order.title') !!}"><i class="material-icons">cloud_download</i></button></div> -->
                   </div>
                 </form>
                 @endif
@@ -174,10 +140,9 @@
         ajax: {
           url: "{{ route('orders.index') }}",
           data: function(d) {
-            d.retailers_id = $('#retailers_id').val();
-            d.distributor_id = $('#distributor_id').val();
-            d.customer_type_id = $('#customer_type_id').val();
-            d.pending_status = $('#pending_status').val();
+            d.customer_id = $('#customer_id').val();
+            d.start_date = $('#start_date').val();
+            d.end_date = $('#end_date').val();
           }
         },
         columns: [{
@@ -198,24 +163,7 @@
             "defaultContent": '',
             orderable: false
           },
-          // {
-          //   data: 'brands.brand_name',
-          //   name: 'brands.brand_name',
-          //   "defaultContent": '',
-          //   orderable: false
-          // },
-          // {
-          //   data: 'grades.unit_name',
-          //   name: 'grades.unit_name',
-          //   "defaultContent": '',
-          //   orderable: false
-          // },
-          // {
-          //   data: 'sizes.category_name',
-          //   name: 'sizes.category_name',
-          //   "defaultContent": '',
-          //   orderable: false
-          // },
+
           {
             data: 'qty',
             name: 'qty',
@@ -228,8 +176,9 @@
             "defaultContent": '',
             orderable: false,
             render: function(data, type, row) {
-              if (data) {
-                return '₹ '+parseFloat(data).toLocaleString('en-US', {
+              if (data && row.discount_amt !== undefined) {
+                const discountedPrice = parseFloat(data) - parseFloat(row.discount_amt);
+                return '₹ ' + discountedPrice.toLocaleString('en-US', {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2
                 });
@@ -237,27 +186,6 @@
               return '';
             }
           },
-          // {
-          //   data: 'soda_price',
-          //   name: 'soda_price',
-          //   defaultContent: '',
-          //   orderable: false,
-          //   render: function(data, type, row) {
-          //     if (data) {
-          //       return '₹ '+parseFloat(data).toLocaleString('en-US', {
-          //         minimumFractionDigits: 2,
-          //         maximumFractionDigits: 2
-          //       });
-          //     }
-          //     return '';
-          //   }
-          // },
-          // {
-          //   data: 'createdbyname.name',
-          //   name: 'createdbyname.name',
-          //   "defaultContent": '',
-          //   orderable: false
-          // },
           {
             data: 'created_at',
             name: 'created_at',
@@ -267,17 +195,16 @@
         ]
       });
 
-      $('#retailers_id').change(function() {
+      $('#customer_id').change(function() {
         table.draw();
       });
 
-      $('#distributor_id').change(function() {
+      $('#start_date').change(function() {
+        var selectedStartDate = $('#start_date').datepicker('getDate');
+        $('#end_date').datepicker("option", "minDate", selectedStartDate);
         table.draw();
       });
-      $('#customer_type_id').change(function() {
-        table.draw();
-      });
-      $('#pending_status').change(function() {
+      $('#end_date').change(function() {
         table.draw();
       });
 

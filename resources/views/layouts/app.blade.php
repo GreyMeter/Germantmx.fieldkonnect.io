@@ -87,7 +87,10 @@
       font-weight: 500;
       font-size: 16px;
     }
-
+    .dropdown-menu .dropdown-item, .dropdown-menu li>a{
+      padding: 5px !important;
+      font-weight: 700 !important;
+    }
     body.dark {
       --body-color: #18191a;
       --sidebar-color: #242526;
@@ -1277,20 +1280,19 @@
                 <a class="nav-link" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
                   <i class="material-icons">notifications</i>
-                  <span class="notification">5</span>
+                  <!-- <span class="notification">5</span> -->
                   <p class="d-lg-none d-md-block">
                     Some Actions
                   </p>
                 </a>
                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                  @if(auth()->user()->can('visitor_log_access'))
-                  <a href="{{route('visitor')}}" class="btn btn-info btn-sm float-right">Visitor Logs</a>
-                  @endif
-                  <a class="dropdown-item" href="#">Mike John responded to your email</a>
-                  <a class="dropdown-item" href="#">You have 5 new tasks</a>
-                  <a class="dropdown-item" href="#">You're now friend with Andrew</a>
-                  <a class="dropdown-item" href="#">Another Notification</a>
-                  <a class="dropdown-item" href="#">Another One</a>
+                  <h3 class="ml-3">Alerts</h3>
+                  <hr>
+                  @foreach(getAllNotification() as $k=>$val)
+                  <a class="dropdown-item" href="#">{{$k+1}}) {{ $val->data}}</a>
+                  <small style="    display: flex;align-items: center;justify-content: right;" class="ml-3"><i style="font-size: 16px !important;" class="material-icons">schedule</i>{{date('d-M-Y h:i A', strtotime($val->created_at))}}</small>
+                  <hr>
+                  @endforeach
                 </div>
               </li>
               <li class="nav-item dropdown">

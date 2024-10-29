@@ -26428,8 +26428,10 @@ table.dataTable thead th.remove-sort-icon.sorting_asc:before,table.dataTable the
     display: none
 }
 
-a#navbarDropdownMenuLink {
-    display: none
+a#navbarDropdownMenuLink~ .dropdown-menu-right {
+    /* display: none */
+    overflow-y: scroll;
+    max-height: 250px;
 }
 
 .table-responsive::-webkit-scrollbar {
