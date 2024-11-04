@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use App\Models\Plant;
 use App\Models\UnitMeasure;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -15,19 +16,19 @@ class UnitExport implements FromCollection,WithHeadings,ShouldAutoSize,WithMappi
 {
     public function collection()
     {
-        return UnitMeasure::select('id','unit_name', 'unit_code')->latest()->get();   
+        return Plant::select('id','plant_name')->latest()->get();   
     }
 
     public function headings(): array
     {
-        return ['id','Grade Name'];
+        return ['ID','Unit Name'];
     }
 
     public function map($data): array
     {
         return [
             $data->id,
-            $data->unit_name,
+            $data->plant_name,
             // $data->unit_code,
         ];
     }

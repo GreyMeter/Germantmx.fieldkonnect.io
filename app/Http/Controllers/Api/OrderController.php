@@ -858,7 +858,7 @@ class OrderController extends Controller
                 $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'model_name' => 'size'])->first())->price_adjustment;
                 $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'model_name' => 'grade'])->first())->price_adjustment;
                 $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'model_name' => 'brand'])->first())->price_adjustment;
-                $after_soda_price = $soda->base_price+$additional_price_brand+$additional_price_grade+$additional_price_size;
+                $after_soda_price = ($soda->base_price-$soda->discount_amt)+$additional_price_brand+$additional_price_grade+$additional_price_size;
                 $totalOrderConfirm = OrderConfirm::where('order_id', $request->soda_id)->count('id');
                 $data['confirm_po_no'] = $soda->po_no . '-' . $totalOrderConfirm + 1;
                 $data['order_id'] = $request->soda_id;
@@ -869,7 +869,7 @@ class OrderController extends Controller
                 $data['unit_id'] = $request->grade_id[$k];
                 $data['brand_id'] = $request->brand_id[$k];
                 $data['category_id'] = $request->size_id[$k];
-                $data['base_price'] = $soda->base_price;
+                $data['base_price'] = $soda->base_price-$soda->discount_amt;
                 $data['soda_price'] = $after_soda_price*$qty;
                 $tqty += $qty;
 

@@ -87,10 +87,13 @@
       font-weight: 500;
       font-size: 16px;
     }
-    .dropdown-menu .dropdown-item, .dropdown-menu li>a{
+
+    .dropdown-menu .dropdown-item,
+    .dropdown-menu li>a {
       padding: 5px !important;
       font-weight: 700 !important;
     }
+
     body.dark {
       --body-color: #18191a;
       --sidebar-color: #242526;
@@ -760,7 +763,7 @@
 
             @if(auth()->user()->can(['customer_access']))
             <li
-              class="nav-link {{ request()->is('customers*') || request()->is('customertype*') || request()->is('firmtype*') || request()->is('customersLogin*') || request()->is('customers-survey*') || request()->is('fields*') ? 'active' : '' }}">
+              class="nav-link {{ request()->is('customers*') || request()->is('customertype*') || request()->is('firmtype*') || request()->is('customersLogin*') || request()->is('customers-survey*') || request()->is('fields*') || request()->is('customer_outstanting*') ? 'active' : '' }}">
               <a class="collapsed hoveradd" data-toggle="collapse" href="#customerMenu" aria-expanded="false">
                 <i class="material-icons icon">contact_emergency</i>
                 <span> {!! trans('panel.sidemenu.customers_master') !!}
@@ -771,7 +774,7 @@
                 </div>
               </a>
 
-              <div class="collapse {{ request()->is('customers*') || request()->is('customertype*') || request()->is('firmtype*') ? 'show' : '' }}" id="customerMenu" style="">
+              <div class="collapse {{ request()->is('customers*') || request()->is('customertype*') || request()->is('firmtype*') || request()->is('customer_outstanting*') ? 'show' : '' }}" id="customerMenu" style="">
                 <ul class="navd">
                   @if(auth()->user()->can(['customer_access']))
                   <li class="nav-link-btn {{ request()->is('customers*') ? 'active' : '' }}">
@@ -807,8 +810,15 @@
                   </li>
                   @endif
 
-
-
+                  @if(auth()->user()->can('customer_outstanting'))
+                  <li class="nav-link-btn {{ request()->is('customer_outstanting*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('customer_outstanting') }}">
+                      <i class="material-icons icon">nature_people</i>
+                      <span>Cutomer Outstanding</span>
+                      <div class="d-none mobile_hide"> Cutomer Outstanding</div>
+                    </a>
+                  </li>
+                  @endif
 
 
 
@@ -861,7 +871,7 @@
             @if(auth()->user()->can('product_access'))
             <li
 
-              class="nav-link {{ request()->is('categories*') || request()->is('subcategories*') || request()->is('brands*') || request()->is('products*') || request()->is('units*') || request()->is('production*') ? 'active' : '' }}">
+              class="nav-link {{ request()->is('categories*') || request()->is('subcategories*') || request()->is('brands*') || request()->is('products*') || request()->is('units*') || request()->is('production*') || request()->is('units*') || request()->is('plants*') || request()->is('stock*') ? 'active' : '' }}">
               <a class="collapsed hoveradd" data-toggle="collapse" href="#productMenu" aria-expanded="false">
                 <i class="material-icons icon">conveyor_belt</i>
                 <span> {!! trans('panel.sidemenu.product_master') !!}
@@ -871,7 +881,7 @@
 
                 </div>
               </a>
-              <div class="collapse {{ request()->is('categories*') || request()->is('subcategories*') || request()->is('brands*') || request()->is('products*') || request()->is('units*') || request()->is('production*') ? 'show' : '' }}" id="productMenu" style="">
+              <div class="collapse {{ request()->is('categories*') || request()->is('subcategories*') || request()->is('brands*') || request()->is('products*') || request()->is('units*') || request()->is('production*') || request()->is('units*') || request()->is('plants*') || request()->is('stock*') ? 'show' : '' }}" id="productMenu" style="">
                 <ul class="navd">
                   @if(auth()->user()->can('subcategory_access'))
                   <li class="nav-link-btn {{ request()->is('subcategories*') ? 'active' : '' }}">
@@ -914,12 +924,23 @@
                   </a>
                 </li> -->
                   @endif
-                  @if(auth()->user()->can('unit_access'))
+                  @if(auth()->user()->can('grade_access'))
                   <li class="nav-link-btn {{ request()->is('units*') ? 'active' : '' }}">
                     <a class="hoveradd2" href="{{ url('units') }}">
                       <i class="material-icons icon">apartment</i>
                       <span>Grade</span>
                       <div class="d-none mobile_hide">Grade
+
+                      </div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('unit_access'))
+                  <li class="nav-link-btn {{ request()->is('plants*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('plants') }}">
+                      <i class="material-icons icon">domain</i>
+                      <span>Unit</span>
+                      <div class="d-none mobile_hide">Unit
 
                       </div>
                     </a>
@@ -1026,7 +1047,7 @@
                 </span>
                 <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.hr') !!}</div>
               </a>
-              <div class="collapse" id="hr">
+              <div class="collapse {{ request()->is('reports/attendancereport*') || request()->is('reports/attendancereportSummary*') || request()->is('holidays*') || request()->is('leaves*') || request()->is('appraisal*') || request()->is('sales_weightage*') || request()->is('users*') || request()->is('targets*') || request()->is('livelocation*') || request()->is('roles*') || request()->is('permissions*') || request()->is('tours*') || request()->is('usercity*') || request()->is('new-joinings*') ? 'show' : '' }}" id="hr">
                 <ul class="navd">
                   @if(auth()->user()->can('role_access'))
                   <li class="nav-link-btn {{ request()->is('roles*') ? 'active' : '' }}">

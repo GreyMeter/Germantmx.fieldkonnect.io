@@ -6,12 +6,12 @@
         <div class="card-icon">
           <i class="material-icons">perm_identity</i>
         </div>
-        <h4 class="card-title ">{!! trans('panel.customertype.title_singular') !!} {!! trans('panel.global.list') !!}
+        <h4 class="card-title ">Unit {!! trans('panel.global.list') !!}
               <span class="">
                 <div class="btn-group header-frm-btn">
-                  <div class="next-btn">
-                  @if(auth()->user()->can(['customertype_upload']))
-                  <form action="{{ URL::to('customertype-upload') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
+                   <div class="next-btn">
+                  @if(auth()->user()->can(['unit_upload']))
+                  <form action="{{ URL::to('units-upload') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
                   {{ csrf_field() }}
                   <div class="input-group">
                       <div class="fileinput fileinput-new text-center" data-provides="fileinput">
@@ -19,11 +19,11 @@
                           <span class="fileinput-new"><i class="material-icons">attach_file</i></span>
                           <span class="fileinput-exists">Change</span>
                           <input type="hidden">
-                          <input type="file" title="Select File" name="import_file" required accept=".xls,.xlsx" />
+                          <input type="file" name="import_file" required accept=".xls,.xlsx" />
                         </span>
                       </div>
                     <div class="input-group-append">
-                      <button class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.upload') !!} {!! trans('panel.customertype.title') !!}">
+                      <button class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.upload') !!} {!! trans('panel.unit.title') !!}">
                         <i class="material-icons">cloud_upload</i>
                         <div class="ripple-container"></div>
                       </button>
@@ -31,14 +31,15 @@
                   </div>
                   </form>
                   @endif
-                  @if(auth()->user()->can(['customertype_download']))
-                  <a href="{{ URL::to('customertype-download') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.download') !!} {!! trans('panel.customertype.title') !!}"><i class="material-icons">cloud_download</i></a>
+                 
+                  @if(auth()->user()->can(['unit_download']))
+                  <a href="{{ URL::to('plants-download') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.download') !!} {!! trans('panel.unit.title') !!}"><i class="material-icons">cloud_download</i></a>
                   @endif
-                  @if(auth()->user()->can(['customertype_template']))
-                  <a href="{{ URL::to('customertype-template') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.template') !!} {!! trans('panel.customertype.title_singular') !!}"><i class="material-icons">text_snippet</i></a>
+                  @if(auth()->user()->can(['unit_template']))
+                  <a href="{{ URL::to('units-template') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.template') !!} {!! trans('panel.unit.title_singular') !!}"><i class="material-icons">text_snippet</i></a>
                   @endif
-                  @if(auth()->user()->can(['customertype_create']))
-                   <a data-toggle="modal" data-target="#createcustomertype" class="btn btn-just-icon btn-theme create" title="{!!  trans('panel.global.add') !!} {!! trans('panel.customertype.title_singular') !!}"><i class="material-icons">add_circle</i></a>
+                  @if(auth()->user()->can(['unit_create']))
+                   <a data-toggle="modal" data-target="#createunit" class="btn btn-just-icon btn-theme create" title="{!!  trans('panel.global.add') !!} {!! trans('panel.unit.title_singular') !!}"><i class="material-icons">add_circle</i></a>
                   @endif
                 </div>
                 </div>
@@ -65,13 +66,14 @@
           <span class="message"></span>
         </div>
         <div class="table-responsive">
-          <table id="getcustomertype" class="table table-striped- table-bordered table-hover table-checkable responsive no-wrap">
+          <table id="getunit" class="table table-striped- table-bordered table-hover table-checkable no-wrap">
             <thead class=" text-primary">
+              <th>{!! trans('panel.global.no') !!}</th>
               <th>ID</th>
               <th>{!! trans('panel.global.action') !!}</th>
-              <th>{!! trans('panel.global.active') !!}</th>
-              <th>{!! trans('panel.customertype.fields.customertype_name') !!}</th>
-              <th>{!! trans('panel.customertype.fields.type_name') !!}</th>
+              <!-- <th>{!! trans('panel.global.active') !!}</th> -->
+              <th>Unit Name</th>
+              <!-- <th>{!! trans('panel.unit.fields.unit_code') !!}</th> -->
               <th>{!! trans('panel.global.created_by') !!}</th>
               <th>{!! trans('panel.global.created_at') !!}</th>
             </thead>
@@ -84,67 +86,62 @@
   </div>
 </div>
 <!-- Modal -->
-<div class="modal fade bd-example-modal-lg" id="createcustomertype" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade bd-example-modal-lg" id="createunit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-lg" role="document">
     <div class="modal-content card">
       <div class="card-header card-header-icon card-header-theme">
         <div class="card-icon">
           <i class="material-icons">perm_identity</i>
         </div>
-        <h4 class="card-title"><span class="modal-title">{!! trans('panel.global.add') !!}</span> {!! trans('panel.customertype.title_singular') !!}
+        <h4 class="card-title"><span class="modal-title">{!! trans('panel.global.add') !!}</span> Unit
           <span class="pull-right" >
             <a href="javascript:void(0)" class="btn btn-just-icon btn-danger" data-dismiss="modal"><i class="material-icons">clear</i></a>
           </span>
         </h4>
       </div>
       <div class="modal-body">
-        <form method="POST" action="{{ route('customertype.store') }}" enctype="multipart/form-data" id="storeCustomerTypeData">
+        <form method="POST" action="{{ route('plants.store') }}" enctype="multipart/form-data" id="createunitForm">
         @csrf
         <div class="row">
             <div class="col-md-6">
-              <div class="row">
-                <label class="col-md-4 col-form-label">{!! trans('panel.customertype.fields.customertype_name') !!} <span class="text-danger"> *</span></label>
-                <div class="col-md-8">
-                  <div class="form-group has-default bmd-form-group">
-                    <input type="text" name="customertype_name" id="customertype_name" class="form-control" value="{!! old( 'customertype_name') !!}" maxlength="200" required>
-                    @if ($errors->has('customertype_name'))
-                      <div class="error col-lg-12"><p class="text-danger">{{ $errors->first('customertype_name') }}</p></div>
-                    @endif
+                <div class="row">
+                  <label class="col-md-3 col-form-label">Unit Name <span class="text-danger"> *</span></label>
+                  <div class="col-md-9">
+                    <div class="form-group has-default bmd-form-group">
+                      <input type="text" name="plant_name" id="plant_name" class="form-control" value="{!! old( 'plant_name') !!}" maxlength="200" required>
+                      @if ($errors->has('plant_name'))
+                        <div class="error col-lg-12"><p class="text-danger">{{ $errors->first('plant_name') }}</p></div>
+                      @endif
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-            <div class="col-md-6">
-              <div class="row">
-                <label class="col-md-4 col-form-label">{!! trans('panel.customertype.fields.type_name') !!} <span class="text-danger"> *</span></label>
-                <div class="col-md-8">
-                  <div class="form-group has-default bmd-form-group">
-                    <select class="form-control" name="type_name" id="type_name" style="width: 100%;" required>
-                        <option value="" selected disabled>Select {!! trans('panel.customertype.fields.type_name') !!}</option>
-                        <option value="distributor">distributor</option>
-                        <option value="retailer">retailer</option>
-                        <option value="Dealer">Dealer</option>
-                        <option value="Mechanic">Mechanic</option>
-                     </select>
-                    @if ($errors->has('type_name'))
-                      <div class="error col-lg-12"><p class="text-danger">{{ $errors->first('type_name') }}</p></div>
-                    @endif
+              <!-- <div class="col-md-6">
+                <div class="row">
+                  <label class="col-md-3 col-form-label">{!! trans('panel.unit.fields.unit_code') !!} <span class="text-danger"> *</span></label>
+                  <div class="col-md-9">
+                    <div class="form-group has-default bmd-form-group">
+                      <input type="text" name="unit_code" id="unit_code" class="form-control" value="{!! old( 'unit_code') !!}" maxlength="200" required>
+                      @if ($errors->has('unit_code'))
+                        <div class="error col-lg-12"><p class="text-danger">{{ $errors->first('unit_code') }}</p></div>
+                      @endif
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
+              </div> -->
           </div>
         <div class="clearfix"></div>
         <div class="modal-footer">
-          <input type="hidden" name="id" id="customertype_id" />
+          <input type="hidden" name="id" id="unit_id" />
           <button class="btn btn-info save"> Submit</button>
         </form>
         </div>
       </div>
     </div>
   </div>
+</div>
 <script src="{{ url('/').'/'.asset('assets/js/jquery.custom.js') }}"></script>
-<script src="{{ url('/').'/'.asset('assets/js/validation_customers.js') }}"></script>
+<script src="{{ url('/').'/'.asset('assets/js/validation_products.js') }}"></script>
 <script type="text/javascript">
   $(function () {
     $.ajaxSetup({
@@ -152,19 +149,20 @@
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           }
     });
-    var table = $('#getcustomertype').DataTable({
+    var table = $('#getunit').DataTable({
         processing: true,
         serverSide: true,
         "order": [ [0, 'desc'] ],
-        ajax: "{{ route('customertype.index') }}",
+        ajax: "{{ route('plants.index') }}",
         columns: [
-            { data: 'id', name: 'id', searchable: false },
-            {data: 'action', name: 'action',"defaultContent": '', orderable: false, searchable: false},
-            {data: 'active', name: 'active',"defaultContent": '', orderable: false, searchable: false},
-            {data: 'customertype_name', name: 'customertype_name',orderable: false,"defaultContent": ''},
-            {data: 'type_name', name: 'type_name',orderable: false,"defaultContent": ''},
-             {data: 'createdbyname.name', name: 'createdbyname.name',orderable: false,"defaultContent": ''},
-            {data: 'created_at', name: 'created_at',orderable: false,"defaultContent": ''},
+            { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+            { data: 'id', name: 'id', orderable: false, searchable: false },
+            {data: 'action', name: 'action',"defaultContent": '',className: 'remove-sort-icon', orderable: false, searchable: false},
+            //  {data: 'active', name: 'active',"defaultContent": '',className: 'remove-sort-icon', orderable: false, searchable: false},
+            {data: 'plant_name', name: 'plant_name',"defaultContent": '', orderable: false},
+            // {data: 'unit_code', name: 'unit_code',"defaultContent": ''},
+            {data: 'createdbyname.name', name: 'createdbyname.name',"defaultContent": '', orderable: false},
+            {data: 'created_at', name: 'created_at',"defaultContent": '', orderable: false},
         ]
     });
          
@@ -172,21 +170,20 @@
       var base_url =$('.baseurl').data('baseurl');
       var id = $(this).attr('id');
       $.ajax({
-        url: base_url + '/customertype/'+id+'/edit',
+        url: base_url + '/plants/'+id,
        dataType:"json",
        success:function(data)
        {
-        $('#customertype_name').val(data.customertype_name);
-        $("#type_name").val(data.type_name);
-        $('#customertype_id').val(data.id);
+        $('#plant_name').val(data.plant_name);
+        $('#unit_id').val(data.id);
         var title = '{!! trans('panel.global.edit') !!}' ;
         $('.modal-title').text(title);
         $('#action_button').val('Edit');
-        $('#createcustomertype').modal('show');
+        $('#createunit').modal('show');
        }
       })
      });
-
+    
     $('body').on('click', '.activeRecord', function () {
         var id = $(this).attr("id");
         var active = $(this).attr("value");
@@ -204,7 +201,7 @@
            return false;
         }
         $.ajax({
-            url: "{{ url('customertype-active') }}",
+            url: "{{ url('units-active') }}",
             type: 'POST',
             data: {_token: token,id: id,active:active},
             success: function (data) {
@@ -223,11 +220,9 @@
             },
         });
     });
-    
     $('.create').click(function () {
-        $('#customertype_id').val('');
-        $('#storeCustomerTypeData').trigger("reset");
-        $("#customertype_image").attr({ "src": '{!! asset('assets/img/placeholder.jpg') !!}' });
+        $('#unit_id').val('');
+        $('#createunitForm').trigger("reset");
         $('.modal-title').text('{!! trans('panel.global.add') !!}');
     });
     
@@ -238,7 +233,7 @@
            return false;
         }
         $.ajax({
-            url: "{{ url('customertype') }}"+'/'+id,
+            url: "{{ url('units') }}"+'/'+id,
             type: 'DELETE',
             data: {_token: token,id: id},
             success: function (data) {
@@ -259,4 +254,5 @@
      
     });
 </script>
+
 </x-app-layout>

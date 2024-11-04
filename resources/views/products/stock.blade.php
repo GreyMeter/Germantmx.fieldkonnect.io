@@ -12,7 +12,7 @@
           <div class="card-icon">
             <i class="material-icons">perm_identity</i>
           </div>
-          <h4 class="card-title">Branch Stock
+          <h4 class="card-title">Stock
             <span class="">
               <div class="btn-group header-frm-btn">
                 @if(auth()->user()->can(['stock_download']))
@@ -53,7 +53,7 @@
                         </span>
                       </div>
                       <div class="input-group-append">
-                        <button class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.upload') !!} Customer Outstanting">
+                        <button class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.upload') !!} Stock">
                           <i class="material-icons">cloud_upload</i>
                           <div class="ripple-container"></div>
                         </button>
@@ -64,7 +64,7 @@
                   <!-- primary sales import -->
                   @if(auth()->user()->can(['stock_template']))
                   <!-- primary sales template creation -->
-                  <a href="{{ URL::to('stock_template') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.template') !!} Customer Outstanting"><i class="material-icons">text_snippet</i></a>
+                  <a href="{{ URL::to('stock_template') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.template') !!} Stock"><i class="material-icons">text_snippet</i></a>
                   @endif
                 </div>
               </div>
@@ -88,15 +88,15 @@
           <div class="table-responsive">
             <table id="getprimarysales" class="table table-striped table-bordered table-hover table-checkable no-wrap">
               <thead class=" text-primary">
-                <th>Branch</th>
-                <th>Division</th>
+                <th>Unit Name</th>
+                <!-- <th>Division</th>
                 <th>Year</th>
                 <th>Quarter</th>
                 <th>0-30</th>
                 <th>31-60</th>
                 <th>61-90</th>
                 <th>91-150</th>
-                <th>>150</th>
+                <th>>150</th> -->
                 <th>Total Stock</th>
               </thead>
               <tbody>
@@ -136,68 +136,68 @@
         },
         columns: [
           {
-            data: 'branch.branch_name',
-            name: 'branch.branch_name',
+            data: 'plant.plant_name',
+            name: 'plant.plant_name',
             orderable: false,
             searchable: false,
             "defaultContent": ''
           },
+          // {
+          //   data: 'division.division_name',
+          //   name: 'division.division_name',
+          //   orderable: false,
+          //   searchable: false,
+          //   "defaultContent": ''
+          // },
+          // {
+          //   data: 'year',
+          //   name: 'year',
+          //   orderable: false,
+          //   "defaultContent": ''
+          // },
+          // {
+          //   data: 'quarter',
+          //   name: 'quarter',
+          //   orderable: false,
+          //   "defaultContent": ''
+          // },
+          // {
+          //   data: 'first_slot',
+          //   name: 'first_slot',
+          //   orderable: false,
+          //   "defaultContent": ''
+          // },
+          // {
+          //   data: 'second_slot',
+          //   name: 'second_slot',
+          //   orderable: false,
+          //   searchable: false,
+          //   "defaultContent": ''
+          // },
+          // {
+          //   data: 'thired_slot',
+          //   name: 'thired_slot',
+          //   orderable: false,
+          //   searchable: false,
+          //   "defaultContent": ''
+          // },
+          // {
+          //   data: 'fourth_slot',
+          //   name: 'fourth_slot',
+          //   orderable: false,
+          //   searchable: false,
+          //   "defaultContent": ''
+          // },
+          // {
+          //   data: 'fifth_slot',
+          //   name: 'fifth_slot',
+          //   orderable: false,
+          //   searchable: false,
+          //   "defaultContent": ''
+          // },
           {
-            data: 'division.division_name',
-            name: 'division.division_name',
-            orderable: false,
-            searchable: false,
-            "defaultContent": ''
-          },
-          {
-            data: 'year',
-            name: 'year',
-            orderable: false,
-            "defaultContent": ''
-          },
-          {
-            data: 'quarter',
-            name: 'quarter',
-            orderable: false,
-            "defaultContent": ''
-          },
-          {
-            data: 'first_slot',
-            name: 'first_slot',
-            orderable: false,
-            "defaultContent": ''
-          },
-          {
-            data: 'second_slot',
-            name: 'second_slot',
-            orderable: false,
-            searchable: false,
-            "defaultContent": ''
-          },
-          {
-            data: 'thired_slot',
-            name: 'thired_slot',
-            orderable: false,
-            searchable: false,
-            "defaultContent": ''
-          },
-          {
-            data: 'fourth_slot',
-            name: 'fourth_slot',
-            orderable: false,
-            searchable: false,
-            "defaultContent": ''
-          },
-          {
-            data: 'fifth_slot',
-            name: 'fifth_slot',
-            orderable: false,
-            searchable: false,
-            "defaultContent": ''
-          },
-          {
-            data: 'total_amounts',
-            name: 'total_amounts',
+            data: 'stock',
+            name: 'stock',
             searchable: false,
             "defaultContent": ''
           }

@@ -43,31 +43,22 @@ class BranchStockImport implements ToCollection, WithValidation, WithHeadingRow,
     {
         foreach ($rows as $row) {
 
-            foreach ($row as $k => $val) {
-                if ($k == '0_30' || $k == '31_60' || $k == '61_90' || $k == '91_150' || $k == '150') {
-                    $k = str_replace('_', '-', $k);
-                    $salesTargetUsers = BranchStock::updateOrCreate(
-                        [
-                            'branch_id' => $row['branch_id'],
-                            'days' => $k,
-                            'year' => $row['year'],
-                            'quarter' => $row['quarter']
-                        ],
-                        [
-                            'branch_name' => $row['branch_name'],
-                            'division_id' => $row['division_id'],
-                            'amount' => $val
-                        ]
-                    );
-                }
-            }
+            $salesTargetUsers = BranchStock::updateOrCreate(
+                [
+                    'unit_id' => $row['unit_id']
+                ],
+                [
+                    'unit_name' => $row['unit_name'],
+                    'stock' => $row['stock']
+                ]
+            );
         }
     }
 
     public function rules(): array
     {
         $rules = [
-            'branch_id' => 'required',
+            'unit_id' => 'required|exists:plants,id',
         ];
         return $rules;
     }
@@ -75,7 +66,8 @@ class BranchStockImport implements ToCollection, WithValidation, WithHeadingRow,
     public function customValidationMessages()
     {
         return [
-            'branch_id.required' => 'The Branch ID is required.',
+            'unit_id.required' => 'The Unit ID is required.',
+            'unit_id.required' => 'The Unit ID is not found.',
         ];
     }
 

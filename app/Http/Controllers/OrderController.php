@@ -637,7 +637,7 @@ class OrderController extends Controller
             $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->category_id[$k], 'model_name' => 'size'])->first())->price_adjustment;
             $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'model_name' => 'grade'])->first())->price_adjustment;
             $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'model_name' => 'brand'])->first())->price_adjustment;
-            $after_soda_price = $orders->base_price + $additional_price_brand + $additional_price_grade + $additional_price_size;
+            $after_soda_price = ($orders->base_price-$orders->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size;
             $totalOrderConfirm = OrderConfirm::where('order_id', $id)->count('id');
             $data['confirm_po_no'] = $orders->po_no . '-' . $totalOrderConfirm + 1;
             $data['order_id'] = $id;
@@ -648,7 +648,7 @@ class OrderController extends Controller
             $data['unit_id'] = $request->grade_id[$k];
             $data['brand_id'] = $request->brand_id[$k];
             $data['category_id'] = $request->category_id[$k];
-            $data['base_price'] = $orders->base_price;
+            $data['base_price'] = $orders->base_price-$orders->discount_amt;
             $data['soda_price'] = $after_soda_price * $qty;
             $tqty += $qty;
 
@@ -660,7 +660,7 @@ class OrderController extends Controller
         $Ndata['customer_id'] = $orders['customer_id'];
         addNotification($Ndata);
 
-        return Redirect::to('orders')->with('message_success', 'Soda Confirm Successfully.');
+        return Redirect::to('orders_confirm')->with('message_success', 'Soda Confirm Successfully.');
     }
 
     public function dispatch_order($id, Request $request)

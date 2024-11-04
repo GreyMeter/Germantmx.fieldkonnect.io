@@ -10,7 +10,7 @@
               <span class="">
                 <div class="btn-group header-frm-btn">
                    <div class="next-btn">
-                  @if(auth()->user()->can(['unit_upload']))
+                  @if(auth()->user()->can(['grade_upload']))
                   <form action="{{ URL::to('units-upload') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
                   {{ csrf_field() }}
                   <div class="input-group">
@@ -32,13 +32,13 @@
                   </form>
                   @endif
                  
-                  @if(auth()->user()->can(['unit_download']))
-                  <a href="{{ URL::to('units-download') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.download') !!} {!! trans('panel.unit.title') !!}"><i class="material-icons">cloud_download</i></a>
+                  @if(auth()->user()->can(['grade_download']))
+                  <a href="{{ URL::to('units-download') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.download') !!} Grade"><i class="material-icons">cloud_download</i></a>
                   @endif
-                  @if(auth()->user()->can(['unit_template']))
+                  @if(auth()->user()->can(['grade_template']))
                   <a href="{{ URL::to('units-template') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.template') !!} {!! trans('panel.unit.title_singular') !!}"><i class="material-icons">text_snippet</i></a>
                   @endif
-                  @if(auth()->user()->can(['unit_create']))
+                  @if(auth()->user()->can(['grade_create']))
                    <a data-toggle="modal" data-target="#createunit" class="btn btn-just-icon btn-theme create" title="{!!  trans('panel.global.add') !!} {!! trans('panel.unit.title_singular') !!}"><i class="material-icons">add_circle</i></a>
                   @endif
                 </div>

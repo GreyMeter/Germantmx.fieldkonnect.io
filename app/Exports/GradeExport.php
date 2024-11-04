@@ -2,8 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\PrimarySales;
-use Illuminate\Support\Collection;
+use App\Models\UnitMeasure;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -12,21 +11,24 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Illuminate\Support\Facades\Auth;
 
-class CutomerOutstantingTemplate implements FromCollection,WithHeadings,ShouldAutoSize
+class GradeExport implements FromCollection,WithHeadings,ShouldAutoSize,WithMapping
 {
     public function collection()
     {
-        return new Collection([
-           
-        ]);   
+        return UnitMeasure::select('id','unit_name', 'unit_code')->latest()->get();   
     }
 
     public function headings(): array
     {
+        return ['ID','Grade Name'];
+    }
+
+    public function map($data): array
+    {
         return [
-            'Customer ID',
-            'Customer Name', 
-            'Outstanting',
+            $data->id,
+            $data->unit_name,
+            // $data->unit_code,
         ];
     }
 

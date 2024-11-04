@@ -16,7 +16,7 @@
             <span class="">
               <div class="btn-group header-frm-btn">
                 @if(auth()->user()->can(['customer_outstanting_download']))
-                <form method="POST" action="{{url('reports/customer_outstanting/download')}}">
+                <form method="POST" action="{{url('customer_outstanting/download')}}">
                   @csrf
                   <div class="d-flex flex-wrap flex-row">
                     <!-- division filter -->
@@ -119,7 +119,7 @@
                 @endif
                 <div class="row next-btn">
                   @if(auth()->user()->can(['customer_outstanting_upload']))
-                  <form action="{{ URL::to('reports/customer_outstanting/upload') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
+                  <form action="{{ URL::to('customer_outstanting/upload') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     <div class="input-group" style="flex-wrap:nowrap;">
                       <div class="fileinput fileinput-new text-center" data-provides="fileinput">
@@ -142,7 +142,7 @@
                   <!-- primary sales import -->
                   @if(auth()->user()->can(['customer_outstanting_template']))
                   <!-- primary sales template creation -->
-                  <a href="{{ URL::to('reports/customer_outstanting_template') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.template') !!} Customer Outstanding"><i class="material-icons">text_snippet</i></a>
+                  <a href="{{ URL::to('customer_outstanting_template') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.template') !!} Customer Outstanding"><i class="material-icons">text_snippet</i></a>
                   @endif
                 </div>
               </div>
@@ -166,15 +166,15 @@
           <div class="table-responsive">
             <table id="getprimarysales" class="table table-striped table-bordered table-hover table-checkable no-wrap">
               <thead class=" text-primary">
-                <th>Branch</th>
+                <!-- <th>Branch</th> -->
                 <th>Customer Name</th>
-                <th>Year</th>
+                <!-- <th>Year</th>
                 <th>Quarter</th>
                 <th>0-30</th>
                 <th>31-60</th>
                 <th>61-90</th>
                 <th>91-150</th>
-                <th>>150</th>
+                <th>>150</th> -->
                 <th>Total Outstanding</th>
               </thead>
               <tbody>
@@ -201,9 +201,6 @@
           orderable: false,
           targets: -1
         }],
-        "order": [
-          [0, 'desc']
-        ],
         "retrieve": true,
         ajax: {
           url: "{{ route('reports.customer_outstanting') }}",
@@ -213,13 +210,13 @@
           }
         },
         columns: [
-          {
-            data: 'branch.branch_name',
-            name: 'branch.branch_name',
-            orderable: false,
-            searchable: false,
-            "defaultContent": ''
-          },
+          // {
+          //   data: 'branch.branch_name',
+          //   name: 'branch.branch_name',
+          //   orderable: false,
+          //   searchable: false,
+          //   "defaultContent": ''
+          // },
           {
             data: 'customer.name',
             name: 'customer.name',
@@ -227,56 +224,57 @@
             searchable: false,
             "defaultContent": ''
           },
+          // {
+          //   data: 'year',
+          //   name: 'year',
+          //   orderable: false,
+          //   "defaultContent": ''
+          // },
+          // {
+          //   data: 'quarter',
+          //   name: 'quarter',
+          //   orderable: false,
+          //   "defaultContent": ''
+          // },
+          // {
+          //   data: 'first_slot',
+          //   name: 'first_slot',
+          //   orderable: false,
+          //   "defaultContent": ''
+          // },
+          // {
+          //   data: 'second_slot',
+          //   name: 'second_slot',
+          //   orderable: false,
+          //   searchable: false,
+          //   "defaultContent": ''
+          // },
+          // {
+          //   data: 'thired_slot',
+          //   name: 'thired_slot',
+          //   orderable: false,
+          //   searchable: false,
+          //   "defaultContent": ''
+          // },
+          // {
+          //   data: 'fourth_slot',
+          //   name: 'fourth_slot',
+          //   orderable: false,
+          //   searchable: false,
+          //   "defaultContent": ''
+          // },
+          // {
+          //   data: 'fifth_slot',
+          //   name: 'fifth_slot',
+          //   orderable: false,
+          //   searchable: false,
+          //   "defaultContent": ''
+          // },
           {
-            data: 'year',
-            name: 'year',
-            orderable: false,
-            "defaultContent": ''
-          },
-          {
-            data: 'quarter',
-            name: 'quarter',
-            orderable: false,
-            "defaultContent": ''
-          },
-          {
-            data: 'first_slot',
-            name: 'first_slot',
-            orderable: false,
-            "defaultContent": ''
-          },
-          {
-            data: 'second_slot',
-            name: 'second_slot',
-            orderable: false,
+            data: 'outstanting',
+            name: 'outstanting',
             searchable: false,
-            "defaultContent": ''
-          },
-          {
-            data: 'thired_slot',
-            name: 'thired_slot',
             orderable: false,
-            searchable: false,
-            "defaultContent": ''
-          },
-          {
-            data: 'fourth_slot',
-            name: 'fourth_slot',
-            orderable: false,
-            searchable: false,
-            "defaultContent": ''
-          },
-          {
-            data: 'fifth_slot',
-            name: 'fifth_slot',
-            orderable: false,
-            searchable: false,
-            "defaultContent": ''
-          },
-          {
-            data: 'total_amounts',
-            name: 'total_amounts',
-            searchable: false,
             "defaultContent": ''
           }
         ]

@@ -9,13 +9,13 @@ class BranchStock extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['branch_id', 'branch_name', 'division_id', 'amount', 'days', 'year', 'quarter', 'created_at', 'updated_at'];
+    protected $fillable = ['unit_id', 'unit_name', 'division_id', 'stock', 'days', 'year', 'quarter', 'created_at', 'updated_at'];
 
     public $timestamps = true;
 
-    public function branch()
+    public function plant()
     {
-        return $this->belongsTo('App\Models\Branch', 'branch_id', 'id');
+        return $this->belongsTo('App\Models\Plant', 'unit_id', 'id');
     }
 
     public function division()
