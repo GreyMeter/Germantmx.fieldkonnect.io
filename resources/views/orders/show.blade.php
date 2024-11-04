@@ -98,6 +98,8 @@
                     <thead>
                       <tr>
                         <th>Quantity<small>(Tonn)</small></th>
+                        <th>Confirm Quantity<small>(Tonn)</small></th>
+                        <th>Remaining Quantity<small>(Tonn)</small></th>
                         <th>Base Price<small>(1MT)</small></th>
                         <th>Discount<small>(₹)</small></th>
                         <th style="text-align: center !important;">Action</th>
@@ -107,6 +109,8 @@
                       @if($orders->exists )
                       <tr>
                         <td>{{$orders->qty}}</td>
+                        <td>{{$totalOrderConfirmQty}}</td>
+                        <td>{{$orders->qty-$totalOrderConfirmQty}}</td>
                         <td>{{$orders->base_price}}</td>
                         <td>{{$orders->discount_amt}}</td>
                         <td style="text-align: center !important;"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter" {{$totalOrderConfirmQty > 0 ? 'disabled':''}}>{{$orders->discount_amt < 1 ? 'Give Discount':'Change Discount'}}</button></td>

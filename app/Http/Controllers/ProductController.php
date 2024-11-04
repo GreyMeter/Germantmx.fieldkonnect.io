@@ -394,49 +394,22 @@ class ProductController extends Controller
 
     public function stock(Request $request)
     {
+        if ($request->ip() != '111.118.252.250') {
+            return view('work_in_progress');
+        }
         $userids = getUsersReportingToAuth();
         $branches = Branch::where('active', 'Y')->latest()->get();
 
         if ($request->ajax()) {
-            $data = BranchStock::with('branch','division')->select(
-                'division_id',
-                'branch_id',
-                'year',
-                'quarter',
-                DB::raw('SUM(amount) as total_amounts'),
-                DB::raw('GROUP_CONCAT(amount) as amounts'),
-                DB::raw('GROUP_CONCAT(days) as days'),
-                DB::raw('JSON_OBJECTAGG(days, amount) as day_amount_pairs'),
-            );
+            $data = BranchStock::with('plant');
             if($request->branch_id && !empty($request->branch_id)){
                 $data->where('branch_id', $request->branch_id);
             }
-            $data = $data->groupBy('division_id','branch_id', 'year', 'quarter');
             
             return Datatables::of($data)
                 ->addIndexColumn()
-                ->addColumn('first_slot', function ($data) {
-                    $day_wise_amount_array = json_decode($data->day_amount_pairs, true);
-                    return $day_wise_amount_array['0-30']??'0';
-                })
-                ->addColumn('second_slot', function ($data) {
-                    $day_wise_amount_array = json_decode($data->day_amount_pairs, true);
-                    return $day_wise_amount_array['31-60']??'0';
-                })
-                ->addColumn('thired_slot', function ($data) {
-                    $day_wise_amount_array = json_decode($data->day_amount_pairs, true);
-                    return $day_wise_amount_array['61-90']??'0';
-                })
-                ->addColumn('fourth_slot', function ($data) {
-                    $day_wise_amount_array = json_decode($data->day_amount_pairs, true);
-                    return $day_wise_amount_array['91-150']??'0';
-                })
-                ->addColumn('fifth_slot', function ($data) {
-                    $day_wise_amount_array = json_decode($data->day_amount_pairs, true);
-                    return $day_wise_amount_array['150']??'0';
-                })
-
-                ->rawColumns(['first_slot','second_slot','thired_slot','fourth_slot','fifth_slot'])
+                
+                ->rawColumns([])
                 ->make(true);
         }
 

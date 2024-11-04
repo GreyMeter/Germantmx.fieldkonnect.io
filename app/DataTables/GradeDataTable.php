@@ -2,7 +2,7 @@
 
 namespace App\DataTables;
 
-use App\Models\Plant;
+use App\Models\UnitMeasure;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Html\Editor\Editor;
@@ -11,7 +11,7 @@ use Yajra\DataTables\Services\DataTable;
 
 use Illuminate\Support\Facades\Auth;
 
-class UnitDataTable extends DataTable
+class GradeDataTable extends DataTable
 {
     
     public function dataTable($query)
@@ -26,13 +26,13 @@ class UnitDataTable extends DataTable
             ->addColumn('action', function ($query) {
                   $btn = '';
                   $activebtn ='';
-                  if(auth()->user()->can(['unit_edit']))
+                  if(auth()->user()->can(['grade_edit']))
                   {
                     $btn = $btn.'<a href"javascript:void(0)" class="btn btn-info btn-just-icon btn-sm edit" id="'.encrypt($query->id).'" title="'.trans('panel.global.edit').' '.trans('panel.unit.title_singular').'">
                           <i class="material-icons">edit</i>
                         </a>';
                   }
-                  if(auth()->user()->can(['unit_delete']))
+                  if(auth()->user()->can(['grade_delete']))
                   {
                     $btn = $btn.' <a href="" class="btn btn-danger btn-just-icon btn-sm delete" value="'.$query->id.'" title="'.trans('panel.global.delete').' '.trans('panel.unit.title_singular').'">
                                 <i class="material-icons">clear</i>
@@ -43,7 +43,7 @@ class UnitDataTable extends DataTable
                             </div>';
             })
             ->addColumn('active', function ($query) {
-              if(auth()->user()->can(['unit_active']))
+              if(auth()->user()->can(['grade_active']))
               {
                 $active = ($query->active == 'Y') ? 'checked="" value="'.$query->active.'"' : 'value="'.$query->active.'"';
                 return '<div class="togglebutton">
@@ -63,7 +63,7 @@ class UnitDataTable extends DataTable
      * @param \App\Unit $model
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function query(Plant $model)
+    public function query(UnitMeasure $model)
     {
         return $model->with('createdbyname')->latest()->newQuery();
     }

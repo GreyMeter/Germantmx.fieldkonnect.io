@@ -73,6 +73,7 @@ use App\Http\Controllers\NewJoiningController;
 use App\Http\Controllers\ServiceBillController;
 use App\Http\Controllers\ServiceChargeProductsController;
 use App\Http\Controllers\FieldKonnectAppSettings;
+use App\Http\Controllers\PlantController;
 use App\Http\Controllers\PriceController;
 
 /*
@@ -193,10 +194,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::any('user_incentive/list', [ReportController::class, 'user_incentive_list'])->name('user_incentive.list');
 
     // Customer Outstanting
-    Route::any('reports/customer_outstanting_template', [ReportController::class, 'customer_outstanting_template'])->name('reports.customer_outstanting_template');
-    Route::post('reports/customer_outstanting/upload', [ReportController::class, 'customer_outstanting_upload'])->name('reports.customer_outstanting.upload');
-    Route::any('reports/customer_outstanting/download', [ReportController::class, 'customer_outstanting_download'])->name('reports.customer_outstanting.download');
-    Route::any('reports/customer_outstanting', [ReportController::class, 'customer_outstanting'])->name('reports.customer_outstanting');
+    Route::any('customer_outstanting_template', [ReportController::class, 'customer_outstanting_template'])->name('reports.customer_outstanting_template');
+    Route::post('customer_outstanting/upload', [ReportController::class, 'customer_outstanting_upload'])->name('reports.customer_outstanting.upload');
+    Route::any('customer_outstanting/download', [ReportController::class, 'customer_outstanting_download'])->name('reports.customer_outstanting.download');
+    Route::any('customer_outstanting', [ReportController::class, 'customer_outstanting'])->name('reports.customer_outstanting');
 
     //Customers
     Route::resource('customertype', CustomerTypeController::class);
@@ -384,6 +385,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::any('units-template', [UnitController::class, 'template'])->name('units.template');
     Route::post('units-upload', [UnitController::class, 'upload'])->name('units.upload');
     Route::post('units-active', [UnitController::class, 'active'])->name('units.active');
+
+    //Plants
+    Route::resource('plants', PlantController::class);
+    Route::any('plants-download', [PlantController::class, 'download'])->name('plants.download');
+    Route::any('plants-template', [PlantController::class, 'template'])->name('plants.template');
+    Route::post('plants-upload', [PlantController::class, 'upload'])->name('plants.upload');
+    Route::post('plants-active', [PlantController::class, 'active'])->name('plants.active');
+
     //Products
     Route::resource('products', ProductController::class);
     Route::any('products-download', [ProductController::class, 'download'])->name('products.download');

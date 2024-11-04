@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DataTables\GradeDataTable;
 use App\Models\UnitMeasure;
 use Illuminate\Http\Request;
 use App\Http\Requests\UnitRequest;
@@ -15,6 +16,7 @@ use Validator;
 use Gate;
 use Excel;
 use App\DataTables\UnitDataTable;
+use App\Exports\GradeExport;
 use App\Imports\UnitImport;
 use App\Exports\UnitExport;
 use App\Exports\UnitTemplate;
@@ -28,9 +30,9 @@ class UnitController extends Controller
         
     }
     
-    public function index(UnitDataTable $dataTable)
+    public function index(GradeDataTable $dataTable)
     {
-        abort_if(Gate::denies('unit_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('grade_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         return $dataTable->render('units.index');
     }
 
@@ -109,10 +111,10 @@ class UnitController extends Controller
     }
     public function download()
     {
-        abort_if(Gate::denies('unit_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('grade_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
-        return Excel::download(new UnitExport, 'grade.xlsx');
+        return Excel::download(new GradeExport, 'Grade.xlsx');
     }
     public function template()
     {

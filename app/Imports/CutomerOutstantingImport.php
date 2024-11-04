@@ -41,33 +41,22 @@ class CutomerOutstantingImport implements ToCollection, WithValidation, WithHead
     public function collection(Collection $rows)
     {
         foreach ($rows as $row) {
-
-            foreach ($row as $k => $val) {
-                if($k == '0_30' || $k == '31_60' || $k == '61_90' || $k == '91_150' || $k == '150'){
-                    $k = str_replace('_','-',$k);
-                    $salesTargetUsers = CustomerOutstanting::updateOrCreate(
-                        [
-                            'customer_id' => $row['customer_id'],
-                            'days' => (string)$k,
-                            'year' => $row['year'],
-                            'quarter' => $row['quarter']
-                        ],
-                        [
-                            'branch_id' => $row['branch_id'],
-                            'user_id' => $row['user_id'],
-                            'customer_name' => $row['customer_name'],
-                            'amount' => $val
-                        ]
-                    );
-                }
-            }
+            $salesTargetUsers = CustomerOutstanting::updateOrCreate(
+                [
+                    'customer_id' => $row['customer_id']
+                ],
+                [
+                    'outstanting' => $row['outstanting'],
+                    'customer_name' => $row['customer_name']
+                ]
+            );
         }
     }
 
     public function rules(): array
     {
         $rules = [
-            'customer_id' => 'required',
+            'customer_id' => 'required|exists:customers,id',
         ];
         return $rules;
     }
@@ -76,6 +65,7 @@ class CutomerOutstantingImport implements ToCollection, WithValidation, WithHead
     {
         return [
             'customer_id.required' => 'The Customer ID is required.',
+            'customer_id.exists' => 'The Customer ID is not exists.',
         ];
     }
 

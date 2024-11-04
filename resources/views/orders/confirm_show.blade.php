@@ -28,7 +28,7 @@
                 <span class="pull-right">
                   <div class="btn-group">
                     @if(auth()->user()->can(['order_access']))
-                    <a href="{{ url('orders') }}" class="btn btn-just-icon btn-theme" title="{!! trans('panel.order.title_singular') !!}{!! trans('panel.global.list') !!}"><i class="material-icons">next_plan</i></a>
+                    <a href="{{ url('orders_confirm') }}" class="btn btn-just-icon btn-theme" title="{!! trans('panel.order.title_singular') !!}{!! trans('panel.global.list') !!}"><i class="material-icons">next_plan</i></a>
                     @endif
                   </div>
                 </span>
@@ -46,22 +46,22 @@
 
                 <div class="col-4">
                   <h4> -->
-                    <!-- <img src="" class="brand-image" width="70px" alt="Logo"> <span> </span> -->
-                    <!-- <small class="float-left">Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!}</small>
+              <!-- <img src="" class="brand-image" width="70px" alt="Logo"> <span> </span> -->
+              <!-- <small class="float-left">Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!}</small>
                   </h4>
                 </div>
                 <div class="col-4">
                   <h4> -->
-                    <!-- <img src="" class="brand-image" width="70px" alt="Logo"> <span> </span> -->
-                    <!-- <small class="float-left">Created By: {!! $orders['createdbyname']?$orders['createdbyname']['name']:'Self' !!}</small>
+              <!-- <img src="" class="brand-image" width="70px" alt="Logo"> <span> </span> -->
+              <!-- <small class="float-left">Created By: {!! $orders['createdbyname']?$orders['createdbyname']['name']:'Self' !!}</small>
                   </h4>
                 </div> -->
-                <!-- /.col -->
+              <!-- /.col -->
               <!-- </div> -->
               <hr>
               <!-- info row -->
               <div class="row invoice-info">
-                <div class="col-sm-5 invoice-col">
+                <div class="col-sm-4 invoice-col">
                   <h3 style="margin-bottom: 10px;font-weight: 500;">Customer Deatils:</h3>
                   <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
                     <strong>Name:{!! isset($orders['order']['customer']['name']) ? $orders['order']['customer']['name'] :'' !!} </strong><br>
@@ -71,15 +71,19 @@
                     Email: {!! $orders['order']['customer']['email'] !!}
                   </address>
                 </div>
-                <div class="col-sm-2 invoice-col"></div>
-                <!-- /.col -->
-                <div class="col-sm-5 invoice-col">
-                <h3 style="margin-bottom: 10px;font-weight: 500;">Soda Deatils:</h3>
+                <div class="col-sm-4 invoice-col">
+                  <h3 style="margin-bottom: 10px;font-weight: 500;">Consignee Details:</h3>
                   <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
-                  PO Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['po_no'] !!}</span> <br>
-                  Order Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['confirm_po_no'] !!}</span> <br>
-                  Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!} <br><br>
-                  Created By: {!! $orders['createdbyname']?$orders['createdbyname']['name']:'Self' !!}
+                    <strong>{!! nl2br(e($orders['consignee_details'])) !!} </strong>
+                  </address>
+                </div>
+                <div class="col-sm-4 invoice-col">
+                  <h3 style="margin-bottom: 10px;font-weight: 500;">Soda Deatils:</h3>
+                  <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
+                    PO Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['po_no'] !!}</span> <br>
+                    Order Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['confirm_po_no'] !!}</span> <br>
+                    Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!} <br><br>
+                    Created By: {!! $orders['createdbyname']?$orders['createdbyname']['name']:'Self' !!}
                   </address>
                 </div>
               </div>
@@ -96,7 +100,7 @@
                         <th>Size</th>
                         <th>Quantity<small>(Tonn)</small></th>
                         <th>Base Price<small>(1MT)</small></th>
-                        <th>Soda Price</th>
+                        <th>Total</th>
                       </tr>
                     </thead>
                     <tbody>
