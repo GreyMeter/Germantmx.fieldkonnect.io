@@ -14,7 +14,7 @@ class Customers extends Authenticatable
 
     protected $table = 'customers';
 
-    protected $fillable = [ 'active', 'name', 'first_name', 'last_name', 'mobile', 'email', 'password', 'notification_id', 'latitude', 'longitude', 'device_type', 'gender', 'profile_image', 'shop_image', 'customer_code', 'status_id', 'region_id', 'customertype', 'firmtype', 'created_by', 'updated_by', 'executive_id', 'otp', 'deleted_at', 'created_at', 'updated_at', 'beatscheduleid','order_limit', 'manager_name', 'manager_phone','contact_number','parent_id'];
+    protected $fillable = [ 'active', 'name', 'first_name', 'last_name', 'mobile', 'email', 'password', 'notification_id', 'latitude', 'longitude', 'device_type', 'gender', 'profile_image', 'shop_image', 'customer_code', 'status_id', 'region_id', 'customertype', 'firmtype', 'created_by', 'updated_by', 'executive_id', 'otp', 'deleted_at', 'created_at', 'updated_at', 'beatscheduleid','order_limit', 'manager_name', 'notify','contact_number','parent_id'];
 
     public function message()
     {
@@ -97,7 +97,7 @@ class Customers extends Authenticatable
                 //'parent_id' =>  !empty($request['parent_id'])? $request['parent_id'] : null,
                 'created_by' =>  !empty($request['created_by'])? $request['created_by'] :null,
                 'manager_name' => !empty($request['manager_name'])? $request['manager_name'] :'',
-                'manager_phone' => !empty($request['manager_phone'])? $request['manager_phone'] :'',
+                // 'manager_phone' => !empty($request['manager_phone'])? $request['manager_phone'] :'',
                 'created_at' => $created_at ,
                 'updated_at' => $created_at
             ]) )
@@ -167,10 +167,10 @@ class Customers extends Authenticatable
             {
                 $customers->manager_name = !empty($request['manager_name'])? $request['manager_name'] :'';
             }
-            if(!empty($request['manager_phone']))
-            {
-                $customers->manager_phone = !empty($request['manager_phone'])? $request['manager_phone'] :'';
-            }
+            // if(!empty($request['manager_phone']))
+            // {
+            //     $customers->manager_phone = !empty($request['manager_phone'])? $request['manager_phone'] :'';
+            // }
             if(!empty($request['latitude']) && !empty($request['longitude']))
             {
                 $customers->latitude = !empty($request['latitude'])? $request['latitude'] :null;

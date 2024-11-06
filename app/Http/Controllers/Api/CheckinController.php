@@ -88,7 +88,7 @@ class CheckinController extends Controller
                 return response()->json(['status' => 'error', 'message' =>  'User Inactive'], 401);
             }
             $validator = Validator::make($request->all(), [
-                'customer_id' => 'nullable|exists:customers,id',
+                'customer_id' => 'required|exists:customers,id',
                 'checkin_latitude' => 'required',
                 'checkin_longitude' => 'required',
             ]);

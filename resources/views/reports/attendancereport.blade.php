@@ -151,7 +151,7 @@
           <form method="POST" action="{{ route('submitAttendances') }}" enctype="multipart/form-data" id="createleadstagesForm"> @csrf
             <div class="row">
               <div class="col-md-6">
-                <div class="input-group input-group-outline my-3">
+                <div class="input_section">
                   <label class="form-label">User</label>
                   <select class="form-control select2" name="user_id" id="user_id" style="width: 100%;" required>
                     <option value="">Select User</option>
@@ -164,29 +164,29 @@
                 </div>
               </div>
               <div class="col-md-6">
-                <div class="input-group input-group-outline my-3">
+                <div class="input_section">
                   <label class="form-label">Punch In</label>
                   <input type="text" name="punchin_date" id="punchin_date" class="form-control datetimepicker" value="{!! old( 'punchin_date') !!}" required>
                 </div>
               </div>
-              <div class="col-md-6">
-                <div class="input-group input-group-outline my-3">
+              <!-- <div class="col-md-6">
+                <div class="input_section">
                   <label class="form-label">Tour Plan</label>
                   <input type="text" readonly name="tour_name" id="tour_name" class="form-control" value="{!! old( 'tour_name') !!}" required>
                   <input type="hidden" readonly name="tourid" id="tourid" class="form-control" value="{!! old( 'tourid') !!}" required>
                 </div>
-              </div>
+              </div> -->
               <div class="col-md-6">
-                <div class="input-group input-group-outline my-3">
+                <div class="input_section">
                   <label class="form-label">Working Type</label>
                   <select class="form-control select2" name="working_type" id="working_type" style="width: 100%;" required>
                     <option value="">Select Working Type</option>
                     <option value="Tour" data-is-city="true">Tour</option>
                     <option value="Office Work" data-is-city="true">Office Work</option>
-                    <option value="Plumber Meet" data-is-city="true">Plumber Meet</option>
-                    <option value="Service Center Visit" data-is-city="true">Service Center Visit</option>
-                    <option value="Local Market Visit" data-is-city="true">Local Market Visit</option>
-                    <option value="Retailer Meet" data-is-city="true">Retailer Meet</option>
+                    <!-- <option value="Plumber Meet" data-is-city="true">Plumber Meet</option> -->
+                    <!-- <option value="Service Center Visit" data-is-city="true">Service Center Visit</option> -->
+                    <option value="Market Visit" data-is-city="true">Market Visit</option>
+                    <!-- <option value="Retailer Meet" data-is-city="true">Retailer Meet</option> -->
                   </select>
                 </div>
               </div>
@@ -197,7 +197,7 @@
                 </select>
               </div>
               <div class="col-md-6">
-                <div class="input-group input-group-outline my-3">
+                <div class="input_section">
                   <label class="form-label">Punch In Summary</label>
                   <input type="text" name="punchin_summary" id="punchin_summary" class="form-control" value="{!! old( 'punchin_summary') !!}">
                 </div>
@@ -579,7 +579,7 @@
             return false;
           }
         }
-        var tour_plan = getTourPlanByUserAndDate(formatedValue, user_id);
+        // var tour_plan = getTourPlanByUserAndDate(formatedValue, user_id);
       }
     });
 
@@ -601,7 +601,7 @@
             return false;
           }
         }
-        var tour_plan = getTourPlanByUserAndDate(formatedValue, user_id);
+        // var tour_plan = getTourPlanByUserAndDate(formatedValue, user_id);
       }
     });
 

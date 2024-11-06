@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
-  <title>{{ config('app.name', 'Laravel') }}</title>
+  <title>{{ config('app.name', 'GermanTMX') }}</title>
   <!--  <link href="{{ url('/').'/'.asset('assets/css/testdash2.css') }}" rel="stylesheet" /> -->
   <link href="{{ url('/').'/'.asset('assets/css/materialdashboard2.css?v=' . now()->timestamp) }}" rel="stylesheet" />
   <link rel="stylesheet" type="text/css"
@@ -14,13 +14,13 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
   <!-- CSS Files -->
 
-  <link href="{{ url('/').'/'.asset('assets/css/newdesign.css??') }}" rel="stylesheet" />
-  <link href="{{ url('/').'/'.asset('assets/css/custom1.css??') }}" rel="stylesheet" />
+  <link href="{{ url('/').'/'.asset('assets/css/newdesign.css?v=' . now()->timestamp) }}" rel="stylesheet" />
+  <link href="{{ url('/').'/'.asset('assets/css/custom1.css?v=' . now()->timestamp) }}" rel="stylesheet" />
   <!-- CSS Just for demo purpose, don't include it in your project -->
   <link href="{{ url('/').'/'.asset('assets/demo/demo.css??') }}" rel="stylesheet" />
   <!-- <link href="{{ url('/').'/'.asset('assets/css/jquery-ui.css') }}" rel="stylesheet" /> -->
   <link href="{{ url('/').'/'.asset('assets/css/responsive.bootstrap4.css??') }}" rel="stylesheet" />
-  <link rel="stylesheet" href="{{ url('/').'/'.asset('assets/plugins/select2/css/select2.css?') }}">
+  <link rel="stylesheet" href="{{ url('/').'/'.asset('assets/plugins/select2/css/select2.css?v=' . now()->timestamp) }}">
   <link href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" rel="stylesheet">
   <script src="{{ url('/').'/'.asset('assets/js/core/jquery.min.js') }}"></script>
   <script src="{{ url('/').'/'.asset('assets/js/core/jquery-ui.js') }}"></script>
@@ -1062,8 +1062,8 @@
                   <li class="nav-link-btn {{ request()->is('reports/attendancereport') ? 'active' : '' }}">
                     <a class="hoveradd2" href="{{ url('reports/attendancereport') }}">
                       <i class="material-icons icon">report</i>
-                      <span>Attendance Detail Report</span>
-                      <div class="d-none mobile_hide"> Attendance Detail Report</div>
+                      <span>Attendance </span>
+                      <div class="d-none mobile_hide"> Attendance </div>
                     </a>
                   </li>
                   @endif
@@ -1297,7 +1297,7 @@
           @auth
           <div class="collapse navbar-collapse justify-content-end">
             <ul class="navbar-nav">
-              <li class="nav-item dropdown">
+              <li class="nav-item dropdown notifications_section">
                 <a class="nav-link" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
                   <i class="material-icons">notifications</i>
@@ -1306,14 +1306,18 @@
                     Some Actions
                   </p>
                 </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                  <h3 class="ml-3">Alerts</h3>
-                  <hr>
+                <div class="dropdown-menu dropdown-menu-right pt-0 " aria-labelledby="navbarDropdownMenuLink">
+                  <h4 class="card-title  notifications_bg">Alerts</h4>
+                  <!-- <hr> -->
+                   <div class="icon_list">
                   @foreach(getAllNotification() as $k=>$val)
-                  <a class="dropdown-item" href="#">{{$k+1}}) {{ $val->data}}</a>
-                  <small style="    display: flex;align-items: center;justify-content: right;" class="ml-3"><i style="font-size: 16px !important;" class="material-icons">schedule</i>{{date('d-M-Y h:i A', strtotime($val->created_at))}}</small>
-                  <hr>
+                  <a class="dropdown-item notifications_icon" href="#"><span>{{$k+1}}) {{ $val->data}}</span>
+                  <div  class="clock_icon">
+                    <i style="font-size: 16px !important;" class="material-icons pr-2">schedule</i>{{date('d-M-Y h:i A', strtotime($val->created_at))}}</div>
+                    </a>
+                    <!-- <hr> -->
                   @endforeach
+  </div>
                 </div>
               </li>
               <li class="nav-item dropdown">

@@ -198,7 +198,7 @@
                 <label class="col-md-3 col-form-label">Freight Price </label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                    <input type="text" name="rate" id="rate" class="form-control" value="{!! old( 'rate', $orders['rate']) !!}">
+                    <input type="text" name="rate" id="rate" class="form-control" value="{!! old( 'rate', $orders['rate'])??0 !!}">
                     @if ($errors->has('rate'))
                     <div class="error col-lg-12">
                       <p class="text-danger">{{ $errors->first('rate') }}</p>
@@ -299,7 +299,7 @@
           calcualteSodaPrice();
         }
       });
-    })
+    }).trigger('change');
 
     $('#brand_id').on('change', function() {
       var id = $(this).val();
@@ -314,7 +314,7 @@
           calcualteSodaPrice();
         }
       });
-    })
+    }).trigger('change');
 
     $('#size_id').on('change', function() {
       var id = $(this).val();
@@ -329,18 +329,22 @@
           calcualteSodaPrice();
         }
       });
-    })
+    }).trigger('change');
 
     function calcualteSodaPrice(){
       var additionalSizePrice = parseFloat($('#add_size_price').val()) || 0.00;
       var additionalBrandPrice = parseFloat($('#add_brand_price').val()) || 0.00;
       var additionalGradePrice = parseFloat($('#add_grade_price').val()) || 0.00;
 
+      
       var newQty = $('#qty').val();
-      var conversionFactor = 0.90718474;
-      mtLimit = newQty * conversionFactor;
-      var sodaPrice = parseFloat((mtLimit * {{$base_price}}).toFixed(2)) || 0.00;
-      $("#soda_price").val(sodaPrice+additionalBrandPrice+additionalGradePrice+additionalSizePrice);
+      // var conversionFactor = 0.90718474;
+      mtLimit = newQty;
+      var sodaPrice = parseFloat((mtLimit * ({{$base_price}}+additionalBrandPrice+additionalGradePrice+additionalSizePrice)).toFixed(2)) || 0.00;
+      $("#soda_price").val(sodaPrice);
+      var fRate = $("#rate").val();
+      console.log(additionalSizePrice, additionalBrandPrice, additionalGradePrice);
+      $("#final_rate").val(parseFloat($("#soda_price").val())+parseFloat(fRate));
     }
 
     $("#rate").on('keyup', function(){

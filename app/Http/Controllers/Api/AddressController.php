@@ -147,6 +147,12 @@ class AddressController extends Controller
     public function getPincodeInfo(Request $request)
     {
         try {
+            $validator = Validator::make($request->all(), [
+                'pincode' => 'required',
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['status' => 'error', 'message' => $validator->messages()->all()], $this->badrequest);
+            }
             $pincode = $request->input('pincode');
             $data = Pincode::where('pincode', '=', $pincode)->select('id', 'city_id')->first();
             if (!empty($data)) {

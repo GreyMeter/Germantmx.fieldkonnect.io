@@ -394,9 +394,6 @@ class ProductController extends Controller
 
     public function stock(Request $request)
     {
-        if ($request->ip() != '111.118.252.250') {
-            return view('work_in_progress');
-        }
         $userids = getUsersReportingToAuth();
         $branches = Branch::where('active', 'Y')->latest()->get();
 

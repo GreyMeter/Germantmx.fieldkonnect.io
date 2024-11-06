@@ -21,6 +21,12 @@ return [
         '2' => 'Neft'
     ],
 
+    'puchin_working_type' => [
+        'Tour' => 'Tour',
+        'Office Work' => 'Office Work',
+        'Market Visit' => 'Market Visit'
+    ],
+
     'WEEK_LIST'=>['Sun' => 'Sunday', 'Mon' => 'Monday','Tue'=>'Tuesday','Wed'=>'Wednesday','Thu'=>'Thursday','Fri'=>'Friday','Sat'=>'Saturday'],
 
     'MONTH_LIST'=>['Jan' => 'January', 'Feb' => 'February','Mar'=>'March','Apr'=>'April','May'=>'May','Jun'=>'June','Jul'=>'July','Aug'=>'August','Sep'=>'September','Oct'=>'October','Nov'=>'November','Dec'=>'December'],
