@@ -72,6 +72,10 @@ Route::any('getslider', [CustomController::class, 'getslider']);
 Route::get('getsettings', [DashboardController::class, 'getsettings']);
 Route::get('get-field-connet-version', [DashboardController::class, 'getVersion']);
 
+Route::any('getBrand', [OrderController::class, 'get_brand']);
+Route::any('getGrade', [OrderController::class, 'get_grade']);
+Route::any('getSize', [OrderController::class, 'get_size']);
+
 Route::any('emailExists', [CustomController::class, 'emailExists']);
 /*================= Customer Routes ============================*/
 Route::group(['middleware' => ['auth:customers']], function () {
@@ -103,9 +107,6 @@ Route::group(['middleware' => ['auth:customers']], function () {
     Route::any('customer/getSodaCreateDetails', [OrderController::class, 'getSodaCreateDetails']);
     Route::post('customer/insertSoda', [OrderController::class, 'insertSoda']);
     Route::any('customer/getSoda', [OrderController::class, 'getSoda']);
-    Route::any('customer/getBrand', [OrderController::class, 'get_brand']);
-    Route::any('customer/getGrade', [OrderController::class, 'get_grade']);
-    Route::any('customer/getSize', [OrderController::class, 'get_size']);
     Route::post('customer/insertOrderConfirm', [OrderController::class, 'insertOrderConfirm']);
     Route::any('customer/getorderList', [OrderController::class, 'customerorderList']);
     Route::any('customer/getConfirmOrder', [OrderController::class, 'getConfirmOrder']);
@@ -138,7 +139,6 @@ Route::group(['middleware' => ['auth:customers']], function () {
     Route::any('customer/getComplaints', [ComplaintController::class, 'getComplaints']);
     Route::post('customer/addComplaint', [ComplaintController::class, 'addComplaint']);
     Route::any('customer/getComplaintCounts', [ComplaintController::class, 'getComplaintCounts']);
-
 });
 
 Route::group(['middleware' => ['auth:users']], function () {
@@ -162,16 +162,15 @@ Route::group(['middleware' => ['auth:users']], function () {
     Route::any('getCustomerInfo', [CustomerController::class, 'getCustomerInfo']);
     Route::post('leadToCustomer', [CustomerController::class, 'leadToCustomer']);
     // Get Order List
-    Route::post('insertOrder', [OrderController::class, 'insertOrder']);
-    Route::any('getOrderList', [OrderController::class, 'getOrderList']);
-    Route::any('getClusterOrderList', [OrderController::class, 'getClusterOrderList']);
-    Route::any('getSpecialOrderList', [OrderController::class, 'getSpecialOrderList']);
-    Route::post('updateClusterOrder', [OrderController::class, 'updateClusterOrder']);
-    Route::any('getOrderDetails', [OrderController::class, 'getOrderDetails']);
-    Route::post('addCartItems', [OrderController::class, 'addCartItems']);
-    Route::get('getCartItems', [OrderController::class, 'getCartItems']);
-    Route::any('getOrderPfd', [OrderController::class, 'getOrderPfd']);
-    Route::post('customer/deleteOrder', [OrderController::class, 'deleteOrder']);
+    Route::post('insertSoda', [OrderController::class, 'insertOrder']);
+    Route::any('getSodaList', [OrderController::class, 'getOrderList']);
+    Route::any('getSodaCreateDetails', [OrderController::class, 'getSodaCreateDetailsUser']);
+    Route::any('getSoda', [OrderController::class, 'getSoda']);
+    Route::post('insertOrderConfirm', [OrderController::class, 'insertOrderConfirmUser']);
+    Route::any('getorderList', [OrderController::class, 'userrorderList']);
+    Route::any('getConfirmOrder', [OrderController::class, 'getConfirmOrder']);
+    Route::any('getdispatchList', [OrderController::class, 'userdispatchList']);
+    Route::any('getDispatchOrder', [OrderController::class, 'getDispatchOrder']);
 
     //Leave
     Route::any('addLeaves', [LeaveController::class, 'addLeaves']);
