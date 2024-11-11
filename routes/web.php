@@ -110,6 +110,7 @@ Route::get('contactus', function () {
 });
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('/privcay-policy', [NewJoiningController::class, 'privacyPolicy'])->name('privacyPolicy');
+Route::resource('supports', SupportController::class);
 
 //New Joining without auth Route
 Route::get('/new-joining-form', [NewJoiningController::class, 'create'])->name('joining-form');
@@ -565,7 +566,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('payments-upload', [PaymentController::class, 'upload'])->name('payments.upload');
     Route::any('paymentsInfo', [PaymentController::class, 'paymentsInfo'])->name('payments.info');
     //Supports
-    Route::resource('supports', SupportController::class);
+    // Route::resource('supports', SupportController::class);
     Route::any('supports-download', [SupportController::class, 'download'])->name('supports.download');
     Route::any('supports-template', [SupportController::class, 'template'])->name('supports.template');
     Route::post('supports-upload', [SupportController::class, 'upload'])->name('supports.upload');

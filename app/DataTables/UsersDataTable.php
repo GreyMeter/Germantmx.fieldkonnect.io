@@ -62,13 +62,16 @@ class UsersDataTable extends DataTable
                   }
             })
             ->addColumn('image', function ($query) {
-                    $profileimage = asset('assets/img/placeholder.jpg') ;
-                    if($query->getMedia('profile_image')->count() > 0 && Storage::disk('s3')->exists($query->getMedia('profile_image')[0]->getPath())){
-                        return '<img src="'.$query->getMedia('profile_image')[0]->getFullUrl().'" border="0" width="70" class="img-rounded imageDisplayModel" align="center" />';
-                    }else{
-                        return '<img src="'.$profileimage.'" border="0" width="70" class="img-rounded imageDisplayModel" align="center" />';
+                $profileimage = asset('assets/img/placeholder.jpg');
+                if ($query->getMedia('profile_image')->count() > 0) {
+                    $mediaItem = $query->getMedia('profile_image')[0];
+                    $imagePath = $mediaItem->getPath();
+                    if (file_exists($imagePath)) {
+                        return '<img src="'.$mediaItem->getFullUrl().'" border="0" width="70" class="img-rounded imageDisplayModel" align="center" />';
                     }
-                })
+                }
+                return '<img src="'.$profileimage.'" border="0" width="70" class="img-rounded imageDisplayModel" align="center" />';
+            })            
             ->addColumn('roles', function ($query) {
                 $roles = '';
                     if(count($query->roles) > 0){
