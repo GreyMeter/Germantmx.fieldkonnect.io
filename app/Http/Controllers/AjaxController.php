@@ -603,20 +603,12 @@ class AjaxController extends Controller
     public function getUserActivityData(Request $request)
     {
         try {
-            // $users = !empty($request->input('user_id')) ? $request->input('user_id') :Auth::user()->id ;
-            // $date = !empty($request->input('date')) ? $request->input('date') : date('Y-m-d');
-            // $collections = UserActivity::with('customers','users')->where(function($query) use($users, $date) {
-            //                         $query->whereDate('created_at','=', date('Y-m-d',strtotime($date)));
-            //                         $query->where('userid', $users);
-            //                     })
-            //                     ->select('customerid','latitude','longitude','time','address','description','type','userid')
-            //                     ->get();
             $date = date('Y-m-d', strtotime($request->input('date')));
             $user_id = $request->input('user_id');
 
             $punchInOut = Attendance::where('user_id', $user_id)->where('punchin_date', $date)->get();
             $checkInOut = CheckIn::with('visitreports')->with('customers')->where('user_id', $user_id)->where('checkin_date', $date)->get();
-            $orders = Order::with('buyers')->where('created_by', $user_id)->whereRaw('DATE(created_at)="' . $date . '"')->get();
+            $orders = Order::with('customer')->where('created_by', $user_id)->whereRaw('DATE(created_at)="' . $date . '"')->get();
             $customer_add = Customers::with('customeraddress')->where('created_by', $user_id)->whereRaw('DATE(created_at)="' . $date . '"')->get();
             $customer_update = Customers::with('customeraddress')->where('created_by', $user_id)->whereColumn('updated_at', '>', 'created_at')->whereRaw('DATE(updated_at)="' . $date . '"')->get();
 
@@ -670,7 +662,7 @@ class AjaxController extends Controller
                 $orderData[$k]['time'] = date('H:i:s', strtotime($val->created_at));
                 $orderData[$k]['latitude'] = '';
                 $orderData[$k]['longitude'] = '';
-                $orderData[$k]['msg'] = $val->buyers->name . ' - ' . $val->buyers->customeraddress->cityname->city_name . ',<br>Qty : ' . $val->orderdetails->sum('quantity') . ',<br>Total : ' . $val->grand_total;
+                $orderData[$k]['msg'] = $val->customer->name . ' - ' . $val->customer->customeraddress->cityname->city_name . ',<br>Qty : ' . $val->qtys;
             }
 
             foreach ($customer_add as $k => $val) {

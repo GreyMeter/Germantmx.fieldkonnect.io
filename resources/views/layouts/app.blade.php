@@ -1040,14 +1040,14 @@
             @endif
 
             @if(auth()->user()->can('hr_access'))
-            <li class="nav-link {{ request()->is('reports/attendancereport*') || request()->is('reports/attendancereportSummary*') || request()->is('holidays*') || request()->is('leaves*') || request()->is('appraisal*') || request()->is('sales_weightage*') || request()->is('users*') || request()->is('targets*') || request()->is('livelocation*') || request()->is('roles*') || request()->is('permissions*') || request()->is('tours*') || request()->is('usercity*') || request()->is('new-joinings*') ? 'active' : '' }}">
+            <li class="nav-link {{ request()->is('reports/attendancereport*') || request()->is('reports/attendancereportSummary*') || request()->is('holidays*') || request()->is('leaves*') || request()->is('appraisal*') || request()->is('sales_weightage*') || request()->is('users*') || request()->is('targets*') || request()->is('livelocation*') || request()->is('roles*') || request()->is('permissions*') || request()->is('tours*') || request()->is('usercity*') || request()->is('new-joinings*') || request()->is('reports/customervisit*') ? 'active' : '' }}">
               <a class="collapsed hoveradd" data-toggle="collapse" href="#hr" aria-expanded="false">
                 <i class="material-icons icon">family_restroom</i>
                 <span> {!! trans('panel.sidemenu.hr') !!}
                 </span>
                 <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.hr') !!}</div>
               </a>
-              <div class="collapse {{ request()->is('reports/attendancereport*') || request()->is('reports/attendancereportSummary*') || request()->is('holidays*') || request()->is('leaves*') || request()->is('appraisal*') || request()->is('sales_weightage*') || request()->is('users*') || request()->is('targets*') || request()->is('livelocation*') || request()->is('roles*') || request()->is('permissions*') || request()->is('tours*') || request()->is('usercity*') || request()->is('new-joinings*') ? 'show' : '' }}" id="hr">
+              <div class="collapse {{ request()->is('reports/attendancereport*') || request()->is('reports/attendancereportSummary*') || request()->is('holidays*') || request()->is('leaves*') || request()->is('appraisal*') || request()->is('sales_weightage*') || request()->is('users*') || request()->is('targets*') || request()->is('livelocation*') || request()->is('roles*') || request()->is('permissions*') || request()->is('tours*') || request()->is('usercity*') || request()->is('new-joinings*') || request()->is('reports/customervisit*') ? 'show' : '' }}" id="hr">
                 <ul class="navd">
                   @if(auth()->user()->can('role_access'))
                   <li class="nav-link-btn {{ request()->is('roles*') ? 'active' : '' }}">
@@ -1073,6 +1073,15 @@
                       <i class="material-icons icon">summarize</i>
                       <span>Attendance Summary Report</span>
                       <div class="d-none mobile_hide">Attendance Summary Report</div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('visit_report'))
+                  <li class="nav-link-btn {{ request()->is('reports/customervisit*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('reports/customervisit') }}">
+                      <i class="material-icons icon">dashboard_customize</i>
+                      <span>Customer Visit</span>
+                      <div class="d-none mobile_hide"> Customer Visit</div>
                     </a>
                   </li>
                   @endif
@@ -1223,8 +1232,8 @@
                         <li class="nav-link-btn {{ request()->is('livelocation*') ? 'active' : '' }}">
                           <a class="hoveradd2" href="{{ url('livelocation') }}">
                             <i class="material-icons icon">share_location</i>
-                            <span>User Live Location</span>
-                            <div class="d-none mobile_hide"> User Live Location</div>
+                            <span>Sales team activities</span>
+                            <div class="d-none mobile_hide"> Sales team activities</div>
                           </a>
                         </li>
                         @endif
@@ -1309,15 +1318,16 @@
                 <div class="dropdown-menu dropdown-menu-right pt-0 " aria-labelledby="navbarDropdownMenuLink">
                   <h4 class="card-title  notifications_bg">Alerts</h4>
                   <!-- <hr> -->
-                   <div class="icon_list">
-                  @foreach(getAllNotification() as $k=>$val)
-                  <a class="dropdown-item notifications_icon" href="#"><span>{{$k+1}}) {{ $val->data}}</span>
-                  <div  class="clock_icon">
-                    <i style="font-size: 16px !important;" class="material-icons pr-2">schedule</i>{{date('d-M-Y h:i A', strtotime($val->created_at))}}</div>
+                  <div class="icon_list">
+                    @foreach(getAllNotification() as $k=>$val)
+                    <a class="dropdown-item notifications_icon" href="#"><span>{{$k+1}}) {{ $val->data}}</span>
+                      <div class="clock_icon">
+                        <i style="font-size: 16px !important;" class="material-icons pr-2">schedule</i>{{date('d-M-Y h:i A', strtotime($val->created_at))}}
+                      </div>
                     </a>
                     <!-- <hr> -->
-                  @endforeach
-  </div>
+                    @endforeach
+                  </div>
                 </div>
               </li>
               <li class="nav-item dropdown">

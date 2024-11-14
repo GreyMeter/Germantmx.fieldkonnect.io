@@ -13,8 +13,7 @@ return [
         'Other Course',
     ],
     'pay_roll' => [
-        '1' => 'Silver',
-        '2' => 'FOS'
+        '1' => 'FOS'
     ],
     'redeem_mode' => [
         '1' => 'Gift',

@@ -295,7 +295,8 @@ class UsersController extends Controller
             if ($education_detail['degree_name'] != null && $education_detail['degree_name'] != '') {
                 $new_education_detail = UserEducation::updateOrCreate(
                     [
-                        'user_id' => $id, 'education_type_id' => $education_detail['education_type_id']
+                        'user_id' => $id,
+                        'education_type_id' => $education_detail['education_type_id']
                     ],
                     [
                         'user_id' => $id,
@@ -358,7 +359,9 @@ class UsersController extends Controller
                     );
                 }
             }
-            UserCityAssign::whereNotIn('city_id', $request['cities'])->where('userid', $id)->delete();
+            if (!empty($request['cities'])) {
+                UserCityAssign::whereNotIn('city_id', $request['cities'])->where('userid', $id)->delete();
+            }
         }
         if ($request['password'] && !empty($request['password'])) {
             Auth::logout();
