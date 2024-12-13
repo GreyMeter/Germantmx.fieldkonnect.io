@@ -827,14 +827,14 @@ class CustomerController extends Controller
     }
     public function download(Request $request)
     {
-        ////abort_if(Gate::denies('customer_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('customer_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
         return Excel::download(new CustomersExport($request), 'customers.xlsx');
     }
     public function distributordownload()
     {
-        ////abort_if(Gate::denies('customer_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('customer_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
         return Excel::download(new DistributorExport, 'distributor.xlsx');
@@ -843,7 +843,7 @@ class CustomerController extends Controller
 
     public function template()
     {
-        ////abort_if(Gate::denies('customer_template'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('customer_template'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
         return Excel::download(new CustomersTemplate, 'customers.xlsx');

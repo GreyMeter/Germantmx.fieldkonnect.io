@@ -9,7 +9,7 @@ class CustomerOutstanting extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['branch_id', 'customer_id', 'user_id', 'customer_name', 'outstanting', 'days', 'year', 'quarter', 'created_at', 'updated_at'];
+    protected $fillable = ['date', 'customer_id', 'rate', 'customer_name', 'order_qty', 'days', 'dispatch', 'pending', 'created_at', 'updated_at'];
 
     public $timestamps = true;
 

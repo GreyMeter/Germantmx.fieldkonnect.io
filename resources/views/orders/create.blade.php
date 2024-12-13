@@ -6,7 +6,7 @@
           <div class="card-icon">
             <i class="material-icons">perm_identity</i>
           </div>
-          <h4 class="card-title ">{{ $orders->exists?($cnf?'Confirm':trans('panel.global.edit')):trans('panel.global.create') }} Soda
+          <h4 class="card-title ">{{ $orders->exists?($cnf?'Confirm':trans('panel.global.edit')):trans('panel.global.create') }} Booking
             <span class="pull-right">
               <div class="btn-group">
                 @if(auth()->user()->can(['order_access']))

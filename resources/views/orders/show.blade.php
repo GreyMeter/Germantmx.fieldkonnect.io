@@ -81,7 +81,7 @@
                 <div class="col-sm-2 invoice-col"></div>
                 <!-- /.col -->
                 <div class="col-sm-5 invoice-col">
-                  <h3 style="margin-bottom: 10px;font-weight: 500;">Soda Deatils:</h3>
+                  <h3 style="margin-bottom: 10px;font-weight: 500;">Booking Deatils:</h3>
                   <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
                     PO Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['po_no'] !!}</span> <br><br>
                     Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!} <br><br>
@@ -101,7 +101,7 @@
                         <th>Confirm Quantity<small>(Tonn)</small></th>
                         <th>Remaining Quantity<small>(Tonn)</small></th>
                         <th>Base Price<small>(1MT)</small></th>
-                        <th>Discount<small>(₹)</small></th>
+                        <th>Commison<small>(₹)</small></th>
                         <th style="text-align: center !important;">Action</th>
                       </tr>
                     </thead>
@@ -113,7 +113,7 @@
                         <td>{{$orders->qty-$totalOrderConfirmQty}}</td>
                         <td>{{$orders->base_price}}</td>
                         <td>{{$orders->discount_amt}}</td>
-                        <td style="text-align: center !important;"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter" {{$totalOrderConfirmQty > 0 ? 'disabled':''}}>{{$orders->discount_amt < 1 ? 'Give Discount':'Change Discount'}}</button></td>
+                        <td style="text-align: center !important;"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter" {{$totalOrderConfirmQty > 0 ? 'disabled':''}}>{{$orders->discount_amt < 1 ? 'Give Commison':'Change Commison'}}</button></td>
                       </tr>
                       @endif
                     </tbody>

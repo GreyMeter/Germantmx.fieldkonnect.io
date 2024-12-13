@@ -6,7 +6,7 @@
       width: 66px;
       height: 23px;
       background: #17a2b8;
-      top: 10px;
+      top: 12px;
       color: #fff;
       padding: 3px 5px;
       border-radius: 8px 8px 8px 1px;
@@ -14,6 +14,7 @@
       font-weight: 600;
       transition: opacity 0.6s ease;
       font-size: 12px;
+      left: 13px;
     }
 
     .show-before td.brand_msg:before {

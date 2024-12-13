@@ -222,6 +222,7 @@ class UserImport implements ToCollection, WithValidation, WithHeadingRow, WithBa
                     );
                 }
             } else {
+                dd($row);
 
                 $name = trim($row['user_name']);
                 $last_name = (strpos($name, ' ') === false) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);

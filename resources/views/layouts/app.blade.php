@@ -766,10 +766,10 @@
               class="nav-link {{ request()->is('customers*') || request()->is('customertype*') || request()->is('firmtype*') || request()->is('customersLogin*') || request()->is('customers-survey*') || request()->is('fields*') || request()->is('customer_outstanting*') ? 'active' : '' }}">
               <a class="collapsed hoveradd" data-toggle="collapse" href="#customerMenu" aria-expanded="false">
                 <i class="material-icons icon">contact_emergency</i>
-                <span> {!! trans('panel.sidemenu.customers_master') !!}
+                <span> Distributor
 
                 </span>
-                <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.customers_master') !!}
+                <div class="d-none mobile_hide"> Distributor
 
                 </div>
               </a>
@@ -1005,8 +1005,8 @@
                   <li class="nav-link-btn {{ request()->is('orders') ? 'active' : '' }}">
                     <a class="hoveradd2" href="{{ url('orders') }}">
                       <i class="material-icons icon">list_alt</i>
-                      <span>Soda</span>
-                      <div class="d-none mobile_hide">Soda
+                      <span>Booking</span>
+                      <div class="d-none mobile_hide">Booking
 
                       </div>
                     </a>
@@ -1016,8 +1016,8 @@
                   <li class="nav-link-btn {{ request()->is('orders_confirm') ? 'active' : '' }}">
                     <a class="hoveradd2" href="{{ url('orders_confirm') }}">
                       <i class="material-icons icon">app_registration</i>
-                      <span>Orders</span>
-                      <div class="d-none mobile_hide">Orders
+                      <span>Final Orders</span>
+                      <div class="d-none mobile_hide">Final Orders
 
                       </div>
                     </a>

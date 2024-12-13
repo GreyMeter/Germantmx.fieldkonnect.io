@@ -166,16 +166,13 @@
           <div class="table-responsive">
             <table id="getprimarysales" class="table table-striped table-bordered table-hover table-checkable no-wrap">
               <thead class=" text-primary">
-                <!-- <th>Branch</th> -->
-                <th>Customer Name</th>
-                <!-- <th>Year</th>
-                <th>Quarter</th>
-                <th>0-30</th>
-                <th>31-60</th>
-                <th>61-90</th>
-                <th>91-150</th>
-                <th>>150</th> -->
-                <th>Total Outstanding</th>
+                <th>Date</th>
+                <th>Party Name</th>
+                <th>Rate</th>
+                <th>Order</th>
+                <th>Dispatch</th>
+                <th>Pending</th>
+                <th>Days</th>
               </thead>
               <tbody>
               </tbody>
@@ -210,13 +207,13 @@
           }
         },
         columns: [
-          // {
-          //   data: 'branch.branch_name',
-          //   name: 'branch.branch_name',
-          //   orderable: false,
-          //   searchable: false,
-          //   "defaultContent": ''
-          // },
+          {
+            data: 'date',
+            name: 'date',
+            orderable: false,
+            searchable: false,
+            "defaultContent": ''
+          },
           {
             data: 'customer.name',
             name: 'customer.name',
@@ -224,38 +221,38 @@
             searchable: false,
             "defaultContent": ''
           },
-          // {
-          //   data: 'year',
-          //   name: 'year',
-          //   orderable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'quarter',
-          //   name: 'quarter',
-          //   orderable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'first_slot',
-          //   name: 'first_slot',
-          //   orderable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'second_slot',
-          //   name: 'second_slot',
-          //   orderable: false,
-          //   searchable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'thired_slot',
-          //   name: 'thired_slot',
-          //   orderable: false,
-          //   searchable: false,
-          //   "defaultContent": ''
-          // },
+          {
+            data: 'rate',
+            name: 'rate',
+            orderable: false,
+            "defaultContent": ''
+          },
+          {
+            data: 'order_qty',
+            name: 'order_qty',
+            orderable: false,
+            "defaultContent": ''
+          },
+          {
+            data: 'dispatch',
+            name: 'dispatch',
+            orderable: false,
+            "defaultContent": ''
+          },
+          {
+            data: 'pending',
+            name: 'pending',
+            orderable: false,
+            searchable: false,
+            "defaultContent": ''
+          },
+          {
+            data: 'pending',
+            name: 'pending',
+            orderable: false,
+            searchable: false,
+            "defaultContent": ''
+          }
           // {
           //   data: 'fourth_slot',
           //   name: 'fourth_slot',
@@ -270,13 +267,6 @@
           //   searchable: false,
           //   "defaultContent": ''
           // },
-          {
-            data: 'outstanting',
-            name: 'outstanting',
-            searchable: false,
-            orderable: false,
-            "defaultContent": ''
-          }
         ]
       });
       $('#ps_month').change(function() {

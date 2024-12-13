@@ -179,7 +179,7 @@
             </div>
             <div class="col-md-6">
               <div class="row">
-                <label class="col-md-3 col-form-label">Soda Price<small>(₹)</small> <span class="text-danger"> *</span></label>
+                <label class="col-md-3 col-form-label">Total Price<small>(₹)</small> <span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
                     <input readonly type="text" name="soda_price" id="soda_price" class="form-control" value="{!! old( 'soda_price', $orders['soda_price']) !!}" required>
@@ -340,16 +340,27 @@
       var newQty = $('#qty').val();
       // var conversionFactor = 0.90718474;
       mtLimit = newQty;
-      var sodaPrice = parseFloat((mtLimit * ({{$base_price}}+additionalBrandPrice+additionalGradePrice+additionalSizePrice)).toFixed(2)) || 0.00;
-      $("#soda_price").val(sodaPrice);
       var fRate = $("#rate").val();
-      console.log(additionalSizePrice, additionalBrandPrice, additionalGradePrice);
-      $("#final_rate").val(parseFloat($("#soda_price").val())+parseFloat(fRate));
+      var bp = {{$base_price}} - fRate;
+      var sodaPrice = parseFloat((mtLimit * (bp+additionalBrandPrice+additionalGradePrice+additionalSizePrice)).toFixed(2)) || 0.00;
+      $("#soda_price").val(sodaPrice);
+      $("#final_rate").val(sodaPrice);
     }
 
     $("#rate").on('keyup', function(){
-      var rate = $(this).val();
-      $("#final_rate").val(parseFloat($("#soda_price").val())+parseFloat(rate));
+      var fRate = $(this).val();
+      var additionalSizePrice = parseFloat($('#add_size_price').val()) || 0.00;
+      var additionalBrandPrice = parseFloat($('#add_brand_price').val()) || 0.00;
+      var additionalGradePrice = parseFloat($('#add_grade_price').val()) || 0.00;
+
+      
+      var newQty = $('#qty').val();
+      // var conversionFactor = 0.90718474;
+      mtLimit = newQty;
+      var bp = {{$base_price}} - fRate;
+      var sodaPrice = parseFloat((mtLimit * (bp+additionalBrandPrice+additionalGradePrice+additionalSizePrice)).toFixed(2)) || 0.00;
+      $("#soda_price").val(sodaPrice);
+      $("#final_rate").val(sodaPrice);
     })
   </script>
 </x-app-layout>

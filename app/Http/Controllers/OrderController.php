@@ -23,6 +23,7 @@ use Gate;
 use Excel;
 use App\DataTables\OrderDataTable;
 use App\DataTables\OrderDispatchDataTable;
+use App\Exports\FinalOrderExport;
 use App\Exports\OrderEmailExport;
 use App\Imports\OrderImport;
 use App\Exports\OrderExport;
@@ -331,7 +332,18 @@ class OrderController extends Controller
         abort_if(Gate::denies('order_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
-        return Excel::download(new OrderExport($request), 'orders.xlsx');
+        return Excel::download(new OrderExport($request), 'Booking.xlsx');
+    }
+
+    public function final_order_download(Request $request)
+    {
+        if($request->ip() != '111.118.252.250'){
+            return view('work_in_progress');
+        }
+        abort_if(Gate::denies('order_confirm_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if (ob_get_contents()) ob_end_clean();
+        ob_start();
+        return Excel::download(new FinalOrderExport($request), 'Final Ordes.xlsx');
     }
     public function template()
     {

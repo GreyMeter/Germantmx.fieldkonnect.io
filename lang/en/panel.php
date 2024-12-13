@@ -523,7 +523,7 @@ return [
         'no_alerts'                            => 'No alerts',
         'calendar'                             => 'Calendar',
         'messenger'                            => 'Messenger',
-        'parentcustomer'                       => 'Parent Customer',
+        'parentcustomer'                       => 'Parent Distributor',
         'contact_number_two'                   => 'Contact Number-2',
         'create_department'                   => 'Create Department',
         'list_price'                          => 'Rate(LP)',
