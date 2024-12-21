@@ -3,6 +3,9 @@
 namespace App\Imports;
 
 use App\Models\BranchStock;
+use App\Models\Brand;
+use App\Models\Plant;
+use App\Models\Category;
 use App\Models\CustomerOutstanting;
 use App\Models\Product;
 use App\Models\ProductDetails;
@@ -25,6 +28,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use App\Models\PrimarySales;
+use App\Models\UnitMeasure;
 use App\Models\User;
 use Validator;
 
@@ -43,13 +47,21 @@ class BranchStockImport implements ToCollection, WithValidation, WithHeadingRow,
     {
         foreach ($rows as $row) {
 
+            $plant = Plant::where('plant_name', $row['plant_name'])->firstOrFail();
+            $brand = Brand::where('brand_name', $row['brand'])->firstOrFail();
+            $size = Category::where('category_name', $row['size'])->firstOrFail();
+            $grade = UnitMeasure::where('unit_name', $row['grade'])->firstOrFail();
+                        
             $salesTargetUsers = BranchStock::updateOrCreate(
                 [
-                    'unit_id' => $row['unit_id']
+                    'plant_id' => $plant->id,
+                    'plant_name' => $plant->plant_name,
+                    'brand_id' => $brand->id,
+                    'unit_id' => $grade->id,
+                    'category_id' => $size->id
                 ],
                 [
-                    'unit_name' => $row['unit_name'],
-                    'stock' => $row['stock']
+                    'stock' => $row['stock_qty']
                 ]
             );
         }
@@ -58,7 +70,10 @@ class BranchStockImport implements ToCollection, WithValidation, WithHeadingRow,
     public function rules(): array
     {
         $rules = [
-            'unit_id' => 'required|exists:plants,id',
+            'plant_name' => 'required|exists:plants,plant_name',
+            'brand' => 'required|exists:brands,brand_name',
+            'size' => 'required|exists:categories,category_name',
+            'grade' => 'required|exists:unit_measures,unit_name',
         ];
         return $rules;
     }

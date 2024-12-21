@@ -169,9 +169,9 @@
                 <th>Date</th>
                 <th>Party Name</th>
                 <th>Rate</th>
-                <th>Order</th>
-                <th>Dispatch</th>
-                <th>Pending</th>
+                <th>Order QTY</th>
+                <th>Dispatch QTY</th>
+                <th>Pending QTY</th>
                 <th>Days</th>
               </thead>
               <tbody>
@@ -247,8 +247,8 @@
             "defaultContent": ''
           },
           {
-            data: 'pending',
-            name: 'pending',
+            data: 'days',
+            name: 'days',
             orderable: false,
             searchable: false,
             "defaultContent": ''

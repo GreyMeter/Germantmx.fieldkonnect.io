@@ -24,28 +24,26 @@ class BranchStockExport implements FromCollection, WithHeadings, ShouldAutoSize,
 {
     public function __construct($request)
     {
-        $this->startdate = $request->input('start_date');
-        $this->enddate = $request->input('end_date');
-        $this->branch_id = $request->input('branch_id');
-        $this->dealer_id = $request->input('dealer_id');
+        $this->request = $request;
     }
 
     public function collection()
     {
-        $data = BranchStock::with('branch','division')->select(
-            'division_id',
-            'branch_id',
-            'year',
-            'quarter',
-            DB::raw('SUM(amount) as total_amounts'),
-            DB::raw('GROUP_CONCAT(amount) as amounts'),
-            DB::raw('GROUP_CONCAT(days) as days'),
-            DB::raw('JSON_OBJECTAGG(days, amount) as day_amount_pairs'),
-        );
-        if($this->branch_id && !empty($this->branch_id)){
-            $data->where('branch_id', $this->branch_id);
+        $data = BranchStock::with('plant','brands','sizes','grades');
+        // All filtters
+        if($this->request->plant_id && !empty($this->request->plant_id)){
+            $data->where('plant_id', $this->request->plant_id);
         }
-        $data = $data->groupBy('division_id','branch_id', 'year', 'quarter',)->get();
+        if($this->request->brand_id && !empty($this->request->brand_id)){
+            $data->where('brand_id', $this->request->brand_id);
+        }
+        if($this->request->category_id && !empty($this->request->category_id)){
+            $data->where('category_id', $this->request->category_id);
+        }
+        if($this->request->unit_id && !empty($this->request->unit_id)){
+            $data->where('unit_id', $this->request->unit_id);
+        }
+        $data = $data->get();
 
         return $data;
     }
@@ -54,17 +52,11 @@ class BranchStockExport implements FromCollection, WithHeadings, ShouldAutoSize,
     {
 
         return [
-            'Branch ID',
-            'Branch Name',
-            'Division ID',
-            'Year',
-            'Quarter',
-            '0-30',
-            '31-60',
-            '61-90',
-            '91-150',
-            '>150',
-            'Total Stock',
+            'Plant Name',  
+            'Brand', 
+            'Size', 
+            'Grade', 
+            'Stock QTY',
         ];
     }
 
@@ -76,17 +68,11 @@ class BranchStockExport implements FromCollection, WithHeadings, ShouldAutoSize,
         $day_wise_amount_array = json_decode($data->day_amount_pairs, true);
         
         return [
-            $data->branch_id ? $data->branch_id : '-',
-            $data->branch ? $data->branch->branch_name : '-',
-            $data->division_id ? $data->division_id : '-',
-            $data->year ? $data->year : '-',
-            $data->quarter ? $data->quarter : '-',
-            $day_wise_amount_array['0-30'] ?? '0',
-            $day_wise_amount_array['31-60'] ?? '0',
-            $day_wise_amount_array['61-90'] ?? '0',
-            $day_wise_amount_array['91-150'] ?? '0',
-            $day_wise_amount_array['150'] ?? '0',
-            $data->total_amounts ?? '0',
+            $data->plant ? $data->plant->plant_name : '-',
+            $data->brands ? $data->brands->brand_name : '-',
+            $data->sizes ? $data->sizes->category_name : '-',
+            $data->grades ? $data->grades->unit_name : '-',
+            $data->stock ? $data->stock : '-',
         ];
     }
 

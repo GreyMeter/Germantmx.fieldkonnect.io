@@ -6,7 +6,7 @@
         <div class="card-icon">
           <i class="material-icons">perm_identity</i>
         </div>
-        <h4 class="card-title ">Unit {!! trans('panel.global.list') !!}
+        <h4 class="card-title ">Plants {!! trans('panel.global.list') !!}
               <span class="">
                 <div class="btn-group header-frm-btn">
                    <div class="next-btn">
@@ -72,7 +72,7 @@
               <th>ID</th>
               <th>{!! trans('panel.global.action') !!}</th>
               <!-- <th>{!! trans('panel.global.active') !!}</th> -->
-              <th>Unit Name</th>
+              <th>Plant Name</th>
               <!-- <th>{!! trans('panel.unit.fields.unit_code') !!}</th> -->
               <th>{!! trans('panel.global.created_by') !!}</th>
               <th>{!! trans('panel.global.created_at') !!}</th>
@@ -93,7 +93,7 @@
         <div class="card-icon">
           <i class="material-icons">perm_identity</i>
         </div>
-        <h4 class="card-title"><span class="modal-title">{!! trans('panel.global.add') !!}</span> Unit
+        <h4 class="card-title"><span class="modal-title">{!! trans('panel.global.add') !!}</span> Plant
           <span class="pull-right" >
             <a href="javascript:void(0)" class="btn btn-just-icon btn-danger" data-dismiss="modal"><i class="material-icons">clear</i></a>
           </span>
@@ -105,7 +105,7 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="row">
-                  <label class="col-md-3 col-form-label">Unit Name <span class="text-danger"> *</span></label>
+                  <label class="col-md-3 col-form-label">Plant Name <span class="text-danger"> *</span></label>
                   <div class="col-md-9">
                     <div class="form-group has-default bmd-form-group">
                       <input type="text" name="plant_name" id="plant_name" class="form-control" value="{!! old( 'plant_name') !!}" maxlength="200" required>

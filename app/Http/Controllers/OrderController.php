@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Customers;
 use App\Models\Status;
 use App\Models\City;
+use App\Models\Plant;
 use App\Models\User;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Redirect;
@@ -180,7 +181,8 @@ class OrderController extends Controller
         $units = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name')->get();
         $base_price = $orders->base_price;
         $cnf = $request->cnf ?? false;
-        return view('orders.confirm_despatch', compact('categories', 'customers', 'brands', 'units', 'base_price', 'cnf', 'totalOrderDispatchQty'))->with('orders', $orders);
+        $plants = Plant::where('active', 'Y')->latest()->get();
+        return view('orders.confirm_despatch', compact('categories', 'customers', 'brands', 'units', 'base_price', 'cnf', 'totalOrderDispatchQty', 'plants'))->with('orders', $orders);
     }
 
     /**
@@ -337,9 +339,6 @@ class OrderController extends Controller
 
     public function final_order_download(Request $request)
     {
-        if($request->ip() != '111.118.252.250'){
-            return view('work_in_progress');
-        }
         abort_if(Gate::denies('order_confirm_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
@@ -688,6 +687,8 @@ class OrderController extends Controller
         $request['created_by'] = Auth::user()->id;
 
         $orderConfirm = OrderDispatch::create($request->all());
+
+        manageStock($orderConfirm);
 
         $Ndata['type'] = 'Order Disapatch';
         $Ndata['data'] = $request['qty'].' Quantity dispatch of order Number '.$orders->confirm_po_no.' .';

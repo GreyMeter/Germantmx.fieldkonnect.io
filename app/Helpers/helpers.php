@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Attachment;
+use App\Models\BranchStock;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -809,4 +810,12 @@ function addNotification(array $data)
 
 function getAllNotification(){
     return Notification::where('active', 'Y')->orderBy('id', 'desc')->get();
+}
+
+function manageStock($orderConfirm){
+    $PlantStock = BranchStock::where(['plant_id'=>$orderConfirm->plant_id, 'brand_id'=>$orderConfirm->brand_id, 'unit_id'=>$orderConfirm->unit_id, 'category_id'=>$orderConfirm->category_id])->first();
+    if($PlantStock){
+        $PlantStock->stock = $PlantStock->stock - $orderConfirm->qty;
+        $PlantStock->save();
+    }
 }

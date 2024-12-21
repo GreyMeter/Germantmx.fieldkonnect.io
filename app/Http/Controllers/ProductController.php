@@ -8,6 +8,7 @@ use App\Http\Requests\ProductRequest;
 use App\Models\Subcategory;
 use App\Models\Category;
 use App\Models\Brand;
+use App\Models\Plant;
 use App\Models\UnitMeasure;
 use App\Models\ProductDetails;
 use Symfony\Component\HttpFoundation\Response;
@@ -395,12 +396,24 @@ class ProductController extends Controller
     public function stock(Request $request)
     {
         $userids = getUsersReportingToAuth();
-        $branches = Branch::where('active', 'Y')->latest()->get();
+        $brands = Brand::where('active', 'Y')->latest()->get();
+        $sizes = Category::where('active', 'Y')->latest()->get();
+        $grades = UnitMeasure::where('active', 'Y')->latest()->get();
+        $plants = Plant::where('active', 'Y')->latest()->get();
 
         if ($request->ajax()) {
-            $data = BranchStock::with('plant');
-            if($request->branch_id && !empty($request->branch_id)){
-                $data->where('branch_id', $request->branch_id);
+            $data = BranchStock::with('plant','brands','sizes','grades');
+            if($request->plant_id && !empty($request->plant_id)){
+                $data->where('plant_id', $request->plant_id);
+            }
+            if($request->brand_id && !empty($request->brand_id)){
+                $data->where('brand_id', $request->brand_id);
+            }
+            if($request->category_id && !empty($request->category_id)){
+                $data->where('category_id', $request->category_id);
+            }
+            if($request->unit_id && !empty($request->unit_id)){
+                $data->where('unit_id', $request->unit_id);
             }
             
             return Datatables::of($data)
@@ -410,7 +423,7 @@ class ProductController extends Controller
                 ->make(true);
         }
 
-        return view('products.stock', compact('branches'));
+        return view('products.stock', compact('plants','brands','sizes','grades'));
     }
 
     public function stock_upload(Request $request)
@@ -428,12 +441,12 @@ class ProductController extends Controller
         abort_if(Gate::denies('stock_template'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
-        return Excel::download(new BranchStockTemplate, 'branch_stock_template.xlsx');
+        return Excel::download(new BranchStockTemplate, 'Stock Template.xlsx');
     }
 
     public function stock_download(Request $request)
     {
-        abort_if(Gate::denies('stock_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        // abort_if(Gate::denies('stock_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
         return Excel::download(new BranchStockExport($request), 'stock.xlsx');

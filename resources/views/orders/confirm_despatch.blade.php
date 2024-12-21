@@ -164,6 +164,29 @@
             </div>
             <div class="col-md-6">
               <div class="row">
+                <label class="col-md-3 col-form-label">Plant<span class="text-danger"> *</span></label>
+                <div class="col-md-9">
+                  <div class="form-group has-default bmd-form-group">
+                  <input type="hidden" id="add_size_price">
+                    <select class="form-control select2" name="plant_id" id="plant_id" style="width: 100%;" {{isset($cnf)?'required':''}}>
+                      <option value="">Select Plant</option>
+                      @if(@isset($plants ))
+                      @foreach($plants as $plant)
+                      <option value="{!! $plant['id'] !!}" {{ old( 'plant_id' , (!empty($orders->plant_id)) ? ($orders->plant_id) :('') ) == $plant['id'] ? 'selected' : '' }}>{!! $plant['plant_name'] !!}</option>
+                      @endforeach
+                      @endif
+                    </select>
+                  </div>
+                  @if ($errors->has('plant_id'))
+                  <div class="error col-lg-12">
+                    <p class="text-danger">{{ $errors->first('plant_id') }}</p>
+                  </div>
+                  @endif
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="row">
                 <label class="col-md-3 col-form-label">Base Price<small>(1MT)</small> <span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">

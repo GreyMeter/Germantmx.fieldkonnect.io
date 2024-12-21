@@ -24,9 +24,11 @@ class BranchStockTemplate implements FromCollection,WithHeadings,ShouldAutoSize
     public function headings(): array
     {
         return [
-            'Unit ID',  
-            'Unit Name', 
-            'Stock',
+            'Plant Name',  
+            'Brand', 
+            'Size', 
+            'Grade', 
+            'Stock QTY',
         ];
     }
 

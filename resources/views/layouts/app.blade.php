@@ -939,8 +939,8 @@
                   <li class="nav-link-btn {{ request()->is('plants*') ? 'active' : '' }}">
                     <a class="hoveradd2" href="{{ url('plants') }}">
                       <i class="material-icons icon">domain</i>
-                      <span>Unit</span>
-                      <div class="d-none mobile_hide">Unit
+                      <span>Plants</span>
+                      <div class="d-none mobile_hide">Plants
 
                       </div>
                     </a>

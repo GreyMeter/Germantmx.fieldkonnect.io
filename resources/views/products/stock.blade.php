@@ -19,17 +19,51 @@
                 <form method="POST" action="{{url('stock/download')}}">
                   @csrf
                   <div class="d-flex flex-wrap flex-row">
-                    <!-- branch filter -->
+                    <!-- Plant filter -->
                     <div class="p-2" style="width:180px;">
-                      <select class="select2" name="branch_id" id="branch_id" data-style="select-with-transition" title="panel.sales_users.branch">
-                        <option value="" disabled selected>{!! trans('panel.secondary_dashboard.branch') !!}</option>
-                        @if(@isset($branches ))
-                        @foreach($branches as $branch)
-                        <option value="{!! $branch->id !!}">{!! $branch->branch_name !!}</option>
+                      <select class="select2" name="plant_id" id="plant_id" data-style="select-with-transition" title="Plant">
+                        <option value="" disabled selected>Plant</option>
+                        @if(@isset($plants ))
+                        @foreach($plants as $plant)
+                        <option value="{!! $plant->id !!}">{!! $plant->plant_name !!}</option>
                         @endforeach
                         @endif
                       </select>
                     </div>
+                    <!-- Brand filter -->
+                    <div class="p-2" style="width:180px;">
+                      <select class="select2" name="brand_id" id="brand_id" data-style="select-with-transition" title="Brand">
+                        <option value="" disabled selected>Brand</option>
+                        @if(@isset($brands ))
+                        @foreach($brands as $brand)
+                        <option value="{!! $brand->id !!}">{!! $brand->brand_name !!}</option>
+                        @endforeach
+                        @endif
+                      </select>
+                    </div>
+                    <!-- Size filter -->
+                    <div class="p-2" style="width:180px;">
+                      <select class="select2" name="category_id" id="category_id" data-style="select-with-transition" title="Size">
+                        <option value="" disabled selected>Size</option>
+                        @if(@isset($sizes ))
+                        @foreach($sizes as $size)
+                        <option value="{!! $size->id !!}">{!! $size->category_name !!}</option>
+                        @endforeach
+                        @endif
+                      </select>
+                    </div>
+                    <!-- Grade filter -->
+                    <div class="p-2" style="width:180px;">
+                      <select class="select2" name="unit_id" id="unit_id" data-style="select-with-transition" title="Grade">
+                        <option value="" disabled selected>Grade</option>
+                        @if(@isset($grades ))
+                        @foreach($grades as $grade)
+                        <option value="{!! $grade->id !!}">{!! $grade->unit_name !!}</option>
+                        @endforeach
+                        @endif
+                      </select>
+                    </div>
+
                     <div class="p-2" style="width:200px;">
                       <button class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.download') !!} Primary Sales">
                         <i class="material-icons">cloud_download</i>
@@ -88,16 +122,11 @@
           <div class="table-responsive">
             <table id="getprimarysales" class="table table-striped table-bordered table-hover table-checkable no-wrap">
               <thead class=" text-primary">
-                <th>Unit Name</th>
-                <!-- <th>Division</th>
-                <th>Year</th>
-                <th>Quarter</th>
-                <th>0-30</th>
-                <th>31-60</th>
-                <th>61-90</th>
-                <th>91-150</th>
-                <th>>150</th> -->
-                <th>Total Stock</th>
+                <th>Plant Name</th>
+                <th>Brand</th>
+                <th>Size</th>
+                <th>Grade</th>
+                <th>Stock QTY</th>
               </thead>
               <tbody>
               </tbody>
@@ -130,7 +159,10 @@
         ajax: {
           url: "{{ route('stock') }}",
           data: function(d) {
-              d.branch_id = $('#branch_id').val(),
+              d.plant_id = $('#plant_id').val(),
+              d.brand_id = $('#brand_id').val(),
+              d.category_id = $('#category_id').val(),
+              d.unit_id = $('#unit_id').val(),
               d.search = $('input[type="search"]').val()
           }
         },
@@ -142,59 +174,24 @@
             searchable: false,
             "defaultContent": ''
           },
-          // {
-          //   data: 'division.division_name',
-          //   name: 'division.division_name',
-          //   orderable: false,
-          //   searchable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'year',
-          //   name: 'year',
-          //   orderable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'quarter',
-          //   name: 'quarter',
-          //   orderable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'first_slot',
-          //   name: 'first_slot',
-          //   orderable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'second_slot',
-          //   name: 'second_slot',
-          //   orderable: false,
-          //   searchable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'thired_slot',
-          //   name: 'thired_slot',
-          //   orderable: false,
-          //   searchable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'fourth_slot',
-          //   name: 'fourth_slot',
-          //   orderable: false,
-          //   searchable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'fifth_slot',
-          //   name: 'fifth_slot',
-          //   orderable: false,
-          //   searchable: false,
-          //   "defaultContent": ''
-          // },
+          {
+            data: 'brands.brand_name',
+            name: 'brands.brand_name',
+            "defaultContent": '',
+            orderable: false
+          },
+          {
+            data: 'sizes.category_name',
+            name: 'sizes.category_name',
+            "defaultContent": '',
+            orderable: false
+          },
+          {
+            data: 'grades.unit_name',
+            name: 'grades.unit_name',
+            "defaultContent": '',
+            orderable: false
+          },
           {
             data: 'stock',
             name: 'stock',
@@ -203,7 +200,16 @@
           }
         ]
       });
-      $('#branch_id').change(function() {
+      $('#plant_id').change(function() {
+        table.draw();
+      });
+      $('#brand_id').change(function() {
+        table.draw();
+      });
+      $('#category_id').change(function() {
+        table.draw();
+      });
+      $('#unit_id').change(function() {
         table.draw();
       });
     });
