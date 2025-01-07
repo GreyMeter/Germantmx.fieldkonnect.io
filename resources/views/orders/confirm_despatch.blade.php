@@ -29,6 +29,16 @@
             </span>
           </div>
           @endif
+          @if(session()->has('message_danger'))
+          <div class="alert alert-danger">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <i class="material-icons">close</i>
+            </button>
+            <span>
+              {{ session()->get('message_danger') }}
+            </span>
+          </div>
+          @endif
           {!! Form::model($orders,[
           'route' => ['orders.dispatch', encrypt($orders->id) ],
           'method' => 'POST',
@@ -121,7 +131,7 @@
                 <label class="col-md-3 col-form-label">{!! trans('panel.product.fields.brand_name') !!}<span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                  <input type="hidden" id="add_brand_price">
+                    <input type="hidden" id="add_brand_price">
                     <select class="form-control select2" name="brand_id" id="brand_id" style="width: 100%;" {{isset($cnf)?'required':''}}>
                       <option value="">Select {!! trans('panel.product.fields.brand_name') !!}</option>
                       @if(@isset($brands ))
@@ -144,7 +154,7 @@
                 <label class="col-md-3 col-form-label">Size<small>(mm)</small><span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                  <input type="hidden" id="add_size_price">
+                    <input type="hidden" id="add_size_price">
                     <select class="form-control select2" name="category_id" id="size_id" style="width: 100%;" {{isset($cnf)?'required':''}}>
                       <option value="">Select Size</option>
                       @if(@isset($categories ))
@@ -167,7 +177,7 @@
                 <label class="col-md-3 col-form-label">Plant<span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                  <input type="hidden" id="add_size_price">
+                    <input type="hidden" id="add_size_price">
                     <select class="form-control select2" name="plant_id" id="plant_id" style="width: 100%;" {{isset($cnf)?'required':''}}>
                       <option value="">Select Plant</option>
                       @if(@isset($plants ))
@@ -262,7 +272,7 @@
   <script type="text/javascript">
     $('#customer_id').on('select2:select', function(e) {
       var customerId = $(this).val();
-      if(customerId != ''){
+      if (customerId != '') {
         var selectedOption = $(this).find(':selected');
         var orderLimit = selectedOption.data('limit');
         if (orderLimit < 1) {
@@ -295,12 +305,16 @@
                 $("#qty").prop('max', orderLimit);
                 $("#qty").val(orderLimit).trigger('keyup');
 
-                $("#soda_price").val((mtLimit * {{$base_price}}).toFixed(2));
+                $("#soda_price").val((mtLimit * {
+                  {
+                    $base_price
+                  }
+                }).toFixed(2));
               }
             }
           });
         }
-      }else{
+      } else {
         $("#qty-errors").html("");
       }
     });
@@ -354,34 +368,42 @@
       });
     }).trigger('change');
 
-    function calcualteSodaPrice(){
+    function calcualteSodaPrice() {
       var additionalSizePrice = parseFloat($('#add_size_price').val()) || 0.00;
       var additionalBrandPrice = parseFloat($('#add_brand_price').val()) || 0.00;
       var additionalGradePrice = parseFloat($('#add_grade_price').val()) || 0.00;
 
-      
+
       var newQty = $('#qty').val();
       // var conversionFactor = 0.90718474;
       mtLimit = newQty;
       var fRate = $("#rate").val();
-      var bp = {{$base_price}} - fRate;
-      var sodaPrice = parseFloat((mtLimit * (bp+additionalBrandPrice+additionalGradePrice+additionalSizePrice)).toFixed(2)) || 0.00;
+      var bp = {
+        {
+          $base_price
+        }
+      } - fRate;
+      var sodaPrice = parseFloat((mtLimit * (bp + additionalBrandPrice + additionalGradePrice + additionalSizePrice)).toFixed(2)) || 0.00;
       $("#soda_price").val(sodaPrice);
       $("#final_rate").val(sodaPrice);
     }
 
-    $("#rate").on('keyup', function(){
+    $("#rate").on('keyup', function() {
       var fRate = $(this).val();
       var additionalSizePrice = parseFloat($('#add_size_price').val()) || 0.00;
       var additionalBrandPrice = parseFloat($('#add_brand_price').val()) || 0.00;
       var additionalGradePrice = parseFloat($('#add_grade_price').val()) || 0.00;
 
-      
+
       var newQty = $('#qty').val();
       // var conversionFactor = 0.90718474;
       mtLimit = newQty;
-      var bp = {{$base_price}} - fRate;
-      var sodaPrice = parseFloat((mtLimit * (bp+additionalBrandPrice+additionalGradePrice+additionalSizePrice)).toFixed(2)) || 0.00;
+      var bp = {
+        {
+          $base_price
+        }
+      } - fRate;
+      var sodaPrice = parseFloat((mtLimit * (bp + additionalBrandPrice + additionalGradePrice + additionalSizePrice)).toFixed(2)) || 0.00;
       $("#soda_price").val(sodaPrice);
       $("#final_rate").val(sodaPrice);
     })

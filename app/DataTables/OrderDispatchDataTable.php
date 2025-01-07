@@ -67,7 +67,7 @@ class OrderDispatchDataTable extends DataTable
     {
         $userids = getUsersReportingToAuth();
 
-        $query = $model->with('order','order_confirm','brands', 'sizes', 'grades', 'order.customer', 'createdbyname');
+        $query = $model->with('order','order_confirm','brands', 'sizes', 'grades', 'order.customer', 'createdbyname', 'plant');
 
         
         $query->newQuery();

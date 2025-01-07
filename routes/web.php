@@ -436,7 +436,7 @@ Route::group(['middleware' => ['auth']], function () {
     // Route::any('submit-expected-delivery', [OrderController::class, 'submitExpectedDelivery'])->name('orders.submitexpecteddelivery');
     // Route::any('order-dispatched/{id}', [OrderController::class, 'orderDispatched'])->name('orders.dispatched');
     // Route::any('order-partially-dispatched/{id}', [OrderController::class, 'orderPartiallyDispatched'])->name('orders.partiallydispatched');
-    // Route::any('order-cancle/{id}', [OrderController::class, 'orderCancle'])->name('orders.orderCancle');
+    Route::any('order-cancle/{id}', [OrderController::class, 'orderCancle'])->name('orders.orderCancle');
     // Route::post('submit-dispatched', [OrderController::class, 'submitDispatched'])->name('orders.submitdispatched');
     // Route::any('order-detail-delete', [OrderController::class, 'deleteOrderDtails'])->name('orders.deletedetails');
 

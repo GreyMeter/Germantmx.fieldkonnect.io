@@ -108,15 +108,15 @@ class OrderController extends Controller
             $request['po_no'] = generatePoNumber();
             $order = Order::create($request->all());
             
-            $data['type'] = 'Soda Created';
-            $data['data'] = 'New soda created successfully with PO Number is '.$request['po_no'].'.';
+            $data['type'] = 'Booking Created';
+            $data['data'] = 'New booking created successfully with PO Number is '.$request['po_no'].'.';
             $data['customer_id'] = $request['customer_id'];
             addNotification($data);
 
 
 
 
-            return Redirect::to('orders')->with('message_success', 'Soda Store Successfully And order PO Number is <span title="Copy" id="copyText">' . $request['po_no'] . '</span>');
+            return Redirect::to('orders')->with('message_success', 'Booking Store Successfully And order PO Number is <span title="Copy" id="copyText">' . $request['po_no'] . '</span>');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage())->withInput();
         }
@@ -166,7 +166,8 @@ class OrderController extends Controller
         $units = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name')->get();
         $base_price = $orders->base_price;
         $cnf = $request->cnf ?? false;
-        return view('orders.create', compact('categories', 'customers', 'brands', 'units', 'base_price', 'cnf', 'totalOrderConfirmQty'))->with('orders', $orders);
+        $materials = config('constants.material');
+        return view('orders.create', compact('categories', 'customers', 'brands', 'units', 'base_price', 'cnf', 'totalOrderConfirmQty', 'materials'))->with('orders', $orders);
     }
 
     public function confirm_orders_edit($id, Request $request)
@@ -548,10 +549,10 @@ class OrderController extends Controller
     public function orderCancle($orderid, Request $request)
     {
         $orderid = decrypt($orderid);
-        $orders = $this->orders->with('orderdetails')->find($orderid);
+        $orders = $this->orders->find($orderid);
         if ($orders) {
-            $orders->status_id = '4';
-            $orders->order_remark = $request->remark;
+            $orders->status = '4';
+            $orders->cancel_remark = $request->remark;
             $orders->save();
             return response()->json(['status' => 'success', 'message' => 'Order cancle successfully !!']);
         } else {
@@ -648,7 +649,7 @@ class OrderController extends Controller
             $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->category_id[$k], 'model_name' => 'size'])->first())->price_adjustment;
             $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'model_name' => 'grade'])->first())->price_adjustment;
             $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'model_name' => 'brand'])->first())->price_adjustment;
-            $after_soda_price = ($orders->base_price-$orders->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size;
+            $after_soda_price = ($orders->base_price+$orders->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size;
             $totalOrderConfirm = OrderConfirm::where('order_id', $id)->count('id');
             $data['confirm_po_no'] = $orders->po_no . '-' . $totalOrderConfirm + 1;
             $data['order_id'] = $id;
@@ -659,7 +660,8 @@ class OrderController extends Controller
             $data['unit_id'] = $request->grade_id[$k];
             $data['brand_id'] = $request->brand_id[$k];
             $data['category_id'] = $request->category_id[$k];
-            $data['base_price'] = $orders->base_price-$orders->discount_amt;
+            $data['material'] = $request->material[$k];
+            $data['base_price'] = $orders->base_price+$orders->discount_amt;
             $data['soda_price'] = $after_soda_price * $qty;
             $tqty += $qty;
 
@@ -671,7 +673,7 @@ class OrderController extends Controller
         $Ndata['customer_id'] = $orders['customer_id'];
         addNotification($Ndata);
 
-        return Redirect::to('orders_confirm')->with('message_success', 'Soda Confirm Successfully.');
+        return Redirect::to('orders_confirm')->with('message_success', 'Booking Confirm Successfully.');
     }
 
     public function dispatch_order($id, Request $request)
@@ -679,6 +681,12 @@ class OrderController extends Controller
         $id = decrypt($id);
         $orders = OrderConfirm::find($id);
         
+        $stockA = manageStock($request->all());
+
+        if(!$stockA){
+            return redirect()->back()->with('message_danger', 'Stock not available')->withInput();
+        }
+
         $totalOrderDispacth = OrderDispatch::where('order_confirm_id', $id)->count('id');
         $request['dispatch_po_no'] = $orders->confirm_po_no . '-' . $totalOrderDispacth + 1;
         $request['order_confirm_id'] = $id;
@@ -688,7 +696,6 @@ class OrderController extends Controller
 
         $orderConfirm = OrderDispatch::create($request->all());
 
-        manageStock($orderConfirm);
 
         $Ndata['type'] = 'Order Disapatch';
         $Ndata['data'] = $request['qty'].' Quantity dispatch of order Number '.$orders->confirm_po_no.' .';

@@ -63,7 +63,7 @@ class OrderController extends Controller
 
             $data = Order::with('customer:id,name')->whereIn('created_by', $user_ids)
                 ->select('id', 'po_no', 'qty', 'base_price', 'discount_amt', 'created_at', 'customer_id')
-                ->selectRaw('base_price - discount_amt as base_price')
+                ->selectRaw('base_price + discount_amt as base_price')
                 ->orderBy('id', 'desc');
             $data = (!empty($pageSize)) ? $data->paginate($pageSize) : $data->get();
             if ($data && count($data) > 0) {
@@ -527,7 +527,7 @@ class OrderController extends Controller
             $customer = $request->user();
             $data = Order::where('customer_id', $customer->id)
                 ->select('id', 'po_no', 'qty', 'base_price', 'discount_amt', 'created_at')
-                ->selectRaw('base_price - discount_amt as base_price')
+                ->selectRaw('base_price + discount_amt as base_price')
                 ->orderBy('id', 'desc')
                 ->get();
 
@@ -563,6 +563,17 @@ class OrderController extends Controller
     {
         try {
             $data = Category::where('active', '=', 'Y')->select('id', 'category_name as size')->get();
+
+            return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        }
+    }
+
+    public function get_material(Request $request)
+    {
+        try {
+            $data = config('constants.material');
 
             return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
         } catch (\Exception $e) {
@@ -664,9 +675,11 @@ class OrderController extends Controller
             $soda = Order::with('customer')->find($request->soda_id);
             $confirm_qty = OrderConfirm::where('order_id', $request->soda_id)->sum('qty');
             $soda['confirm_qty'] = $confirm_qty;
-            $soda['base_price'] = $soda['base_price'] - $soda['discount_amt'];
+            $soda['base_price'] = $soda['base_price'] + $soda['discount_amt'];
+            $totalOrderConfirmQty = OrderConfirm::where('order_id', $request->soda_id)->sum('qty');
             if ($soda) {
-                $soda->customer_address = $soda->customer->customeraddress ? $soda->customer->customeraddress->cityname->city_name . ',' . $soda->customer->customeraddress->districtname->district_name . ',' . $soda->customer->customeraddress->statename->state_name . ',' . $soda->customer->customeraddress->countryname->country_name . ',' . $soda->customer->customeraddress->pincodename->pincode : '-';
+                $soda->customer_address = $soda->customer->customeraddress ? $soda->customer->customeraddress->cityname->city_name . ',' . $soda->customer->customeraddress->districtname->district_name . ',' . $soda->customer->customeraddress->statename->state_name . ',' . $soda->customer->customeraddress->countryname->country_name . ',' . $soda->customer->customeraddress->pincodename?->pincode : '-'; 
+                $soda->totalOrderConfirmQty = $totalOrderConfirmQty;
                 return response()->json(['status' => 'success', 'message' => 'data retrieved successfully.', 'data' => $soda], 200);
             }
             return response()->json(['status' => 'error', 'message' =>  'Soda not found.'], $this->badrequest);
@@ -736,7 +749,7 @@ class OrderController extends Controller
                 $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'model_name' => 'size'])->first())->price_adjustment;
                 $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'model_name' => 'grade'])->first())->price_adjustment;
                 $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'model_name' => 'brand'])->first())->price_adjustment;
-                $after_soda_price = ($soda->base_price - $soda->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size;
+                $after_soda_price = ($soda->base_price + $soda->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size;
                 $totalOrderConfirm = OrderConfirm::where('order_id', $request->soda_id)->count('id');
                 $data['confirm_po_no'] = $soda->po_no . '-' . $totalOrderConfirm + 1;
                 $data['order_id'] = $request->soda_id;
@@ -747,7 +760,8 @@ class OrderController extends Controller
                 $data['unit_id'] = $request->grade_id[$k];
                 $data['brand_id'] = $request->brand_id[$k];
                 $data['category_id'] = $request->size_id[$k];
-                $data['base_price'] = $soda->base_price - $soda->discount_amt;
+                $data['material'] = $request->material[$k];
+                $data['base_price'] = $soda->base_price + $soda->discount_amt;
                 $data['soda_price'] = $after_soda_price * $qty;
                 $tqty += $qty;
 
@@ -827,7 +841,7 @@ class OrderController extends Controller
                 $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'model_name' => 'size'])->first())->price_adjustment;
                 $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'model_name' => 'grade'])->first())->price_adjustment;
                 $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'model_name' => 'brand'])->first())->price_adjustment;
-                $after_soda_price = ($soda->base_price - $soda->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size;
+                $after_soda_price = ($soda->base_price + $soda->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size;
                 $totalOrderConfirm = OrderConfirm::where('order_id', $request->soda_id)->count('id');
                 $data['confirm_po_no'] = $soda->po_no . '-' . $totalOrderConfirm + 1;
                 $data['order_id'] = $request->soda_id;
@@ -838,7 +852,7 @@ class OrderController extends Controller
                 $data['unit_id'] = $request->grade_id[$k];
                 $data['brand_id'] = $request->brand_id[$k];
                 $data['category_id'] = $request->size_id[$k];
-                $data['base_price'] = $soda->base_price - $soda->discount_amt;
+                $data['base_price'] = $soda->base_price + $soda->discount_amt;
                 $data['soda_price'] = $after_soda_price * $qty;
                 $tqty += $qty;
 
@@ -923,7 +937,7 @@ class OrderController extends Controller
             if ($order) {
                 $order->soda = $order->order;
                 $order->customer = $order->order->customer;
-                $order->customer_address = $order->order->customer->customeraddress ? $order->order->customer->customeraddress->cityname->city_name . ',' . $order->order->customer->customeraddress->districtname->district_name . ',' . $order->order->customer->customeraddress->statename->state_name . ',' . $order->order->customer->customeraddress->countryname->country_name . ',' . $order->order->customer->customeraddress->pincodename->pincode : '-';
+                $order->customer_address = $order->order->customer->customeraddress ? $order->order->customer->customeraddress->cityname->city_name . ',' . $order->order->customer->customeraddress->districtname->district_name . ',' . $order->order->customer->customeraddress->statename->state_name . ',' . $order->order->customer->customeraddress->countryname->country_name . ',' . $order->order->customer->customeraddress->pincodename?->pincode : '-';
                 return response()->json(['status' => 'success', 'message' => 'data retrieved successfully.', 'data' => $order], 200);
             }
             return response()->json(['status' => 'error', 'message' =>  'Soda not found.'], $this->badrequest);

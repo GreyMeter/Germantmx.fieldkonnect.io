@@ -74,6 +74,7 @@ class BranchStockImport implements ToCollection, WithValidation, WithHeadingRow,
             'brand' => 'required|exists:brands,brand_name',
             'size' => 'required|exists:categories,category_name',
             'grade' => 'required|exists:unit_measures,unit_name',
+            'stock_qty' => 'required|numeric|gt:-1',
         ];
         return $rules;
     }

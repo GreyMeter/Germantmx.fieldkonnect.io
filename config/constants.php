@@ -19,6 +19,10 @@ return [
         '1' => 'Gift',
         '2' => 'Neft'
     ],
+    'material' => [
+        ['id' => 'Straight', 'material' =>'Straight'],
+        [ 'id' => 'Bend', 'material' =>'Bend']
+    ],
 
     'puchin_working_type' => [
         'Tour' => 'Tour',

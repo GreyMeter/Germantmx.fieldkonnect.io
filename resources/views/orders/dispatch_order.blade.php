@@ -149,9 +149,10 @@
                 <th>Brand</th>
                 <th>Grade</th>
                 <th>Size</th>
+                <th>Plant</th>
                 <th>Quantity<small>(Tonn)</small></th>
                 <th>Base Price<small>(1MT)</small></th>
-                <th>Soda Price</th>
+                <th>Booking Price</th>
                 <th>{!! trans('panel.global.created_by') !!}</th>
                 <th>{!! trans('panel.global.created_at') !!}</th>
               </thead>
@@ -223,6 +224,12 @@
           {
             data: 'sizes.category_name',
             name: 'sizes.category_name',
+            "defaultContent": '',
+            orderable: false
+          },
+          {
+            data: 'plant.plant_name',
+            name: 'plant.plant_name',
             "defaultContent": '',
             orderable: false
           },

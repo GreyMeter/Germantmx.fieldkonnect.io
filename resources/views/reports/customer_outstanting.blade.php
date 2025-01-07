@@ -119,7 +119,7 @@
                 @endif
                 <div class="row next-btn">
                   @if(auth()->user()->can(['customer_outstanting_upload']))
-                  <form action="{{ URL::to('customer_outstanting/upload') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
+                 {{-- <form action="{{ URL::to('customer_outstanting/upload') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
                     {{ csrf_field() }}
                     <div class="input-group" style="flex-wrap:nowrap;">
                       <div class="fileinput fileinput-new text-center" data-provides="fileinput">
@@ -137,12 +137,12 @@
                         </button>
                       </div>
                     </div>
-                  </form>
+                  </form> --}}
                   @endif
                   <!-- primary sales import -->
                   @if(auth()->user()->can(['customer_outstanting_template']))
                   <!-- primary sales template creation -->
-                  <a href="{{ URL::to('customer_outstanting_template') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.template') !!} Customer Outstanding"><i class="material-icons">text_snippet</i></a>
+                  {{--<a href="{{ URL::to('customer_outstanting_template') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.template') !!} Customer Outstanding"><i class="material-icons">text_snippet</i></a>--}}
                   @endif
                 </div>
               </div>
@@ -167,6 +167,7 @@
             <table id="getprimarysales" class="table table-striped table-bordered table-hover table-checkable no-wrap">
               <thead class=" text-primary">
                 <th>Date</th>
+                <th>PO Number</th>
                 <th>Party Name</th>
                 <th>Rate</th>
                 <th>Order QTY</th>
@@ -215,6 +216,13 @@
             "defaultContent": ''
           },
           {
+            data: 'po_no',
+            name: 'po_no',
+            orderable: false,
+            searchable: false,
+            "defaultContent": ''
+          },
+          {
             data: 'customer.name',
             name: 'customer.name',
             orderable: false,
@@ -222,14 +230,14 @@
             "defaultContent": ''
           },
           {
-            data: 'rate',
-            name: 'rate',
+            data: 'base_price',
+            name: 'base_price',
             orderable: false,
             "defaultContent": ''
           },
           {
-            data: 'order_qty',
-            name: 'order_qty',
+            data: 'qty',
+            name: 'qty',
             orderable: false,
             "defaultContent": ''
           },
@@ -253,20 +261,6 @@
             searchable: false,
             "defaultContent": ''
           }
-          // {
-          //   data: 'fourth_slot',
-          //   name: 'fourth_slot',
-          //   orderable: false,
-          //   searchable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'fifth_slot',
-          //   name: 'fifth_slot',
-          //   orderable: false,
-          //   searchable: false,
-          //   "defaultContent": ''
-          // },
         ]
       });
       $('#ps_month').change(function() {

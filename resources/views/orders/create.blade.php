@@ -134,6 +134,7 @@
                   <th class="text-center brand"> Brand </th>
                   <th class="text-center grade"> Grade</th>
                   <th class="text-center size"> Size </th>
+                  <th class="text-center material"> Material </th>
                   <th class="text-center"> QTY <small>(MT)</small> </th>
                   <th class="text-center"> </th>
                 </tr>
@@ -269,6 +270,7 @@
           '<td class="group" style="width:30%"><div class="input_section"><select required name="brand_id[]" class="form-control brand' + counter + '"></select></div></td>' +
           '<td style="width:30%" class="subCat"><div class="input_section"><select required name="grade_id[]" class="form-control grade' + counter + '"></select></div></td>' +
           '<td style="width:30%"><div class="input_section"><select required name="category_id[]" class="form-control allsizes size' + counter + '"></select></div></td>' +
+          '<td style="width:30%"><div class="input_section"><select required name="material[]" class="form-control material' + counter + '"><option value="">Select Material</option><option value="Straight">Straight</option><option value="Bend">Bend</option></select></div></td>' +
           '<td><div class="input_section"><input required type="number" name="qty[]"class="form-control points rowchange" /></div></td>' +
           '<td class="td-actions text-center"><a class="remove-rows btn btn-danger btn-just-icon btn-sm"><i class="fa fa-minus"></i></a></td> </tr>';
         $table.append(newRow);

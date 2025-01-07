@@ -108,7 +108,7 @@
                 <th>Size</th>
                 <th>Quantity<small>(Tonn)</small></th>
                 <th>Base Price<small>(1MT)</small></th>
-                <th>Soda Price</th>
+                <th>Booking Price</th>
                 <th>{!! trans('panel.global.created_by') !!}</th>
                 <th>{!! trans('panel.global.created_at') !!}</th>
               </thead>

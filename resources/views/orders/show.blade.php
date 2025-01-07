@@ -20,10 +20,15 @@
                 @if($orders['status'] == '0')
                 @if($orders->qty > $totalOrderConfirmQty)
                 <a href="{{ url('orders/' . encrypt($orders->id) . '/edit?cnf=true') }}" class="btn btn-success">Confirm Order</a>
-                <a class="btn btn-danger bg-danger">Cancle Order</a>
+                @if($totalOrderConfirmQty <= 0)
+                <a class="btn btn-danger bg-danger" id="cancelButton" data-orderid="{!! encrypt($orders->id) !!}">Cancel Order</a>
+                @endif
                 @else
                 <button type="button" class="btn btn-success">This order is fully confirmed</button>
                 @endif
+                @elseif($orders['status'] == '4')
+                <button type="button" class="btn btn-danger bg-danger">This order is cancelled</button> <br>
+                <span class="badge badge-info">Remark : {{ $orders['cancel_remark'] }}</span>
                 @endif
                 <span class="pull-right">
                   <div class="btn-group">
@@ -72,8 +77,11 @@
                   <h3 style="margin-bottom: 10px;font-weight: 500;">Customer Deatils:</h3>
                   <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
                     <strong>Name:{!! isset($orders['customer']['name']) ? $orders['customer']['name'] :'' !!} </strong><br>
-                    Address:{!! $orders['customer']['customeraddress']['address1'] !!} ,{!! $orders['customer']['customeraddress']['address2'] !!}<br>
-                    {!! $orders['customer']['customeraddress']['locality'] !!}, {!! $orders['customer']['customeraddress']['cityname']['city_name'] !!} {!! $orders['customer']['customeraddress']['pincodename']['pincode'] !!}<br>
+                    Address:{!! $orders['customer']['customeraddress']['address1']??'' !!} ,{!! $orders['customer']['customeraddress']['address2']??'' !!}<br>
+                    {!! $orders['customer']['customeraddress']['locality'] ?? '' !!},
+                    {!! $orders['customer']['customeraddress']['cityname']['city_name'] ?? '' !!}
+                    {!! $orders['customer']['customeraddress']['pincodename']['pincode'] ?? '' !!}
+                    <br>
                     Phone: {!! $orders['customer']['mobile'] !!}<br>
                     Email: {!! $orders['customer']['email'] !!}
                   </address>
@@ -113,7 +121,7 @@
                         <td>{{$orders->qty-$totalOrderConfirmQty}}</td>
                         <td>{{$orders->base_price}}</td>
                         <td>{{$orders->discount_amt}}</td>
-                        <td style="text-align: center !important;"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter" {{$totalOrderConfirmQty > 0 ? 'disabled':''}}>{{$orders->discount_amt < 1 ? 'Give Commison':'Change Commison'}}</button></td>
+                        <td style="text-align: center !important;"><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter" {{$totalOrderConfirmQty > 0 || $orders['status'] == '4' ? 'disabled':''}}>{{$orders->discount_amt < 1 ? 'Give Commison':'Change Commison'}}</button></td>
                       </tr>
                       @endif
                     </tbody>
@@ -147,13 +155,16 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="exampleModalLongTitle">Discount</h5>
+              <h5 class="modal-title" id="exampleModalLongTitle">Commison</h5>
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
             <div class="modal-body">
-              <label for="discount_amt">Discount <small>(₹)</small></label>
+              <label for="discount_amt">Commison <small>(₹)</small><small class="form-text text-muted">
+                  *To subtract the commission from the base price, use a negative value (e.g., -10).
+                  Otherwise, the value will be added to the base price.
+                </small></label>
               <input class="form-control" value="{{$orders->discount_amt}}" type="number" min="0" name="discount_amt" id="discount_amt">
               <input type="hidden" name="soda_id" id="soda_id" value="{{$orders['id']}}">
               <span class="badge badge-danger amt_err"></span>
@@ -167,7 +178,7 @@
       </div>
   </section>
   <script>
-    $("#cancleButton").on("click", function() {
+    $("#cancelButton").on("click", function() {
       Swal.fire({
         title: "Are you sure?",
         text: "Enter remark:",
@@ -213,34 +224,29 @@
     $("#give_dis").on('click', function() {
       var dis_amt = $("#discount_amt").val();
       var soda_id = $("#soda_id").val();
-      if (dis_amt > 0 && dis_amt != '') {
-        $('.amt_err').html('');
-        $.ajax({
-          url: "{{ url('sodaDiscount') }}",
-          data: {
-            "dis_amt": dis_amt,
-            "soda_id": soda_id,
-          },
-          success: function(data) {
-            $('.message').empty();
-            $('.alert').show();
-            if (data.status == 'success') {
-              $('.alert').addClass("alert-success");
-              setTimeout(function() {
-                location.reload();
-              }, 500);
+      $('.amt_err').html('');
+      $.ajax({
+        url: "{{ url('sodaDiscount') }}",
+        data: {
+          "dis_amt": dis_amt,
+          "soda_id": soda_id,
+        },
+        success: function(data) {
+          $('.message').empty();
+          $('.alert').show();
+          if (data.status == 'success') {
+            $('.alert').addClass("alert-success");
+            setTimeout(function() {
+              location.reload();
+            }, 500);
 
-            } else {
-              $('.alert').addClass("alert-danger");
-            }
-            $('.message').append(data.message);
+          } else {
+            $('.alert').addClass("alert-danger");
           }
-        });
-        $('#exampleModalCenter').modal('hide');
-      } else {
-        $('.amt_err').html('Discount must be greater than 0.');
-        return false;
-      }
+          $('.message').append(data.message);
+        }
+      });
+      $('#exampleModalCenter').modal('hide');
     })
   </script>
   <!-- /.content -->

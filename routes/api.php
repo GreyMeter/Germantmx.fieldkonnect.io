@@ -75,6 +75,7 @@ Route::get('get-field-connet-version', [DashboardController::class, 'getVersion'
 Route::any('getBrand', [OrderController::class, 'get_brand']);
 Route::any('getGrade', [OrderController::class, 'get_grade']);
 Route::any('getSize', [OrderController::class, 'get_size']);
+Route::any('getMaterial', [OrderController::class, 'get_material']);
 
 Route::any('emailExists', [CustomController::class, 'emailExists']);
 /*================= Customer Routes ============================*/

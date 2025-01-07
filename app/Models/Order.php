@@ -42,7 +42,7 @@ class Order extends Model
 
     public function order_confirm()
     {
-        return $this->hasMany('App\Models\OrderConfirm', 'id', 'order_id');
+        return $this->hasMany('App\Models\OrderConfirm', 'order_id', 'id');
     }
 
 }

@@ -20,7 +20,7 @@
                 @if($orders['status'] == '0')
                 @if($orders->qty > $totalOrderDispatchQty)
                 <a href="{{ url('orders_confirm/' . encrypt($orders->id) . '/edit?cnf=true') }}" class="btn btn-success">Dispatch Order</a>
-                <a class="btn btn-danger bg-danger">Cancle Order</a>
+                <!-- <a class="btn btn-danger bg-danger">Cancle Order</a> -->
                 @else
                 <button type="button" class="btn btn-success">This order has fully dispatched</button>
                 @endif
@@ -65,8 +65,8 @@
                   <h3 style="margin-bottom: 10px;font-weight: 500;">Customer Deatils:</h3>
                   <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
                     <strong>Name:{!! isset($orders['order']['customer']['name']) ? $orders['order']['customer']['name'] :'' !!} </strong><br>
-                    Address:{!! $orders['order']['customer']['customeraddress']['address1'] !!} ,{!! $orders['order']['customer']['customeraddress']['address2'] !!}<br>
-                    {!! $orders['order']['customer']['customeraddress']['locality'] !!}, {!! $orders['order']['customer']['customeraddress']['cityname']['city_name'] !!} {!! $orders['order']['customer']['customeraddress']['pincodename']['pincode'] !!}<br>
+                    Address:{!! $orders['order']['customer']['customeraddress']['address1']??'' !!} ,{!! $orders['order']['customer']['customeraddress']['address2']??'' !!}<br>
+                    {!! $orders['order']['customer']['customeraddress']['locality']??'' !!}, {!! $orders['order']['customer']['customeraddress']['cityname']['city_name']??'' !!} {!! $orders['order']['customer']['customeraddress']['pincodename']['pincode']??'' !!}<br>
                     Phone: {!! $orders['order']['customer']['mobile'] !!}<br>
                     Email: {!! $orders['order']['customer']['email'] !!}
                   </address>

@@ -42,4 +42,9 @@ class OrderDispatch extends Model
     {
         return $this->belongsTo('App\Models\UnitMeasure', 'unit_id', 'id');
     }
+
+    public function plant()
+    {
+        return $this->belongsTo('App\Models\Plant', 'plant_id', 'id');
+    }
 }

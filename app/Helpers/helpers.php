@@ -812,10 +812,16 @@ function getAllNotification(){
     return Notification::where('active', 'Y')->orderBy('id', 'desc')->get();
 }
 
-function manageStock($orderConfirm){
-    $PlantStock = BranchStock::where(['plant_id'=>$orderConfirm->plant_id, 'brand_id'=>$orderConfirm->brand_id, 'unit_id'=>$orderConfirm->unit_id, 'category_id'=>$orderConfirm->category_id])->first();
+function manageStock($data){
+    $PlantStock = BranchStock::where(['plant_id'=>$data['plant_id'], 'brand_id'=>$data['brand_id'], 'unit_id'=>$data['unit_id'], 'category_id'=>$data['category_id']])->first();
     if($PlantStock){
-        $PlantStock->stock = $PlantStock->stock - $orderConfirm->qty;
+        if($PlantStock->stock < $data['qty']){
+            return false;
+        }
+        $PlantStock->stock = $PlantStock->stock - $data['qty'];
         $PlantStock->save();
+        return true;
+    }else{
+        return false;
     }
 }
