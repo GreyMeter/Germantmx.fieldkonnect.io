@@ -4009,10 +4009,6 @@ class ReportController extends Controller
 
     public function customer_outstanting(Request $request)
     {
-        if ($request->ip() != '111.118.252.250') {
-            return view('work_in_progress');
-        }
-
         $userids = getUsersReportingToAuth();
         $branches = Branch::where('active', 'Y')->latest()->get();
         $dealers = Customers::where('customertype', ['1', '3'])->get();
@@ -4020,7 +4016,7 @@ class ReportController extends Controller
         if ($request->ajax()) {
             // $data = CustomerOutstanting::with('customer');
 
-            $data = Order::with('order_confirm', 'customer');
+            $data = Order::with('order_confirm', 'customer')->orderBy('created_at', 'desc')->get();
 
             // dd($data->get());
 

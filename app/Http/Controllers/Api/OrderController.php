@@ -852,6 +852,7 @@ class OrderController extends Controller
                 $data['unit_id'] = $request->grade_id[$k];
                 $data['brand_id'] = $request->brand_id[$k];
                 $data['category_id'] = $request->size_id[$k];
+                $data['material'] = $request->material[$k];
                 $data['base_price'] = $soda->base_price + $soda->discount_amt;
                 $data['soda_price'] = $after_soda_price * $qty;
                 $tqty += $qty;
@@ -968,4 +969,44 @@ class OrderController extends Controller
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
         }
     }
+
+    public function cancelOrder(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'soda_id' => 'required',
+            'remark' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
+        }
+        $orders = Order::find($request->soda_id);
+        if ($orders) {
+            $orders->status = '4';
+            $orders->cancel_remark = $request->remark;
+            $orders->save();
+            return response()->json(['status' => 'success', 'message' => 'Booking cancle successfully !!']);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Booking not found !!']);
+        }
+    }
+
+    public function updateOrder(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'soda_id' => 'required',
+            'qty' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
+        }
+        $orders = Order::find($request->soda_id);
+        if ($orders) {
+            $orders->qty = $request->qty;
+            $orders->save();
+            return response()->json(['status' => 'success', 'message' => 'Booking Update successfully !!']);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Booking not found !!']);
+        }
+    }
+
 }

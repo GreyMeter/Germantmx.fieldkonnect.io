@@ -554,9 +554,9 @@ class OrderController extends Controller
             $orders->status = '4';
             $orders->cancel_remark = $request->remark;
             $orders->save();
-            return response()->json(['status' => 'success', 'message' => 'Order cancle successfully !!']);
+            return response()->json(['status' => 'success', 'message' => 'Booking cancle successfully !!']);
         } else {
-            return response()->json(['status' => 'error', 'message' => 'Order not found !!']);
+            return response()->json(['status' => 'error', 'message' => 'Booking not found !!']);
         }
     }
 

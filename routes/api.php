@@ -113,6 +113,8 @@ Route::group(['middleware' => ['auth:customers']], function () {
     Route::any('customer/getConfirmOrder', [OrderController::class, 'getConfirmOrder']);
     Route::any('customer/getdispatchList', [OrderController::class, 'customerdispatchList']);
     Route::any('customer/getDispatchOrder', [OrderController::class, 'getDispatchOrder']);
+    Route::post('customer/cancelOrder', [OrderController::class, 'cancelOrder']);
+    Route::post('customer/updateOrder', [OrderController::class, 'updateOrder']);
     //Coupon Scan
     Route::post('customer/couponScans', [CouponController::class, 'customerCouponScans']);
     Route::post('customer/getScanedCoupons', [CouponController::class, 'customerScanedCouponList']);
@@ -172,6 +174,7 @@ Route::group(['middleware' => ['auth:users']], function () {
     Route::any('getConfirmOrder', [OrderController::class, 'getConfirmOrder']);
     Route::any('getdispatchList', [OrderController::class, 'userdispatchList']);
     Route::any('getDispatchOrder', [OrderController::class, 'getDispatchOrder']);
+    Route::post('cancelOrder', [OrderController::class, 'cancelOrder']);
 
     //Leave
     Route::any('addLeaves', [LeaveController::class, 'addLeaves']);
