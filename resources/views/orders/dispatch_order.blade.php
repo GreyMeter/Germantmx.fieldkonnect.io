@@ -150,6 +150,7 @@
                 <th>Grade</th>
                 <th>Size</th>
                 <th>Plant</th>
+                <th>material</th>
                 <th>Quantity<small>(Tonn)</small></th>
                 <th>Base Price<small>(1MT)</small></th>
                 <th>Booking Price</th>
@@ -230,6 +231,12 @@
           {
             data: 'plant.plant_name',
             name: 'plant.plant_name',
+            "defaultContent": '',
+            orderable: false
+          },
+          {
+            data: 'order.material',
+            name: 'order.material',
             "defaultContent": '',
             orderable: false
           },

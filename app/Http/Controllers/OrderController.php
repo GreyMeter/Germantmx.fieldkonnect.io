@@ -645,12 +645,12 @@ class OrderController extends Controller
         $id = decrypt($id);
         $orders = Order::find($id);
         $tqty = 0;
+        $totalOrderConfirm = OrderConfirm::where('order_id', $id)->count('id');
         foreach ($request->qty as $k => $qty) {
             $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->category_id[$k], 'model_name' => 'size'])->first())->price_adjustment;
             $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'model_name' => 'grade'])->first())->price_adjustment;
             $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'model_name' => 'brand'])->first())->price_adjustment;
             $after_soda_price = ($orders->base_price+$orders->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size;
-            $totalOrderConfirm = OrderConfirm::where('order_id', $id)->count('id');
             $data['confirm_po_no'] = $orders->po_no . '-' . $totalOrderConfirm + 1;
             $data['order_id'] = $id;
             $data['created_by'] = Auth::user()->id;

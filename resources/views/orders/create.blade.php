@@ -115,7 +115,7 @@
                 <label class="col-md-3 col-form-label">Base Price<small>(1MT)</small> <span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                    <input readonly type="text" name="base_price" id="base_price" class="form-control" value="{!! $orders['base_price']?$orders['base_price']-$orders['discount_amt']:$base_price !!}" maxlength="200" required>
+                    <input readonly type="text" name="base_price" id="base_price" class="form-control" value="{!! $orders['base_price']?$orders['base_price']+$orders['discount_amt']:$base_price !!}" maxlength="200" required>
                     @if ($errors->has('base_price'))
                     <div class="error col-lg-12">
                       <p class="text-danger">{{ $errors->first('base_price') }}</p>

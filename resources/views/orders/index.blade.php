@@ -176,7 +176,7 @@
             orderable: false,
             render: function(data, type, row) {
               if (data && row.discount_amt !== undefined) {
-                const discountedPrice = parseFloat(data) - parseFloat(row.discount_amt);
+                const discountedPrice = parseFloat(data) + parseFloat(row.discount_amt);
                 return '₹ ' + discountedPrice.toLocaleString('en-US', {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2

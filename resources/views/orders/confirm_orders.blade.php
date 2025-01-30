@@ -106,6 +106,7 @@
                 <th>Brand</th>
                 <th>Grade</th>
                 <th>Size</th>
+                <th>Material</th>
                 <th>Quantity<small>(Tonn)</small></th>
                 <th>Base Price<small>(1MT)</small></th>
                 <th>Booking Price</th>
@@ -178,6 +179,12 @@
           {
             data: 'sizes.category_name',
             name: 'sizes.category_name',
+            "defaultContent": '',
+            orderable: false
+          },
+          {
+            data: 'material',
+            name: 'material',
             "defaultContent": '',
             orderable: false
           },

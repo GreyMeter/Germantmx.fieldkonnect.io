@@ -98,6 +98,7 @@
                         <th>Brand</th>
                         <th>Grade</th>
                         <th>Size</th>
+                        <th>Material</th>
                         <th>Quantity<small>(Tonn)</small></th>
                         <th>Base Price<small>(1MT)</small></th>
                         <th>Total</th>
@@ -109,6 +110,7 @@
                         <td>{{$orders->brands?$orders->brands->brand_name:'-'}}</td>
                         <td>{{$orders->grades?$orders->grades->unit_name:'-'}}</td>
                         <td>{{$orders->sizes?$orders->sizes->category_name:'-'}}</td>
+                        <td>{{$orders->material}}</td>
                         <td>{{$orders->qty}}</td>
                         <td>{{$orders->base_price}}</td>
                         <td>{{$orders->soda_price}}</td>

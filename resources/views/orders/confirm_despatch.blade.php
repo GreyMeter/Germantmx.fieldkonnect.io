@@ -105,6 +105,21 @@
             </div>
             <div class="col-md-6">
               <div class="row">
+                <label class="col-md-3 col-form-label">Material<span class="text-danger"> *</span></label>
+                <div class="col-md-9">
+                  <div class="form-group has-default bmd-form-group">
+                    <input type="text" readonly name="material" id="material" class="form-control" value="{!! old( 'material', $orders['material'])!!}">
+                  </div>
+                  @if ($errors->has('material'))
+                  <div class="error col-lg-12">
+                    <p class="text-danger">{{ $errors->first('material') }}</p>
+                  </div>
+                  @endif
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="row">
                 <label class="col-md-3 col-form-label">Grade<span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">

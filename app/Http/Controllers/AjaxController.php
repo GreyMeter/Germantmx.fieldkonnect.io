@@ -1371,6 +1371,7 @@ class AjaxController extends Controller
     {
         $today_order_qty = Order::where('customer_id', $request->customer_id)
             ->whereDate('created_at', today())
+            ->whereNot('status', '4')
             ->sum('qty');
 
         return response()->json(['status' => 'success', 'today_order_qty' => $today_order_qty]);

@@ -197,6 +197,7 @@ class OrderController extends Controller
             }
             $today_order_qty = Order::where('customer_id', $request['customer_id'])
                 ->whereDate('created_at', today())
+                ->whereNot('status', '4')
                 ->sum('qty');
             $order_limit_remain = (int)($customer->order_limit ?? 500) - $today_order_qty;
             if ($order_limit_remain < $request->qty) {
@@ -587,6 +588,7 @@ class OrderController extends Controller
             $customer = $request->user();
             $today_order_qty = Order::where('customer_id', $customer->id)
                 ->whereDate('created_at', today())
+                ->whereNot('status', '4')
                 ->sum('qty');
 
             $data['order_limit_remain'] = (int)($customer->order_limit ?? 500) - $today_order_qty;
@@ -612,6 +614,7 @@ class OrderController extends Controller
             $customer = $request->user();
             $today_order_qty = Order::where('customer_id', $request['customer_id'])
                 ->whereDate('created_at', today())
+                ->whereNot('status', '4')
                 ->sum('qty');
 
             $data['order_limit_remain'] = (int)($customer->order_limit ?? 500) - $today_order_qty;
@@ -637,6 +640,7 @@ class OrderController extends Controller
             }
             $today_order_qty = Order::where('customer_id', $customer->id)
                 ->whereDate('created_at', today())
+                ->whereNot('status', '4')
                 ->sum('qty');
             $order_limit_remain = (int)($customer->order_limit ?? 500) - $today_order_qty;
             if ($order_limit_remain < $request->qty) {
