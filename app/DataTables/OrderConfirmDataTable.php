@@ -68,7 +68,8 @@ class OrderConfirmDataTable extends DataTable
     {
         $userids = getUsersReportingToAuth();
 
-        $query = $model->with('order','brands', 'sizes', 'grades', 'order.customer', 'createdbyname');
+        $query = $model->with('order', 'brands', 'sizes', 'grades', 'order.customer', 'createdbyname')
+    ->groupBy('confirm_po_no');
 
         
         $query->newQuery();
