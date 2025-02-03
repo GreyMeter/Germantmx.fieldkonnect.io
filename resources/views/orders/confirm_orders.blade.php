@@ -103,13 +103,13 @@
                 <th>PO No.</th>
                 <th>Order No.</th>
                 <th>Customer Name</th>
-                <th>Brand</th>
-                <th>Grade</th>
-                <th>Size</th>
-                <th>Material</th>
+                {{-- <th>Brand</th> --}}
+                {{-- <th>Grade</th> --}}
+                {{-- <th>Size</th> --}}
+                {{-- <th>Material</th> --}}
                 <th>Quantity<small>(Tonn)</small></th>
-                <th>Base Price<small>(1MT)</small></th>
-                <th>Booking Price</th>
+                {{-- <th>Base Price<small>(1MT)</small></th> --}}
+                {{-- <th>Booking Price</th> --}}
                 <th>{!! trans('panel.global.created_by') !!}</th>
                 <th>{!! trans('panel.global.created_at') !!}</th>
               </thead>
@@ -164,57 +164,17 @@
             "defaultContent": '',
             orderable: false
           },
-          {
-            data: 'brands.brand_name',
-            name: 'brands.brand_name',
-            "defaultContent": '',
-            orderable: false
-          },
-          {
-            data: 'grades.unit_name',
-            name: 'grades.unit_name',
-            "defaultContent": '',
-            orderable: false
-          },
-          {
-            data: 'sizes.category_name',
-            name: 'sizes.category_name',
-            "defaultContent": '',
-            orderable: false
-          },
-          {
-            data: 'material',
-            name: 'material',
-            "defaultContent": '',
-            orderable: false
-          },
+         
+        
+        
+         
           {
             data: 'qty',
             name: 'qty',
             "defaultContent": '',
             orderable: false
           },
-          {
-            data: 'base_price',
-            name: 'base_price',
-            "defaultContent": '',
-            orderable: false
-          },
-          {
-            data: 'soda_price',
-            name: 'soda_price',
-            defaultContent: '',
-            orderable: false,
-            render: function(data, type, row) {
-              if (data) {
-                return '₹ '+parseFloat(data).toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                });
-              }
-              return '';
-            }
-          },
+          
           {
             data: 'createdbyname.name',
             name: 'createdbyname.name',

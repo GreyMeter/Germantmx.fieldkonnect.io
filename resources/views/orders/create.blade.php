@@ -136,6 +136,8 @@
                   <th class="text-center size"> Size </th>
                   <th class="text-center material"> Material </th>
                   <th class="text-center"> QTY <small>(MT)</small> </th>
+                  <th class="text-center material"> Booking Price </th>
+                  <th class="text-center material"> Total Price </th>
                   <th class="text-center"> </th>
                 </tr>
               </thead>
@@ -267,18 +269,94 @@
 
         var newRow =
           '<tr> <td>' + counter + '</td>' +
-          '<td class="group" style="width:30%"><div class="input_section"><select required name="brand_id[]" class="form-control brand' + counter + '"></select></div></td>' +
-          '<td style="width:30%" class="subCat"><div class="input_section"><select required name="grade_id[]" class="form-control grade' + counter + '"></select></div></td>' +
-          '<td style="width:30%"><div class="input_section"><select required name="category_id[]" class="form-control allsizes size' + counter + '"></select></div></td>' +
-          '<td style="width:30%"><div class="input_section"><select required name="material[]" class="form-control material' + counter + '"><option value="">Select Material</option><option value="Straight">Straight</option><option value="Bend">Bend</option></select></div></td>' +
+          '<td class="group" style="width:30%"><div class="input_section"><select required name="brand_id[]" class="form-control brand' + counter + ' brand_change"></select></div></td>' +
+          '<td style="width:30%" class="subCat"><div class="input_section"><select required name="grade_id[]" class="form-control grade' + counter + ' grade_change"></select></div></td>' +
+          '<td style="width:30%"><div class="input_section"><select required name="category_id[]" class="form-control allsizes size' + counter + ' size_change"></select></div></td>' +
+          '<td style="width:30%"><div class="input_section"><select required name="material[]" class="form-control material' + counter + ' material_change"><option value="">Select Material</option><option value="Straight">Straight</option><option value="Bend">Bend</option></select></div></td>' +
           '<td><div class="input_section"><input required type="number" name="qty[]"class="form-control points rowchange" /></div></td>' +
+          '<td><div class="input_section"><input required type="number" name="booking_price[]"class="form-control  booking_price_change"  readonly/></div></td>'+
+          '<td ><div class="input_section"><input style="width : 120px !important" required type="number" name="total_price[]"class="form-control  total_price_change" readonly/></div></td>'+
           '<td class="td-actions text-center"><a class="remove-rows btn btn-danger btn-just-icon btn-sm"><i class="fa fa-minus"></i></a></td> </tr>';
         $table.append(newRow);
+        addJquery();
         $('.select2bs4').select2({
           theme: 'bootstrap4'
         })
       });
     })
+    $(document).on('click', '.remove-rows', function() {
+        $(this).closest('tr').remove(); // Remove the row
+        counter--;
+    });
+
+    function addJquery(){
+      $(document).on('change', '.brand_change, .grade_change, .size_change', function() {           
+          var row = $(this).closest('tr'); // Get the closest row of the changed input/select
+          console.log(row);
+          row.find('.total_price_change').val(''); // Update the booking price in the row
+          row.find('.booking_price_change').val('');
+          var brand = row.find('.brand_change').val();
+          var grade = row.find('.grade_change').val();
+          var size = row.find('.size_change').val();
+          var material = row.find('.material_change').val();
+          var quantity = row.find('.points').val();
+
+          if(brand && grade && size ){
+              getPrices(brand , grade , size , material , quantity , row);
+          }else{
+            row.find('.total_price_change').text(''); // Update the booking price in the row
+            row.find('.booking_price_change').text('');
+          }
+      });
+
+      $('.points').on('input' , function(){
+          var row = $(this).closest('tr'); // Get the closest row of the changed input/select
+          console.log(row);
+          
+          row.find('.total_price_change').val(''); // Update the booking price in the row
+          row.find('.booking_price_change').val('');
+          var brand = row.find('.brand_change').val();
+          var grade = row.find('.grade_change').val();
+          var size = row.find('.size_change').val();
+          var material = row.find('.material_change').val();
+          var quantity = row.find('.points').val();
+          if(brand && grade && size){
+            getPrices(brand , grade , size , material , quantity , row);       
+          }      
+      });
+    }
+
+    function getPrices(brand='' , grade='' , size='' , material='' , quantity=1 , row){
+        var bookingPrice = $('#base_price').val();  // Example booking price
+        var totalPrice = '';    // Example total price
+        var additional_charge = ''
+        if (brand && grade && size) {
+          // Simulate price calculations (replace with your actual logic)
+          $.ajax({
+            url: "{{ url('getPricesOfOrder') }}",
+            data: {
+              "brand": brand,
+              "grade": grade,
+              "size": size,
+            },
+            success: function(res) {
+              if(res.status == true){
+                bookingPrice = parseInt(bookingPrice, 10) + parseInt(res.additional_price, 10);
+                row.find('.booking_price_change').val(bookingPrice);
+                if(quantity){
+                  let total_value = parseInt(quantity, 10)*parseInt(bookingPrice, 10);
+                  row.find('.total_price_change').val(total_value); 
+                }else{
+                  let total_value = 1*parseInt(bookingPrice, 10);
+                  row.find('.total_price_change').val(total_value);
+                }
+              }
+            }
+          });
+       } 
+    }
+ 
+
     $('#customer_id').on('select2:select', function(e) {
       var customerId = $(this).val();
       if (customerId != '') {

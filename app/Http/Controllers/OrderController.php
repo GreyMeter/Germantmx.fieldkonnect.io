@@ -144,8 +144,9 @@ class OrderController extends Controller
         $id = decrypt($id);
         $totalOrderDispatchQty = OrderDispatch::where('order_confirm_id', $id)->sum('qty');
         $orders = OrderConfirm::with('order', 'brands', 'sizes', 'grades', 'order.customer', 'createdbyname')->find($id);
-
-        return view('orders.confirm_show', compact('orders', 'totalOrderDispatchQty'));
+        $order_chain =  OrderConfirm::with('order', 'brands', 'sizes', 'grades', 'order.customer', 'createdbyname')->where(['confirm_po_no' => $orders->confirm_po_no])->get();
+        $plants = Plant::where('active', 'Y')->latest()->get();
+        return view('orders.confirm_show', compact('orders', 'totalOrderDispatchQty' , 'order_chain' , 'plants'));
     }
 
     /**
@@ -661,8 +662,8 @@ class OrderController extends Controller
             $data['brand_id'] = $request->brand_id[$k];
             $data['category_id'] = $request->category_id[$k];
             $data['material'] = $request->material[$k];
-            $data['base_price'] = $orders->base_price+$orders->discount_amt;
-            $data['soda_price'] = $after_soda_price * $qty;
+            $data['base_price'] = $request->booking_price[$k];
+            $data['soda_price'] = $request->total_price[$k];
             $tqty += $qty;
 
             $soda = OrderConfirm::create($data);
@@ -677,16 +678,16 @@ class OrderController extends Controller
     }
 
     public function dispatch_order($id, Request $request)
-    {
+    {   
         $id = decrypt($id);
         $orders = OrderConfirm::find($id);
-        
+        dd($request->all());
         $stockA = manageStock($request->all());
 
         if(!$stockA){
             return redirect()->back()->with('message_danger', 'Stock not available')->withInput();
         }
-
+         
         $totalOrderDispacth = OrderDispatch::where('order_confirm_id', $id)->count('id');
         $request['dispatch_po_no'] = $orders->confirm_po_no . '-' . $totalOrderDispacth + 1;
         $request['order_confirm_id'] = $id;
@@ -703,5 +704,64 @@ class OrderController extends Controller
         addNotification($Ndata);
 
         return Redirect::to('orders_confirm')->with('message_success', 'Order Dispatch Successfully.');
+    }
+
+    // multiple order dispach 
+
+    public function dispatch_order_multi($id , Request $request){
+        $id = decrypt($id);
+        $orders = OrderConfirm::where(['confirm_po_no' => $id])->get();
+        $check_stock = false;
+        foreach ($request->dispatch_qty as $key => $qty) {
+            if($qty > 0){
+              $check_stock = checkStock($orders[$key] , $qty , $request->plant_id[$key]);
+            }
+        }
+        if(!$check_stock){
+            return Redirect::back()->with('message_error', 'Please Check your available stock'); 
+        }
+        if(count($request->dispatch_qty) > 0){
+            if(!getOrderQuantityByPo($id)){
+                $totalOrderDispacth = OrderDispatch::where('order_confirm_id', $orders[0]->id)->count('id');
+                $dispatch_po_no     = $id . '-' . $totalOrderDispacth + 1;
+                foreach ($request->dispatch_qty as $key => $qty) {
+                    if($qty > 0){
+                        if(getOrderQuantity($orders[$key]->id) >= $qty){
+                            // $request['order_confirm_id'] = ;
+                            // $request['order_id'] = $orders[$key]->order_id;
+                            // $request['confirm_po_no'] = $id;
+                            // $request['created_by'] = Auth::user()->id;
+                            $orderConfirm = OrderDispatch::create([
+                                'order_confirm_id' => $orders[$key]->id,
+                                'order_id'         => $orders[$key]->order_id,
+                                'po_no'            => $orders[$key]->po_no,
+                                'confirm_po_no'    => $id,
+                                'created_by'       => Auth::user()->id,
+                                'dispatch_po_no'   => $dispatch_po_no,
+                                'qty'              => $qty,
+                                'unit_id'          => $orders[$key]->unit_id,
+                                'brand_id'         => $orders[$key]->brand_id,
+                                'category_id'      => $orders[$key]->category_id,
+                                'plant_id'         => $request->plant_id[$key],
+                                'base_price'       => $orders[$key]->base_price,
+                                'soda_price'       => $orders[$key]->base_price * $qty,
+                                'rate'             => 0,
+                                'final_rate'       => $orders[$key]->base_price * $qty
+                            ]);
+                            $Ndata['type'] = 'Order Disapatch';
+                            $Ndata['data'] = $request['qty'].' Quantity dispatch of order Number '.$id.' .';
+                            $Ndata['customer_id'] = $orders[$key]->order->customer_id;
+                            addNotification($Ndata);
+                            manageStockMulti($orders[$key] , $qty , $request->plant_id[$key]);
+                        }else{
+                            return Redirect::back()->with('message_error', 'Order Quantity must less then remaining qty');   
+                        }
+                    }
+                }
+                return Redirect::to('orders_confirm')->with('message_success', 'Order Dispatch Successfully.');
+            }else{
+                return Redirect::back()->with('message_error', 'Order Quantity must less then remaining qty'); 
+            }
+        }      
     }
 }

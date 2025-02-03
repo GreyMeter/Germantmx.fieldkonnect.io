@@ -23,6 +23,9 @@ class OrderConfirmDataTable extends DataTable
             ->editColumn('created_at', function ($data) {
                 return isset($data->created_at) ? showdatetimeformat($data->created_at) : '';
             })
+            ->editColumn('qty', function ($data) {
+                return isset($data->total_qty) ? $data->total_qty : '';
+            })
             ->addColumn('action', function ($query) {
                 $btn = '';
                 $activebtn = '';
@@ -68,7 +71,8 @@ class OrderConfirmDataTable extends DataTable
     {
         $userids = getUsersReportingToAuth();
 
-        $query = $model->with('order','brands', 'sizes', 'grades', 'order.customer', 'createdbyname');
+        $query = $model->with('order', 'brands', 'sizes', 'grades', 'order.customer', 'createdbyname')->selectRaw('*, SUM(qty) as total_qty')
+    ->groupBy('confirm_po_no');
 
         
         $query->newQuery();
