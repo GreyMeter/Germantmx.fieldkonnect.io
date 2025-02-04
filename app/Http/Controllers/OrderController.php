@@ -711,7 +711,7 @@ class OrderController extends Controller
     public function dispatch_order_multi($id , Request $request){
         $id = decrypt($id);
         $orders = OrderConfirm::where(['confirm_po_no' => $id])->get();
-        $check_stock = false;
+        $check_stock = true;
         foreach ($request->dispatch_qty as $key => $qty) {
             if($qty > 0){
               $check_stock = checkStock($orders[$key] , $qty , $request->plant_id[$key]);
@@ -753,15 +753,15 @@ class OrderController extends Controller
                             $Ndata['customer_id'] = $orders[$key]->order->customer_id;
                             addNotification($Ndata);
                             manageStockMulti($orders[$key] , $qty , $request->plant_id[$key]);
-                        }else{
-                            return Redirect::back()->with('message_error', 'Order Quantity must less then remaining qty');   
                         }
-                    }
+                    }else{
+                       
+                    } 
                 }
                 return Redirect::to('orders_confirm')->with('message_success', 'Order Dispatch Successfully.');
             }else{
                 return Redirect::back()->with('message_error', 'Order Quantity must less then remaining qty'); 
             }
-        }      
+        }     
     }
 }
