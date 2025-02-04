@@ -864,7 +864,7 @@ function totalOrderDispatchQty($id){
 
 function getOrderQuantity($id){
     $order = OrderConfirm::find($id);
-    $totalOrderDispatchQty = OrderDispatch::where('order_id', $order->order_id)->sum('qty');
+    $totalOrderDispatchQty = OrderDispatch::where('order_confirm_id', $order->id)->sum('qty');
     $remaining = $order->qty;
     if(isset($order) && $totalOrderDispatchQty){
         $remaining = $order->qty - $totalOrderDispatchQty;
