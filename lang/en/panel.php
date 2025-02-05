@@ -94,6 +94,11 @@ return [
 
     ],
 
+    'order_dispatch' => [
+        'title' => 'Order Dispatch',
+        'target_users'        => 'Target Users',
+    ],
+
     'dealer_distributor_user' => [
         'title' => 'Dealer Distributor users',
         'title_singular' => 'Dealer Distributor user',

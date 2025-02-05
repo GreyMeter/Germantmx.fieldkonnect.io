@@ -113,7 +113,8 @@
                         <th>Grade</th>
                         <th>Size</th>
                         <th>Material</th>
-                        <th>Quantity<small>(Tonn)</small></th>
+                        <th>Total Quantity<small>(Tonn)</small></th>
+                        <th>Remaining Quantity<small>(Tonn)</small></th>
                         <th>Base Price<small>(1MT)</small></th>
                         <th>Total</th>
                         <th>Plants</th>
@@ -127,6 +128,7 @@
                                   <td>{{$order->grades ? $order->grades->unit_name : '-'}}</td>
                                   <td>{{$order->sizes ? $order->sizes->category_name : '-'}}</td>
                                   <td>{{$order->material}}</td>
+                                  <td>{{$order->qty}}</td>
                                   <td>
                                       <input type="number" class="form-control dispatch_qty" value="{{ getOrderQuantity($order->id) }}" name="dispatch_qty[]" step="1">
                                   </td>

@@ -764,4 +764,12 @@ class OrderController extends Controller
             }
         }     
     }
+
+    // orderdispatch show 
+    public function orders_dispatch($id , Request $request){
+        $id = decrypt($id);
+        $orders = OrderDispatch::find($id);
+        $dispatch_orders = OrderDispatch::where(['dispatch_po_no' => $orders->dispatch_po_no])->get();
+        return view('orders.order_dispatch_show' , compact('dispatch_orders' , 'orders'));
+    }
 }
