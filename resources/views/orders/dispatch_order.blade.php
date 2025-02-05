@@ -142,18 +142,19 @@
             <table id="getorder" class="table table-striped- table-bordered table-hover table-checkable no-wrap">
               <thead class=" text-primary">
                 <!-- <th>{!! trans('panel.global.action') !!}</th> -->
+                <th>Action</th>
                 <th>PO No.</th>
                 <th>Order No.</th>
                 <th>Dispatch No.</th>
                 <th>Customer Name</th>
-                <th>Brand</th>
-                <th>Grade</th>
-                <th>Size</th>
-                <th>Plant</th>
-                <th>material</th>
+                {{-- <th>Brand</th> --}}
+                {{-- <th>Grade</th> --}}
+                {{-- <th>Size</th> --}}
+                {{-- <th>Plant</th> --}}
+                {{-- <th>material</th> --}}
                 <th>Quantity<small>(Tonn)</small></th>
-                <th>Base Price<small>(1MT)</small></th>
-                <th>Booking Price</th>
+                {{-- <th>Base Price<small>(1MT)</small></th> --}}
+                {{-- <th>Booking Price</th> --}}
                 <th>{!! trans('panel.global.created_by') !!}</th>
                 <th>{!! trans('panel.global.created_at') !!}</th>
               </thead>
@@ -186,6 +187,13 @@
         },
         columns: [
           {
+            data: 'action',
+            name: 'action',
+            "defaultContent": '',
+            orderable: false,
+            searchable: false
+          },
+          {
             data: 'po_no',
             name: 'po_no',
             orderable: false
@@ -210,63 +218,63 @@
             "defaultContent": '',
             orderable: false
           },
-          {
-            data: 'brands.brand_name',
-            name: 'brands.brand_name',
-            "defaultContent": '',
-            orderable: false
-          },
-          {
-            data: 'grades.unit_name',
-            name: 'grades.unit_name',
-            "defaultContent": '',
-            orderable: false
-          },
-          {
-            data: 'sizes.category_name',
-            name: 'sizes.category_name',
-            "defaultContent": '',
-            orderable: false
-          },
-          {
-            data: 'plant.plant_name',
-            name: 'plant.plant_name',
-            "defaultContent": '',
-            orderable: false
-          },
-          {
-            data: 'order.material',
-            name: 'order.material',
-            "defaultContent": '',
-            orderable: false
-          },
+          // {
+          //   data: 'brands.brand_name',
+          //   name: 'brands.brand_name',
+          //   "defaultContent": '',
+          //   orderable: false
+          // },
+          // {
+          //   data: 'grades.unit_name',
+          //   name: 'grades.unit_name',
+          //   "defaultContent": '',
+          //   orderable: false
+          // },
+          // {
+          //   data: 'sizes.category_name',
+          //   name: 'sizes.category_name',
+          //   "defaultContent": '',
+          //   orderable: false
+          // },
+          // {
+          //   data: 'plant.plant_name',
+          //   name: 'plant.plant_name',
+          //   "defaultContent": '',
+          //   orderable: false
+          // },
+          // {
+          //   data: 'order.material',
+          //   name: 'order.material',
+          //   "defaultContent": '',
+          //   orderable: false
+          // },
           {
             data: 'qty',
             name: 'qty',
             "defaultContent": '',
             orderable: false
           },
-          {
-            data: 'base_price',
-            name: 'base_price',
-            "defaultContent": '',
-            orderable: false
-          },
-          {
-            data: 'soda_price',
-            name: 'soda_price',
-            defaultContent: '',
-            orderable: false,
-            render: function(data, type, row) {
-              if (data) {
-                return '₹ '+parseFloat(data).toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                });
-              }
-              return '';
-            }
-          },
+          // {
+          //   data: 'base_price',
+          //   name: 'base_price',
+          //   "defaultContent": '',
+          //   orderable: false
+          // },
+          // {
+          //   data: 'soda_price',
+          //   name: 'soda_price',
+          //   defaultContent: '',
+          //   orderable: false,
+          //   render: function(data, type, row) {
+          //     if (data) {
+          //       return '₹ '+parseFloat(data).toLocaleString('en-US', {
+          //         minimumFractionDigits: 2,
+          //         maximumFractionDigits: 2
+          //       });
+          //     }
+          //     return '';
+          //   }
+          // },
           {
             data: 'createdbyname.name',
             name: 'createdbyname.name',

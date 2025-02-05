@@ -425,6 +425,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::any('orders_dispatch/{id}', [OrderController::class, 'dispatch_order'])->name('orders.dispatch');
     Route::any('orders_dispatch_multi/{id}', [OrderController::class, 'dispatch_order_multi'])->name('orders.dispatch_multi');
     Route::any('orders_dispatch', [OrderController::class, 'order_dispatch'])->name('orders.dispatch.list');
+    Route::any('orders_dispatch/{id}', [OrderController::class, 'orders_dispatch'])->name('orders.orders_dispatch');
 
     Route::any('orders-download', [OrderController::class, 'download'])->name('orders.download');
     Route::any('final-orders-download', [OrderController::class, 'final_order_download'])->name('final_orders.download');
