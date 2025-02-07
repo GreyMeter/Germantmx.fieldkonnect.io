@@ -40,6 +40,7 @@ use App\Models\OrderDispatch;
 use App\Models\Price;
 use App\Models\AdditionalPrice;
 use App\Models\UnitMeasure;
+use App\Models\OrderDispactchDetails;
 // use App\Models\Customers;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -646,7 +647,7 @@ class OrderController extends Controller
         $id = decrypt($id);
         $orders = Order::find($id);
         $tqty = 0;
-        $totalOrderConfirm = OrderConfirm::where('order_id', $id)->count('id');
+        $totalOrderConfirm = OrderConfirm::where('order_id', $id)->distinct('confirm_po_no')->count('confirm_po_no');
         foreach ($request->qty as $k => $qty) {
             $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->category_id[$k], 'model_name' => 'size'])->first())->price_adjustment;
             $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'model_name' => 'grade'])->first())->price_adjustment;
@@ -724,13 +725,10 @@ class OrderController extends Controller
             if(!getOrderQuantityByPo($id)){
                 $totalOrderDispacth = OrderDispatch::where('order_confirm_id', $orders[0]->id)->count('id');
                 $dispatch_po_no     = $id . '-' . $totalOrderDispacth + 1;
+                $order_dispatch = false;
                 foreach ($request->dispatch_qty as $key => $qty) {
                     if($qty > 0){
                         if(getOrderQuantity($orders[$key]->id) >= $qty){
-                            // $request['order_confirm_id'] = ;
-                            // $request['order_id'] = $orders[$key]->order_id;
-                            // $request['confirm_po_no'] = $id;
-                            // $request['created_by'] = Auth::user()->id;
                             $orderConfirm = OrderDispatch::create([
                                 'order_confirm_id' => $orders[$key]->id,
                                 'order_id'         => $orders[$key]->order_id,
@@ -752,10 +750,20 @@ class OrderController extends Controller
                             $Ndata['data'] = $request['qty'].' Quantity dispatch of order Number '.$id.' .';
                             $Ndata['customer_id'] = $orders[$key]->order->customer_id;
                             addNotification($Ndata);
-                            manageStockMulti($orders[$key] , $qty , $request->plant_id[$key]);
+                            manageStockMulti($orders[$key] , $qty , $request->plant_id[$key]); 
+                            $order_dispatch = true;
                         }
                     }else{
                        
+                    }
+                    if($order_dispatch == true){
+                         $order_dis = OrderDispactchDetails::updateOrCreate(
+                            ['order_dispatch_po_no' => $dispatch_po_no],
+                            ['driver_name'=> $request->driver_name ?? '',
+                             'driver_contact_number' => $request->driver_contact_number,
+                             'vehicle_number' => $request->vehicle_number,
+                            ]
+                         );
                     } 
                 }
                 return Redirect::to('orders_confirm')->with('message_success', 'Order Dispatch Successfully.');

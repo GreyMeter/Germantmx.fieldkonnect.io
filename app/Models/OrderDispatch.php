@@ -47,4 +47,8 @@ class OrderDispatch extends Model
     {
         return $this->belongsTo('App\Models\Plant', 'plant_id', 'id');
     }
+
+    public function order_dispatch_details(){
+        return $this->belongsTo('App\Models\OrderDispactchDetails', 'dispatch_po_no', 'order_dispatch_po_no');
+    }
 }
