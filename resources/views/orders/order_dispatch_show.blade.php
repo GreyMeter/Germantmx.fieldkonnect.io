@@ -99,13 +99,28 @@
                 <!-- /.row -->
   
                 <!-- Table row -->
-                {!! Form::model($orders,[
-                  'route' => ['orders.dispatch_multi', encrypt($orders->confirm_po_no) ],
-                  'method' => 'POST',
-                  'id' => 'createProductFormMulti'
-                  ]) !!}
   
                 <div class="row">
+                  <div class="col-12">
+                    <!-- New Row for Driver Details -->
+                    <div class="card p-3 mb-3 bg-light">
+                      <h5 class="mb-3"><strong>Driver Details</strong></h5>
+                      <div class="row">
+                        <div class="col-md-4">
+                          <label>Driver Name<span class="text-danger"> *</span></label>
+                          <p class="form-control-plaintext" style="color: black"><strong>{{ isset($dispatch_orders[0]->order_dispatch_details->driver_name) ? $dispatch_orders[0]->order_dispatch_details->driver_name : '' }}</strong></p>
+                        </div>
+                        <div class="col-md-4">
+                          <label>Driver Contact<span class="text-danger"> *</span></label>
+                          <p class="form-control-plaintext" style="color: black"><strong>{{ isset($dispatch_orders[0]->order_dispatch_details->driver_contact_number) ? $dispatch_orders[0]->order_dispatch_details->driver_contact_number : '' }}</strong></p>
+                        </div>
+                        <div class="col-md-4">
+                          <label>Vehicle Number<span class="text-danger"> *</span></label>
+                          <p class="form-control-plaintext" style="color: black"><strong>{{ isset($dispatch_orders[0]->order_dispatch_details->vehicle_number) ? $dispatch_orders[0]->order_dispatch_details->vehicle_number : '' }}</strong></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>                  
                   <div class="col-12 table-responsive">
                     <table class="table table-striped">
                       <thead>
@@ -147,7 +162,7 @@
                   <!-- /.col -->
                 </div>
                 <!-- /.row -->
-                {{ Form::close() }}
+
                 <div class="row">
                   <!-- accepted payments column -->
                   <div class="col-6">

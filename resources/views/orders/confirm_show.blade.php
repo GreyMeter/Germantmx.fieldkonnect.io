@@ -1,4 +1,15 @@
 <x-app-layout>
+  <style>
+    .error {
+      color: red !important;
+      font-size: 14px;
+      margin-top: 5px;
+      display: block;
+    }
+    input.is-invalid, select.is-invalid {
+      border-color: red !important;
+    }
+  </style>
   <div class="content-header">
     <div class="container-fluid">
       <div class="row mb-2">
@@ -105,6 +116,26 @@
                 ]) !!}
 
               <div class="row">
+                <div class="col-12">
+                  <!-- New Row for Driver Details -->
+                  <div class="card p-3 mb-3 bg-light">
+                    <h5 class="mb-3"><strong>Driver Details</strong></h5>
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>Driver Name<span class="text-danger"> *</span></label>
+                        <input type="text" name="driver_name" class="form-control" required>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Driver Contact<span class="text-danger"> *</span></label>
+                        <input type="text" name="driver_contact_number" class="form-control" required>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Vehicle Number<span class="text-danger"> *</span></label>
+                        <input type="text" name="vehicle_number" id="vehicle_number" class="form-control" required>
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <div class="col-12 table-responsive">
                   <table class="table table-striped">
                     <thead>
@@ -246,6 +277,40 @@
             row.find('.dispatch_soda_price').val(total);
         }
 
+        $.validator.addMethod("vehicleFormat", function(value, element) {
+          return /^[A-Z]{2} \d{2} [A-Z]{2} \d{4}$/.test(value);
+        }, "Invalid format! Example: MP 12 XX 1234");
+
+        $('#createProductFormMulti').validate({
+          rules: {
+            driver_name: {
+              required: true,
+              minlength: 3
+            },
+            driver_contact: {
+              required: true,
+              digits: true,
+              minlength: 10,
+              maxlength: 10
+            },
+            vehicle_number: {
+              required: true,
+              vehicleFormat: true 
+            }
+          },
+          errorClass: "error", // Use the correct error class
+          highlight: function(element) {
+            $(element).addClass('is-invalid'); // Add red border
+          },
+          unhighlight: function(element) {
+            $(element).removeClass('is-invalid'); // Remove red border
+          }
+        });
+
+        $('#createProductFormMulti').validate({
+
+        });
+
         // Run calculation on page load
         $('tr').each(function() {
             calculateTotal($(this));
@@ -256,6 +321,38 @@
             var row = $(this).closest('tr');
             calculateTotal(row);
         });
+    });
+
+    $(document).ready(function() {
+    $('#vehicle_number').on('input', function() {
+      var inputVal = $(this).val().replace(/\s+/g, '').toUpperCase(); // Remove spaces and convert to uppercase
+      var formattedVal = '';
+
+      if (inputVal.length > 0) {
+        formattedVal = inputVal.substring(0, 2); // State Code
+      }
+      if (inputVal.length > 2) {
+        formattedVal += ' ' + inputVal.substring(2, 4); // District Code
+      }
+      if (inputVal.length > 4) {
+        formattedVal += ' ' + inputVal.substring(4, 6); // Two Alphabets
+      }
+      if (inputVal.length > 6) {
+        formattedVal += ' ' + inputVal.substring(6, 10); // Four Digits
+      }
+
+      $(this).val(formattedVal); // Set formatted value
+
+      // Validation: MP 12 AB 1234
+      var vehiclePattern = /^[A-Z]{2} \d{2} [A-Z]{2} \d{4}$/;
+      if (!vehiclePattern.test(formattedVal)) {
+        $('#vehicle_error').removeClass('d-none'); // Show error message
+        $(this).addClass('is-invalid'); // Add red border
+      } else {
+        $('#vehicle_error').addClass('d-none'); // Hide error message
+        $(this).removeClass('is-invalid'); // Remove red border
+      }
+    });
     });
   </script>
   <!-- /.content -->
