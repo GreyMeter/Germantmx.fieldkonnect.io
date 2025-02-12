@@ -28,6 +28,7 @@ use App\Models\User;
 use App\Models\Sales;
 use App\Models\AdditionalPrice;
 use App\Models\OrderDispatch;
+use App\Models\Settings;
 use App\Models\UnitMeasure;
 use Excel;
 use Illuminate\Support\Facades\Mail;
@@ -187,6 +188,16 @@ class OrderController extends Controller
     {
         try {
             $user = $request->user();
+            $currentTime = Carbon::now('Asia/Kolkata');
+            $hour = $currentTime->hour;
+            $booking_start_time = Settings::where('key_name', 'booking_start_time')->first();
+            $booking_end_time = Settings::where('key_name', 'booking_end_time')->first();
+            if ($hour >= (int)$booking_end_time->value || $hour < (int)$booking_start_time->value) {
+                //convert the time to 12 hours
+                $start_time = date('g:i A', strtotime($booking_start_time->value));
+                $end_time = date('g:i A', strtotime($booking_end_time->value));
+                return response()->json(['status' => 'error', 'message' =>  'You can book a booking between ' . $start_time . ' to ' . $end_time . '.'], $this->badrequest);
+            }
             $request['created_by'] = $user->id;
             $validator = Validator::make($request->all(), [
                 'qty' => 'required',
@@ -617,9 +628,15 @@ class OrderController extends Controller
                 ->whereNot('status', '4')
                 ->sum('qty');
 
+            $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('model_id', $request['customer_id'])->first();
+            $price = Price::first()->base_price;
+            if ($check_additional_price) {
+                $price = number_format((floatval($price) + floatval($check_additional_price->price_adjustment)), 2, '.', '');
+            }
+
             $data['order_limit_remain'] = (int)($customer->order_limit ?? 500) - $today_order_qty;
             $data['po_no'] = generatePoNumber();
-            $data['base_price'] = optional(Price::select('base_price')->first())->base_price;
+            $data['base_price'] = $price;
 
 
             return response()->json(['status' => 'success', 'message' => 'data retrieved successfully.', 'data' => $data], 200);
@@ -631,6 +648,16 @@ class OrderController extends Controller
     public function insertSoda(Request $request)
     {
         try {
+            $currentTime = Carbon::now('Asia/Kolkata');
+            $hour = $currentTime->hour;
+            $booking_start_time = Settings::where('key_name', 'booking_start_time')->first();
+            $booking_end_time = Settings::where('key_name', 'booking_end_time')->first();
+            if ($hour >= (int)$booking_end_time->value || $hour < (int)$booking_start_time->value) {
+                //convert the time to 12 hours
+                $start_time = date('g:i A', strtotime($booking_start_time->value));
+                $end_time = date('g:i A', strtotime($booking_end_time->value));
+                return response()->json(['status' => 'error', 'message' =>  'You can book a booking between ' . $start_time . ' to ' . $end_time . '.'], $this->badrequest);
+            }
             $customer = $request->user();
             $validator = Validator::make($request->all(), [
                 'qty' => 'required',
@@ -682,7 +709,7 @@ class OrderController extends Controller
             $soda['base_price'] = $soda['base_price'] + $soda['discount_amt'];
             $totalOrderConfirmQty = OrderConfirm::where('order_id', $request->soda_id)->sum('qty');
             if ($soda) {
-                $soda->customer_address = $soda->customer->customeraddress ? $soda->customer->customeraddress->cityname->city_name . ',' . $soda->customer->customeraddress->districtname->district_name . ',' . $soda->customer->customeraddress->statename->state_name . ',' . $soda->customer->customeraddress->countryname->country_name . ',' . $soda->customer->customeraddress->pincodename?->pincode : '-'; 
+                $soda->customer_address = $soda->customer->customeraddress ? $soda->customer->customeraddress->cityname->city_name . ',' . $soda->customer->customeraddress->districtname->district_name . ',' . $soda->customer->customeraddress->statename->state_name . ',' . $soda->customer->customeraddress->countryname->country_name . ',' . $soda->customer->customeraddress->pincodename?->pincode : '-';
                 $soda->totalOrderConfirmQty = $totalOrderConfirmQty;
                 return response()->json(['status' => 'success', 'message' => 'data retrieved successfully.', 'data' => $soda], 200);
             }
@@ -894,7 +921,7 @@ class OrderController extends Controller
         try {
             $user = $request->user();
             $sodas = Order::where('created_by', $user->id)->pluck('id');
-            $data = OrderConfirm::whereIn('order_id', $sodas)->with('order:id,customer_id','order.customer:id,name','brands:id,brand_name', 'sizes:id,category_name', 'grades:id,unit_name')->orderBy('id', 'desc')->get();
+            $data = OrderConfirm::whereIn('order_id', $sodas)->with('order:id,customer_id', 'order.customer:id,name', 'brands:id,brand_name', 'sizes:id,category_name', 'grades:id,unit_name')->orderBy('id', 'desc')->get();
 
             return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
         } catch (\Exception $e) {
@@ -1012,5 +1039,4 @@ class OrderController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Booking not found !!']);
         }
     }
-
 }

@@ -116,6 +116,7 @@
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
                     <input readonly type="text" name="base_price" id="base_price" class="form-control" value="{!! $orders['base_price']?$orders['base_price']+$orders['discount_amt']:$base_price !!}" maxlength="200" required>
+                    <input type="hidden" name="first_base_price" id="first_base_price" value="{{$base_price}}">
                     @if ($errors->has('base_price'))
                     <div class="error col-lg-12">
                       <p class="text-danger">{{ $errors->first('base_price') }}</p>
@@ -376,6 +377,16 @@
             },
             success: function(res) {
               orderLimit = orderLimit - res.today_order_qty;
+              if(res.check_additional_price != null){
+                $("#base_price").val(
+                    (parseFloat($("#first_base_price").val()) + parseFloat(res.check_additional_price.price_adjustment || 0)).toFixed(2)
+                );
+
+              }else{
+                $("#base_price").val(
+                    (parseFloat($("#first_base_price").val())).toFixed(2)
+                );
+              }
               if (orderLimit < 1) {
                 $("#smt-btn").prop("disabled", true);
                 $("#qty-errors").html("Today's order limit is zero, Don't hesitate to get in touch with the administrator.");

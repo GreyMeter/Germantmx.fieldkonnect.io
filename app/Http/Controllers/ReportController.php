@@ -4043,19 +4043,27 @@ class ReportController extends Controller
                 ->editColumn('days', function ($data) {
                     if (count($data->order_confirm) > 0) {
                         if (($data->qty - $data->order_confirm->pluck('qty')->sum()) > 0) {
-                            return isset($data->created_at)
+                            $days = isset($data->created_at)
                                 ? \Carbon\Carbon::parse($data->created_at)->diffInDays(now())
                                 : '';
+                                $blink = 'blink-text';
                         } else {
                             $lastCreatedAt = $data->order_confirm()
                                 ->latest('created_at')
                                 ->value('created_at');
-                            return \Carbon\Carbon::parse($data->created_at)->diffInDays($lastCreatedAt);
+                            $days = \Carbon\Carbon::parse($data->created_at)->diffInDays($lastCreatedAt);
+                            $blink = '';
                         }
                     } else {
-                        return isset($data->created_at)
+                        $days = isset($data->created_at)
                             ? \Carbon\Carbon::parse($data->created_at)->diffInDays(now())
                             : '';
+                    }
+
+                    if($days > 10){
+                        return '<span class="badge badge-danger '.$blink.'">'.$days.'</span>';
+                    }else{
+                        return '<span class="badge badge-info">'.$days.'</span>';
                     }
                 })
 

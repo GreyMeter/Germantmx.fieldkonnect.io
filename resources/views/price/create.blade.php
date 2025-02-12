@@ -154,9 +154,10 @@
           $add_size = $price->additionalPrices->where('model_name', 'size')->pluck('price_adjustment','model_id')->toArray();
           $add_grade = $price->additionalPrices->where('model_name', 'grade')->pluck('price_adjustment','model_id')->toArray();
           $add_brand = $price->additionalPrices->where('model_name', 'brand')->pluck('price_adjustment','model_id')->toArray();
+          $add_distributor = $price->additionalPrices->where('model_name', 'distributor')->pluck('price_adjustment','model_id')->toArray();
           @endphp
           <div class="row mt-4">
-            <div class="col-md-4">
+            <div class="col-md-3">
               <h5>Additional Prices Size</h5>
               <table class="table table-striped" id="size_table">
                 <thead>
@@ -176,7 +177,7 @@
                 </tbody>
               </table>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
               <h5>Additional Prices Grade</h5>
               <table class="table table-striped" id="grade_table">
                 <thead>
@@ -196,7 +197,7 @@
                 </tbody>
               </table>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-3">
               <h5>Additional Prices Brand</h5>
               <table class="table table-striped" id="brand_table">
                 <thead>
@@ -211,6 +212,26 @@
                     <td>{{$brand->brand_name}}</td>
                     <input type="hidden" name="brand[id][]" value="{{$brand->id}}">
                     <td class="brand_msg"><input type="number" class="form-control" name="brand[price][]" value="{{($price->exists && count($add_brand)>0) ? ($add_brand[$brand->id]??'0.00'):'0.00'}}"></td>
+                  </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>
+            <div class="col-md-3">
+              <h5>Additional Prices Distributor</h5>
+              <table class="table table-striped" id="brand_table">
+                <thead>
+                  <tr>
+                    <th>Distributor</th>
+                    <th>Price (+/-)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach($distributors as $distributor)
+                  <tr id="distributor_{{$distributor->id}}" class="show-before">
+                    <td>{{$distributor->name}}</td>
+                    <input type="hidden" name="distributor[id][]" value="{{$distributor->id}}">
+                    <td class="distributor_msg"><input type="number" class="form-control" name="distributor[price][]" value="{{($price->exists && count($add_distributor)>0) ? ($add_distributor[$distributor->id]??'0.00'):'0.00'}}"></td>
                   </tr>
                   @endforeach
                 </tbody>

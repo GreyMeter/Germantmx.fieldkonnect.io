@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\SendNotifications;
+use App\Models\AdditionalPrice;
 use App\Models\Address;
 use App\Models\Attachment;
 use Illuminate\Http\Request;
@@ -719,7 +720,11 @@ class DashboardController extends Controller
     public function today_rate(Request $request){
         $customer = $request->user();
         $notify = Customers::where('id', $customer->id)->first()->notify;
+        $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('model_id', $customer->id)->first();
         $data = Price::first()->base_price;
+        if($check_additional_price){
+            $data = number_format((floatval($data) + floatval($check_additional_price->price_adjustment)), 2, '.', '');
+        }
 
         return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'todayrate' => $data, 'notify' =>$notify], 200);
     }

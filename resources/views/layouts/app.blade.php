@@ -1176,22 +1176,6 @@
                     </a>
                     <div class="collapse" id="userMenu" style="">
                       <ul class="navd">
-                        <!--                 @if(auth()->user()->can('appraisal_pms'))
-                                          <li class="nav-item {{ request()->is('appraisal/create') ? 'active' : '' }}">
-                                            <a class="hoveradd2" href="{{ url('appraisal/index') }}">
-                                              <i class="material-icons">verified_user</i>
-                                              <p>Appraisal(PMS)</p>
-                                            </a>
-                                          </li>
-                                          @endif
-                                          @if(auth()->user()->can('sales_weightage'))
-                                          <li class="nav-item {{ request()->is('sales_weightage') ? 'active' : '' }}">
-                                            <a class="nav-link" href="{{ url('sales_weightage') }}">
-                                              <i class="material-icons">check</i>
-                                              <p>{!! trans('panel.sales_weightage.title') !!}</p>
-                                            </a>
-                                          </li>
-                                          @endif -->
                         @if(auth()->user()->can('new_joining_access'))
                         <li class="nav-link-btn {{ request()->is('new-joinings*') ? 'active' : '' }}">
                           <a class="hoveradd2" href="{{ url('new-joinings') }}">
@@ -1257,6 +1241,30 @@
                         @endif
                       </ul>
                     </div>
+                  </li>
+                  @endif
+                </ul>
+              </div>
+            </li>
+            @endif
+
+            @if(auth()->user()->can('setting_access'))
+            <li class="nav-link {{ request()->is('settings*') ? 'active' : '' }}">
+              <a class="collapsed hoveradd" data-toggle="collapse" href="#settings" aria-expanded="false">
+                <i class="material-icons icon">manage_accounts</i>
+                <span> {!! trans('panel.sidemenu.setting') !!}
+                </span>
+                <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.setting') !!}</div>
+              </a>
+              <div class="collapse {{ request()->is('settings*') ? 'show' : '' }}" id="settings">
+                <ul class="navd">
+                  @if(auth()->user()->can('setting_access'))
+                  <li class="nav-link-btn {{ request()->is('settings*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('settings') }}">
+                      <i class="material-icons icon">settings</i>
+                      <span>{!! trans('panel.sidemenu.setting') !!}</span>
+                      <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.setting') !!}</div>
+                    </a>
                   </li>
                   @endif
                 </ul>

@@ -7,6 +7,7 @@ use App\Models\AdditionalPrice;
 use App\Models\Brand;
 use App\Models\Category;
 use App\Models\City;
+use App\Models\Customers;
 use App\Models\Price;
 use App\Models\UnitMeasure;
 use Illuminate\Http\Request;
@@ -54,7 +55,8 @@ class PriceController extends Controller
         $brands = Brand::where('active', '=', 'Y')->select('id', 'brand_name')->get();
         $grades = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name')->get();
         $zones = City::where('active', '=', 'Y')->select('id', 'city_name')->get();
-        return view('price.create', compact('sizes', 'brands', 'grades', 'zones'))->with('price', $this->price);
+        $distributors = Customers::where('active', '=', 'Y')->where('customertype', '1')->select('id', 'name')->get();
+        return view('price.create', compact('sizes', 'brands', 'grades', 'zones', 'distributors'))->with('price', $this->price);
     }
 
     /**
@@ -78,6 +80,8 @@ class PriceController extends Controller
             'grade.price' => 'sometimes|array',
             'brand.id' => 'sometimes|array',
             'brand.price' => 'sometimes|array',
+            'distributor.id' => 'sometimes|array',
+            'distributor.price' => 'sometimes|array',
         ]);
 
         // Create the base price entry
@@ -121,6 +125,18 @@ class PriceController extends Controller
                     'model_name' => 'brand', // Specify that this is a brand adjustment
                     'model_id' => $brandId,
                     'price_adjustment' => $validatedData['brand']['price'][$index] ?? 0,
+                ]);
+            }
+        }
+
+        // Store additional prices for distributors
+        if (!empty($validatedData['distributor']['id'])) {
+            foreach ($validatedData['distributor']['id'] as $index => $distributorId) {
+                AdditionalPrice::create([
+                    'price_id' => $price->id,
+                    'model_name' => 'distributor', // Specify that this is a distributor adjustment
+                    'model_id' => $distributorId,
+                    'price_adjustment' => $validatedData['distributor']['price'][$index] ?? 0,
                 ]);
             }
         }
@@ -178,6 +194,8 @@ class PriceController extends Controller
             'grade.price' => 'sometimes|array',
             'brand.id' => 'sometimes|array',
             'brand.price' => 'sometimes|array',
+            'distributor.id' => 'sometimes|array',
+            'distributor.price' => 'sometimes|array',
         ]);
 
         $price->brand_id = implode(',',$request->brand_id);
@@ -218,6 +236,18 @@ class PriceController extends Controller
                     'model_name' => 'brand', // Specify that this is a brand adjustment
                     'model_id' => $brandId,
                     'price_adjustment' => $validatedData['brand']['price'][$index] ?? 0,
+                ]);
+            }
+        }
+
+        // Store additional prices for distributors
+        if (!empty($validatedData['distributor']['id'])) {
+            foreach ($validatedData['distributor']['id'] as $index => $distributorId) {
+                AdditionalPrice::updateOrCreate(['model_id' => $distributorId,'model_name' => 'distributor'],[
+                    'price_id' => $price->id,
+                    'model_name' => 'distributor', // Specify that this is a distributor adjustment
+                    'model_id' => $distributorId,
+                    'price_adjustment' => $validatedData['distributor']['price'][$index] ?? 0,
                 ]);
             }
         }

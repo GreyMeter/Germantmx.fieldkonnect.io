@@ -479,7 +479,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::any('redeemedPoint', [WalletController::class, 'redeemedPoint'])->name('wallets.redeemedPoint');
     Route::any('walletsInfo', [WalletController::class, 'walletsInfo'])->name('wallets.info');
     //Settings
-    Route::get('settings', [SettingController::class, 'index']);
+    Route::resource('settings', SettingController::class);
     Route::any('settings-download', [SettingController::class, 'download'])->name('settings.download');
     Route::any('settings-template', [SettingController::class, 'template'])->name('settings.template');
     Route::post('settings-upload', [SettingController::class, 'upload'])->name('settings.upload');

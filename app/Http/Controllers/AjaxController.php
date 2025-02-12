@@ -1374,7 +1374,9 @@ class AjaxController extends Controller
             ->whereNot('status', '4')
             ->sum('qty');
 
-        return response()->json(['status' => 'success', 'today_order_qty' => $today_order_qty]);
+        $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('model_id', $request->customer_id)->first();
+
+        return response()->json(['status' => 'success', 'today_order_qty' => $today_order_qty, 'check_additional_price' => $check_additional_price]);
     }
 
     public function getAdditionalPrice(Request $request)

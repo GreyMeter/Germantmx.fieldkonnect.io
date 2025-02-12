@@ -85,6 +85,16 @@
             </span>
           </div>
           @endif
+          @if(session()->has('message_danger'))
+          <div class="alert alert-danger">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <i class="material-icons">close</i>
+            </button>
+            <span>
+              {!!session()->get('message_danger') !!}
+            </span>
+          </div>
+          @endif
           @if(count($errors) > 0)
           <div class="alert alert-danger">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">

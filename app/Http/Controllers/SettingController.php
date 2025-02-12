@@ -12,9 +12,13 @@ class SettingController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        if ($request->ip() != '111.118.252.250') {
+            return view('work_in_progress');
+        }
+        $setting = Settings::pluck('value', 'key_name');
+        return view('settings.index', compact('setting'));
     }
 
     /**
@@ -35,7 +39,22 @@ class SettingController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->except('_token');
+
+        foreach ($data as $key => $value) {
+            Settings::updateOrInsert(
+                ['key_name' => $key],
+                [
+                    'value' => $value,
+                    'title' => ucfirst(str_replace('_', ' ', $key)),
+                    'module' => 'Booking',
+                    'active' => 'Y',
+                    'updated_at' => now(),
+                ]
+            );
+        }
+
+        return back()->with('success', 'Settings saved successfully!');
     }
 
     /**
