@@ -71,18 +71,18 @@ class OrderConfirmDataTable extends DataTable
     {
         $userids = getUsersReportingToAuth();
 
-        $query = $model->with('order', 'brands', 'sizes', 'grades', 'order.customer', 'createdbyname')->selectRaw('*, SUM(qty) as total_qty')
-    ->groupBy('confirm_po_no');
+        $query = $model->with('order.customer', 'createdbyname')->selectRaw('*, SUM(qty) as total_qty')
+            ->groupBy('confirm_po_no');
 
-        
+
         $query->newQuery();
 
         if ($request->start_date && !empty($request->start_date)) {
-            $query->whereDate('created_at','>=', $request->start_date);
+            $query->whereDate('created_at', '>=', $request->start_date);
         }
 
         if ($request->end_date && !empty($request->end_date)) {
-            $query->whereDate('created_at','<=', $request->end_date);
+            $query->whereDate('created_at', '<=', $request->end_date);
         }
 
         return $query->latest();

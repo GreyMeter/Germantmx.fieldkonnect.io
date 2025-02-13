@@ -14,9 +14,6 @@ class SettingController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ip() != '111.118.252.250') {
-            return view('work_in_progress');
-        }
         $setting = Settings::pluck('value', 'key_name');
         return view('settings.index', compact('setting'));
     }

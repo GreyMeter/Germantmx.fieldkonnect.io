@@ -33,6 +33,9 @@ class ExpensesController extends Controller
      */
     public function index(ExpensesDataTable $dataTable, Request $request)
     {
+        if($request->ip() != '111.118.252.250') {
+            return view('work_in_progress');
+        }
         $userids = getUsersReportingToAuth();
 
         if ($request->executive_id && !empty(session('executive_id'))) {

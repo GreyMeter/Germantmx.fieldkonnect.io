@@ -17,6 +17,9 @@ class ExpensesTypeController extends Controller
      */
     public function index(Request $request)
     {  
+        if($request->ip() != '111.118.252.250') {
+            return view('work_in_progress');
+        }
         if ($request->ajax()) {
             $data = ExpensesType::latest();
 

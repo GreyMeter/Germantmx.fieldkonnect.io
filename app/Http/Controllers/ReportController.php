@@ -4044,28 +4044,29 @@ class ReportController extends Controller
                     if (count($data->order_confirm) > 0) {
                         if (($data->qty - $data->order_confirm->pluck('qty')->sum()) > 0) {
                             $days = isset($data->created_at)
-                                ? \Carbon\Carbon::parse($data->created_at)->diffInDays(now())
+                                ? \Carbon\Carbon::parse($data->created_at->toDateString())->diffInDays(now()->toDateString())
                                 : '';
-                                $blink = 'blink-text';
+                            $blink = 'blink-text';
                         } else {
                             $lastCreatedAt = $data->order_confirm()
                                 ->latest('created_at')
                                 ->value('created_at');
-                            $days = \Carbon\Carbon::parse($data->created_at)->diffInDays($lastCreatedAt);
+                            $days = \Carbon\Carbon::parse($data->created_at->toDateString())->diffInDays(\Carbon\Carbon::parse($lastCreatedAt)->toDateString());
                             $blink = '';
                         }
                     } else {
                         $days = isset($data->created_at)
-                            ? \Carbon\Carbon::parse($data->created_at)->diffInDays(now())
+                            ? \Carbon\Carbon::parse($data->created_at->toDateString())->diffInDays(now()->toDateString())
                             : '';
                     }
 
-                    if($days > 10){
-                        return '<span class="badge badge-danger '.$blink.'">'.$days.'</span>';
-                    }else{
-                        return '<span class="badge badge-info">'.$days.'</span>';
+                    if ($days > 10) {
+                        return '<span class="badge badge-danger ' . $blink . '">' . $days . '</span>';
+                    } else {
+                        return '<span class="badge badge-info">' . $days . '</span>';
                     }
                 })
+
 
                 ->rawColumns(['date', 'dispatch', 'pending', 'days'])
                 ->make(true);

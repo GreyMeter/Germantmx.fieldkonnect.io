@@ -870,7 +870,6 @@
             @endif
             @if(auth()->user()->can('product_access'))
             <li
-
               class="nav-link {{ request()->is('categories*') || request()->is('subcategories*') || request()->is('brands*') || request()->is('products*') || request()->is('units*') || request()->is('production*') || request()->is('units*') || request()->is('plants*') || request()->is('stock*') ? 'active' : '' }}">
               <a class="collapsed hoveradd" data-toggle="collapse" href="#productMenu" aria-expanded="false">
                 <i class="material-icons icon">conveyor_belt</i>
@@ -1264,6 +1263,38 @@
                       <i class="material-icons icon">settings</i>
                       <span>{!! trans('panel.sidemenu.setting') !!}</span>
                       <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.setting') !!}</div>
+                    </a>
+                  </li>
+                  @endif
+                </ul>
+              </div>
+            </li>
+            @endif
+
+            @if(auth()->user()->can(['account_access']))
+            <li class="nav-link {{ request()->is('expenses*') ? 'active' : '' }}">
+              <a class="collapsed hoveradd" data-toggle="collapse" href="#accountMenu" aria-expanded="false">
+                <i class="material-icons icon">store</i>
+                <span> {!! trans('panel.sidemenu.account') !!}</span>
+                <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.account') !!}</div>
+              </a>
+              <div class="collapse {{ request()->is('expenses*') ? 'show' : '' }}" id="accountMenu">
+                <ul class="navd">
+                  @if(auth()->user()->can(['expenses_type']))
+                  <li class="nav-item-btn {{ request()->is('expenses_type*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('expenses_type') }}">
+                      <i class="material-icons icon">dashboard</i>
+                      <span>{!! trans('panel.sidemenu.expenses_type') !!}</span>
+                      <div class="d-none mobile_hide">{!! trans('panel.sidemenu.expenses_type') !!}</div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('expense_access'))
+                  <li class="nav-item-btn {{ request()->is('expenses') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('expenses') }}">
+                      <i class="material-icons icon">outlet</i>
+                      <span>Expense</span>
+                      <div class="d-none mobile_hide"> Expense</div>
                     </a>
                   </li>
                   @endif
