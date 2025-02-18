@@ -47,6 +47,7 @@ use App\Models\FieldKonnectAppSetting;
 use App\Models\Notification;
 use App\Models\Price;
 use App\Models\PrimarySales;
+use App\Models\Settings;
 
 class DashboardController extends Controller
 {
@@ -451,7 +452,31 @@ class DashboardController extends Controller
     public function getsettings()
     {
         try {
-            $data = LoyaltyAppSetting::with('media')->first();
+            $data = Settings::select('id', 'key_name', 'value')->get()->groupBy('key_name')->map(function ($item, $key) {
+                // If it's "slider_image", always return an array
+                if ($key === 'slider_image') {
+                    return $item->map(fn($i) => ['id' => $i->id, 'value' => $i->value])->all();
+                }
+            
+                // Return as a string for single values, array for multiple
+                return $item->count() > 1 
+                    ? $item->map(fn($i) => ['id' => $i->id, 'value' => $i->value])->all()  
+                    : $item->first()->value;
+            })->toArray();
+
+            if (isset($data['slider_image']) && is_array($data['slider_image'])) {
+                $data['slider_image'] = collect($data['slider_image'])->map(function ($item) {
+                    $item['value'] = asset($item['value']);
+                    return $item;
+                })->all();
+            }
+
+            $data['news'] = [
+                'english' => $data['news'],
+                'hindi'   => $this->translateText($data['news'], 'hi'),
+                'bengali' => $this->translateText($data['news'], 'bn'),
+            ];
+
             return response(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
@@ -739,5 +764,15 @@ class DashboardController extends Controller
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
         }
+    }
+
+    private function translateText($text, $targetLang)
+    {
+        $url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=" . $targetLang . "&dt=t&q=" . urlencode($text);
+
+        $response = file_get_contents($url);
+        $result = json_decode($response, true);
+
+        return $result[0][0][0] ?? $text; // Return translated text
     }
 }
