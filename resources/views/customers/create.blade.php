@@ -354,6 +354,26 @@
                 </div>
               </div>
 
+              <div class="col-md-6">
+                <div class="row">
+                  <label class="col-md-3 col-form-label">Customer Parity</small></label>
+                  <div class="col-md-9">
+                    <div class="form-group has-default bmd-form-group">
+                      <select name="customer_parity" id="customer_parity" class="form-control select2">
+                        <option value="">Select Customer Parity</option>
+                        <option value="general_parity" {{($customers && $customers['customer_parity'] == 'general_parity')? 'selected':''}}>General Parity</option>
+                        <option value="south_parity" {{($customers && $customers['customer_parity'] == 'south_parity')? 'selected':''}}>South Parity</option>
+                      </select>
+                    </div>
+                    @if ($errors->has('order_limit'))
+                    <div class="error col-lg-12">
+                      <p class="text-danger">{{ $errors->first('order_limit') }}</p>
+                    </div>
+                    @endif
+                  </div>
+                </div>
+              </div>
+
               <!--             <div class="col-md-6" id="parentcustomer" style="display:none;">
                 <div class="row">
                   <label class="col-md-3 col-form-label">{!! trans('panel.global.parentcustomer') !!}</label>

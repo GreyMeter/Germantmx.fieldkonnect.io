@@ -38,19 +38,14 @@ class PriceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(Request $request)
     {
+        if($request->ip() != '111.118.252.250') {
+            return view('work_in_progress');
+        }
         abort_if(Gate::denies('price_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $this->price = Price::first()?? new Price();
-        // $brand_id = 1;
-        // $grade_id = 2;
-        // $size_id = 2;
-        // $base_price = $this->price->base_price;
-        // $brand_price = AdditionalPrice::where(['model_name'=>'brand','model_id'=>$brand_id])->pluck('price_adjustment')->first();
-        // $grade_price = AdditionalPrice::where(['model_name'=>'grade','model_id'=>$grade_id])->pluck('price_adjustment')->first();
-        // $size_price = AdditionalPrice::where(['model_name'=>'size','model_id'=>$size_id])->pluck('price_adjustment')->first();
-        // $final_price = $base_price+$brand_price+$grade_price+$size_price;
-        // dd($base_price,$brand_price,$grade_price,$size_price,$final_price);
+       
         $sizes = Category::where('active', '=', 'Y')->select('id', 'category_name')->get();
         $brands = Brand::where('active', '=', 'Y')->select('id', 'brand_name')->get();
         $grades = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name')->get();
@@ -82,6 +77,10 @@ class PriceController extends Controller
             'brand.price' => 'sometimes|array',
             'distributor.id' => 'sometimes|array',
             'distributor.price' => 'sometimes|array',
+            'general_parity.id' => 'sometimes|array',
+            'general_parity.price' => 'sometimes|array',
+            'south_parity.id' => 'sometimes|array',
+            'south_parity.price' => 'sometimes|array',
         ]);
 
         // Create the base price entry
@@ -141,6 +140,30 @@ class PriceController extends Controller
             }
         }
 
+        // Store additional prices for General Parity
+        if (!empty($validatedData['general_parity']['id'])) {
+            foreach ($validatedData['general_parity']['id'] as $index => $general_parityId) {
+                AdditionalPrice::create([
+                    'price_id' => $price->id,
+                    'model_name' => 'general_parity', // Specify that this is a general_parity adjustment
+                    'model_id' => $general_parityId,
+                    'price_adjustment' => $validatedData['general_parity']['price'][$index] ?? 0,
+                ]);
+            }
+        }
+
+        // Store additional prices for South Parity
+        if (!empty($validatedData['south_parity']['id'])) {
+            foreach ($validatedData['south_parity']['id'] as $index => $south_parityId) {
+                AdditionalPrice::create([
+                    'price_id' => $price->id,
+                    'model_name' => 'south_parity', // Specify that this is a south_parity adjustment
+                    'model_id' => $south_parityId,
+                    'price_adjustment' => $validatedData['south_parity']['price'][$index] ?? 0,
+                ]);
+            }
+        }
+
         return redirect()->route('prices.create')->with('success', 'Price created successfully.');
     }
 
@@ -196,6 +219,10 @@ class PriceController extends Controller
             'brand.price' => 'sometimes|array',
             'distributor.id' => 'sometimes|array',
             'distributor.price' => 'sometimes|array',
+            'general_parity.id' => 'sometimes|array',
+            'general_parity.price' => 'sometimes|array',
+            'south_parity.id' => 'sometimes|array',
+            'south_parity.price' => 'sometimes|array',
         ]);
 
         $price->brand_id = implode(',',$request->brand_id);
@@ -248,6 +275,30 @@ class PriceController extends Controller
                     'model_name' => 'distributor', // Specify that this is a distributor adjustment
                     'model_id' => $distributorId,
                     'price_adjustment' => $validatedData['distributor']['price'][$index] ?? 0,
+                ]);
+            }
+        }
+
+        // Store additional prices for General Parity
+        if (!empty($validatedData['general_parity']['id'])) {
+            foreach ($validatedData['general_parity']['id'] as $index => $general_parityId) {
+                AdditionalPrice::updateOrCreate(['model_id' => $general_parityId,'model_name' => 'general_parity'],[
+                    'price_id' => $price->id,
+                    'model_name' => 'general_parity', // Specify that this is a general_parity adjustment
+                    'model_id' => $general_parityId,
+                    'price_adjustment' => $validatedData['general_parity']['price'][$index] ?? 0,
+                ]);
+            }
+        }
+
+        // Store additional prices for South Parity
+        if (!empty($validatedData['south_parity']['id'])) {
+            foreach ($validatedData['south_parity']['id'] as $index => $south_parityId) {
+                AdditionalPrice::updateOrCreate(['model_id' => $south_parityId,'model_name' => 'south_parity'],[
+                    'price_id' => $price->id,
+                    'model_name' => 'south_parity', // Specify that this is a south_parity adjustment
+                    'model_id' => $south_parityId,
+                    'price_adjustment' => $validatedData['south_parity']['price'][$index] ?? 0,
                 ]);
             }
         }

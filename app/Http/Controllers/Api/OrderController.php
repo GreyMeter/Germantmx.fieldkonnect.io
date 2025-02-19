@@ -776,12 +776,14 @@ class OrderController extends Controller
             }
             $tqty = 0;
             $soda = Order::with('customer')->find($request->soda_id);
+            
             $totalOrderConfirm = OrderConfirm::where('order_id', $request->soda_id)->distinct('confirm_po_no')->count('confirm_po_no');
             foreach ($request->qty as $k => $qty) {
                 $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'model_name' => 'size'])->first())->price_adjustment;
+                $additional_price_parity = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'model_name' => $soda->customer->customer_parity])->first())->price_adjustment;
                 $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'model_name' => 'grade'])->first())->price_adjustment;
                 $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'model_name' => 'brand'])->first())->price_adjustment;
-                $after_soda_price = ($soda->base_price + $soda->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size;
+                $after_soda_price = ($soda->base_price + $soda->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size + $additional_price_parity;
                 $data['confirm_po_no'] = $soda->po_no . '-' . $totalOrderConfirm + 1;
                 $data['order_id'] = $request->soda_id;
                 $data['created_by'] = NULL;
@@ -868,12 +870,17 @@ class OrderController extends Controller
             }
             $tqty = 0;
             $soda = Order::with('customer')->find($request->soda_id);
+            
             $totalOrderConfirm = OrderConfirm::where('order_id', $request->soda_id)->distinct('confirm_po_no')->count('confirm_po_no');
             foreach ($request->qty as $k => $qty) {
                 $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'model_name' => 'size'])->first())->price_adjustment;
+                $additional_price_parity = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'model_name' => $soda->customer->customer_parity])->first())->price_adjustment;
                 $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'model_name' => 'grade'])->first())->price_adjustment;
                 $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'model_name' => 'brand'])->first())->price_adjustment;
-                $after_soda_price = ($soda->base_price + $soda->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size;
+
+                
+                $after_soda_price = ($soda->base_price + $soda->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size + $additional_price_parity;
+
                 $data['confirm_po_no'] = $soda->po_no . '-' . $totalOrderConfirm + 1;
                 $data['order_id'] = $request->soda_id;
                 $data['created_by'] = $user->id;

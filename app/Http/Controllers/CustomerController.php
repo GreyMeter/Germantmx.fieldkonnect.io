@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{Customers, UserLogin, CustomerType, FirmType, Regions, Pincode, Country, CustomerDetails, Address, Attachment, SurveyData, Field, State, City, Beat, BeatCustomer, DealIn, Redemption, SchemeDetails};
+use App\Models\{Customers, UserLogin, CustomerType, FirmType, Regions, Pincode, Country, CustomerDetails, Address, Attachment, SurveyData, Field, State, City, Beat, BeatCustomer, DealIn, Price, PriceHistory, Redemption, SchemeDetails};
 use App\Models\User;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,6 +29,15 @@ class CustomerController extends Controller
 {
     public function __construct()
     {
+        $ddate = date('Y-m-d');
+        $checkHistory = PriceHistory::where('date', $ddate)->first();
+        if (empty($checkHistory)) {
+            $price = Price::first();
+            $priceHistory = new PriceHistory();
+            $priceHistory->date = $ddate;
+            $priceHistory->price = $price->base_price;
+            $priceHistory->save();
+        }
         $this->middleware('auth');
         $this->customers = new Customers();
         $this->customerdetails = new CustomerDetails();

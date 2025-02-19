@@ -68,6 +68,7 @@
                       @endforeach
                       @endif
                     </select>
+                    <input type="hidden" name="order_customer_id" id="order_customer_id" value="{!! old( 'customer_id' , (!empty($orders->customer_id)) ? ($orders->customer_id) :('') ) !!}">
                   </div>
                   @if ($errors->has('customer_id'))
                   <div class="error col-lg-12">
@@ -331,6 +332,7 @@
         var bookingPrice = $('#base_price').val();  // Example booking price
         var totalPrice = '';    // Example total price
         var additional_charge = ''
+        var customer_id = $('#order_customer_id').val();
         if (brand && grade && size) {
           // Simulate price calculations (replace with your actual logic)
           $.ajax({
@@ -339,6 +341,7 @@
               "brand": brand,
               "grade": grade,
               "size": size,
+              "customer_id": customer_id,
             },
             success: function(res) {
               if(res.status == true){

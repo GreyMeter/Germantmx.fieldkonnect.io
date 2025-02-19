@@ -1422,13 +1422,23 @@ class AjaxController extends Controller
         $grade = $request->grade ?? '';
         $size = $request->size ?? '';
 
+        $parity = Customers::where('id', $request->customer_id)->value('customer_parity');
+
         $additional_price = 0;
-        if(isset($brand) && isset($grade) && isset($size)){
+        if(isset($brand) && isset($grade) && isset($size) && isset($parity)){
+           $brand_price = AdditionalPrice::where(['model_name' => 'brand' , 'model_id' => $brand])->first();
+           $grade_price  = AdditionalPrice::where(['model_name' => 'grade' , 'model_id' => $grade])->first();
+           $size_price  = AdditionalPrice::where(['model_name' => 'size' , 'model_id' => $size])->first();
+           $parity_price  = AdditionalPrice::where(['model_name' => $parity , 'model_id' => $size])->first();
+
+           //calculate addition price according to brand , size , grade    
+           $additional_price = $additional_price + (isset($brand_price->price_adjustment) ? $brand_price->price_adjustment : 0) + (isset($grade_price->price_adjustment) ? $grade_price->price_adjustment : 0) +(isset($size_price->price_adjustment) ? $size_price->price_adjustment : 0) +(isset($parity_price->price_adjustment) ? $parity_price->price_adjustment : 0);
+        }else if(isset($brand) && isset($grade) && isset($size)){
            $brand_price = AdditionalPrice::where(['model_name' => 'brand' , 'model_id' => $brand])->first();
            $grade_price  = AdditionalPrice::where(['model_name' => 'grade' , 'model_id' => $grade])->first();
            $size_price  = AdditionalPrice::where(['model_name' => 'size' , 'model_id' => $size])->first();
 
-           //calculate addition price according to brand , size , grade    
+           //calculate addition price according to brand , size , grade
            $additional_price = $additional_price + (isset($brand_price->price_adjustment) ? $brand_price->price_adjustment : 0) + (isset($grade_price->price_adjustment) ? $grade_price->price_adjustment : 0) +(isset($size_price->price_adjustment) ? $size_price->price_adjustment : 0);
         }
         return response()->json(['status' => true , 'additional_price' => $additional_price]);
