@@ -112,7 +112,8 @@
               {!! Form::model($orders,[
                 'route' => ['orders.dispatch_multi', encrypt($orders->confirm_po_no) ],
                 'method' => 'POST',
-                'id' => 'createProductFormMulti'
+                'id' => 'createProductFormMulti',
+                'files' => true
                 ]) !!}
 
               <div class="row">
@@ -132,6 +133,22 @@
                       <div class="col-md-4">
                         <label>Vehicle Number<span class="text-danger"> *</span></label>
                         <input type="text" name="vehicle_number" id="vehicle_number" class="form-control" required>
+                      </div>
+                      <div class="col-md-3 mt-3">
+                        <label>TC Image</label>
+                        <input type="file" accept="image/*" name="tc" id="tc" class="form-control">
+                      </div>
+                      <div class="col-md-3 mt-3">
+                        <label>Invoice Image</label>
+                        <input type="file" accept="image/*" name="invoice" id="invoice" class="form-control">
+                      </div>
+                      <div class="col-md-3 mt-3">
+                        <label>E-way Bill Image</label>
+                        <input type="file" accept="image/*" name="e_way_bill" id="e_way_bill" class="form-control">
+                      </div>
+                      <div class="col-md-3 mt-3">
+                        <label>Wevrage Slip Image</label>
+                        <input type="file" accept="image/*" name="wevrage_slip" id="wevrage_slip" class="form-control">
                       </div>
                     </div>
                   </div>

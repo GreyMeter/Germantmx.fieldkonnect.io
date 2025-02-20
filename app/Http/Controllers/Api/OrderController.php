@@ -943,7 +943,7 @@ class OrderController extends Controller
         try {
             $customer = $request->user();
             $sodas = Order::where('customer_id', $customer->id)->pluck('id');
-            $data = OrderDispatch::whereIn('order_id', $sodas)->with('brands:id,brand_name', 'sizes:id,category_name', 'grades:id,unit_name')->orderBy('id', 'desc')->get();
+            $data = OrderDispatch::whereIn('order_id', $sodas)->with('order.customer', 'createdbyname')->selectRaw('*, SUM(qty) as total_qty')->groupBy('dispatch_po_no')->orderBy('id', 'desc')->get();
 
             return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
         } catch (\Exception $e) {
@@ -956,7 +956,7 @@ class OrderController extends Controller
         try {
             $user = $request->user();
             $sodas = Order::where('created_by', $user->id)->pluck('id');
-            $data = OrderDispatch::whereIn('order_id', $sodas)->with('brands:id,brand_name', 'sizes:id,category_name', 'grades:id,unit_name')->orderBy('id', 'desc')->get();
+            $data = OrderDispatch::whereIn('order_id', $sodas)->with('order.customer', 'createdbyname')->selectRaw('*, SUM(qty) as total_qty')->groupBy('dispatch_po_no')->orderBy('id', 'desc')->get();
 
             return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
         } catch (\Exception $e) {
@@ -997,14 +997,11 @@ class OrderController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
             }
-            $order = OrderDispatch::with('brands:id,brand_name', 'sizes:id,category_name', 'grades:id,unit_name')->where('id', $request->dispatch_order_id)->first();
-            if ($order) {
-                $order->soda = $order->order;
-                $order->customer = $order->order->customer;
-                $order->customer_address = $order->order->customer->customeraddress ? $order->order->customer->customeraddress->cityname->city_name . ',' . $order->order->customer->customeraddress->districtname->district_name . ',' . $order->order->customer->customeraddress->statename->state_name . ',' . $order->order->customer->customeraddress->countryname->country_name . ',' . $order->order->customer->customeraddress->pincodename->pincode : '-';
+            $order = OrderDispatch::with('brands:id,brand_name','order.customer', 'sizes:id,category_name', 'grades:id,unit_name', 'order_dispatch_details.media')->where('dispatch_po_no', $request->dispatch_order_id)->get();
+            if ($order && $order->count() > 0) {
                 return response()->json(['status' => 'success', 'message' => 'data retrieved successfully.', 'data' => $order], 200);
             }
-            return response()->json(['status' => 'error', 'message' =>  'Soda not found.'], $this->badrequest);
+            return response()->json(['status' => 'error', 'message' =>  'Order not found.'], $this->badrequest);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
         }
@@ -1046,6 +1043,31 @@ class OrderController extends Controller
             return response()->json(['status' => 'success', 'message' => 'Booking Update successfully !!']);
         } else {
             return response()->json(['status' => 'error', 'message' => 'Booking not found !!']);
+        }
+    }
+
+    public function cancelConfirmOrder(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'order_confirm_id' => 'required',
+            'cancel_qty' => 'required',
+            'remark' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
+        }
+        $orders = OrderConfirm::find($request->order_confirm_id);
+        if ($orders) {
+            if($orders->cancel_qty+$request->cancel_qty > 3){
+                return response()->json(['status' => 'error', 'message' => 'You can not cancel more than 3 Ton !!']);
+            }
+            $orders->qty = $orders->qty-$request->cancel_qty;
+            $orders->cancel_qty = $orders->cancel_qty+$request->cancel_qty;
+            $orders->cancel_remark = $request->remark;
+            $orders->save();
+            return response()->json(['status' => 'success', 'message' => 'Order cancle successfully !!']);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Order not found !!']);
         }
     }
 }

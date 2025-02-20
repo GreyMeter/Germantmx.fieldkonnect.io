@@ -143,14 +143,14 @@
                  <th>{!! trans('panel.expenses.fields.expense_id') !!}</th>
                  <th>Expense Date</th>
                  <th>{!! trans('panel.expenses.fields.user') !!}</th>
-                 <th>{!! trans('panel.expenses.fields.designation') !!}</th>
+                 <!-- <th>{!! trans('panel.expenses.fields.designation') !!}</th> -->
                  <th>{!! trans('panel.expenses.fields.expense_type') !!}</th>
                  <th>{!! trans('panel.expenses.fields.claim_amount') !!}</th>
                  <th>{!! trans('panel.expenses.fields.approve_amount') !!}</th>
                  <th>{!! trans('panel.expenses.fields.expense_status') !!}</th>
                  <th>{!! trans('panel.expenses.fields.note') !!}</th>
                  <th>{!! trans('panel.expenses.fields.created_at') !!}</th>
-                 <th>{!! trans('panel.expenses.fields.branch') !!}</th>
+                 <!-- <th>{!! trans('panel.expenses.fields.branch') !!}</th> -->
                  <th>{!! trans('panel.expenses.fields.total_km') !!}</th>
                  <th>{!! trans('panel.global.action') !!}</th>
                  <th>Attechments</th>
@@ -282,5 +282,5 @@
        });
      }).trigger("chnage");
    </script>
-   <script src="{{asset('assets/js/expense_filter.js')}}"></script>
+   <script src="{{ asset('assets/js/expense_filter.js') . '?v=' . time() }}"></script>
  </x-app-layout>

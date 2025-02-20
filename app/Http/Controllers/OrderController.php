@@ -114,7 +114,7 @@ class OrderController extends Controller
                 //convert the time to 12 hours
                 $start_time = date('g:i A', strtotime($booking_start_time->value));
                 $end_time = date('g:i A', strtotime($booking_end_time->value));
-                return Redirect::to('orders')->with('message_danger', 'You can book a booking between '.$start_time.' to '.$end_time.'.');
+                return Redirect::to('orders')->with('message_danger', 'You can book a booking between ' . $start_time . ' to ' . $end_time . '.');
             }
 
             abort_if(Gate::denies('order_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
@@ -743,7 +743,7 @@ class OrderController extends Controller
                 foreach ($request->dispatch_qty as $key => $qty) {
                     if ($qty > 0) {
                         if (getOrderQuantity($orders[$key]->id) >= $qty) {
-                            $orderConfirm = OrderDispatch::create([
+                            $orderDispatch = OrderDispatch::create([
                                 'order_confirm_id' => $orders[$key]->id,
                                 'order_id'         => $orders[$key]->order_id,
                                 'po_no'            => $orders[$key]->po_no,
@@ -765,19 +765,52 @@ class OrderController extends Controller
                             $Ndata['customer_id'] = $orders[$key]->order->customer_id;
                             addNotification($Ndata);
                             manageStockMulti($orders[$key], $qty, $request->plant_id[$key]);
+
                             $order_dispatch = true;
                         }
-                    } else {
                     }
-                    if ($order_dispatch == true) {
-                        $order_dis = OrderDispactchDetails::updateOrCreate(
-                            ['order_dispatch_po_no' => $dispatch_po_no],
-                            [
-                                'driver_name' => $request->driver_name ?? '',
-                                'driver_contact_number' => $request->driver_contact_number,
-                                'vehicle_number' => $request->vehicle_number,
-                            ]
-                        );
+                }
+                if ($order_dispatch == true) {
+                    $order_dis = OrderDispactchDetails::updateOrCreate(
+                        ['order_dispatch_po_no' => $dispatch_po_no],
+                        [
+                            'driver_name' => $request->driver_name ?? '',
+                            'driver_contact_number' => $request->driver_contact_number,
+                            'vehicle_number' => $request->vehicle_number,
+                        ]
+                    );
+
+                    if ($request->hasFile('tc')) {
+                        $file = $request->file('tc');
+
+                        $customname = time() . '.' . $file->getClientOriginalExtension();
+                        $order_dis->addMedia($file)
+                            ->usingFileName($customname)
+                            ->toMediaCollection('tc', 'public');
+                    }
+                    if ($request->hasFile('invoice')) {
+                        $file = $request->file('invoice');
+
+                        $customname = time() . '.' . $file->getClientOriginalExtension();
+                        $order_dis->addMedia($file)
+                            ->usingFileName($customname)
+                            ->toMediaCollection('invoice', 'public');
+                    }
+                    if ($request->hasFile('e_way_bill')) {
+                        $file = $request->file('e_way_bill');
+
+                        $customname = time() . '.' . $file->getClientOriginalExtension();
+                        $order_dis->addMedia($file)
+                            ->usingFileName($customname)
+                            ->toMediaCollection('e_way_bill', 'public');
+                    }
+                    if ($request->hasFile('wevrage_slip')) {
+                        $file = $request->file('wevrage_slip');
+
+                        $customname = time() . '.' . $file->getClientOriginalExtension();
+                        $order_dis->addMedia($file)
+                            ->usingFileName($customname)
+                            ->toMediaCollection('wevrage_slip', 'public');
                     }
                 }
                 return Redirect::to('orders_confirm')->with('message_success', 'Order Dispatch Successfully.');

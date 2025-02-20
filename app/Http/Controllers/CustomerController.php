@@ -29,15 +29,6 @@ class CustomerController extends Controller
 {
     public function __construct()
     {
-        $ddate = date('Y-m-d');
-        $checkHistory = PriceHistory::where('date', $ddate)->first();
-        if (empty($checkHistory)) {
-            $price = Price::first();
-            $priceHistory = new PriceHistory();
-            $priceHistory->date = $ddate;
-            $priceHistory->price = $price->base_price;
-            $priceHistory->save();
-        }
         $this->middleware('auth');
         $this->customers = new Customers();
         $this->customerdetails = new CustomerDetails();

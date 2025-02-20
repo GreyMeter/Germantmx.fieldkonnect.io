@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\LeaveController;
 use App\Http\Controllers\Api\LoginController;
 use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\PriceController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\SalesController;
 use App\Http\Controllers\Api\SurveyController;
@@ -81,7 +82,7 @@ Route::any('emailExists', [CustomController::class, 'emailExists']);
 /*================= Customer Routes ============================*/
 Route::group(['middleware' => ['auth:customers']], function () {
     // Route::any('customer/getProfile', [LoginController::class, 'getCustomerProfile']);
-    // Route::any('customer/updateProfile', [LoginController::class, 'updateCustomerProfile']);
+    Route::any('customer/getPrice', [PriceController::class, 'getPrice']);
     // Dashboard
     Route::any('customer/todayRate', [DashboardController::class, 'today_rate']);
     Route::any('customer/getCustomerNotification', [DashboardController::class, 'getCustomerNotification']);
@@ -115,6 +116,7 @@ Route::group(['middleware' => ['auth:customers']], function () {
     Route::any('customer/getDispatchOrder', [OrderController::class, 'getDispatchOrder']);
     Route::post('customer/cancelOrder', [OrderController::class, 'cancelOrder']);
     Route::post('customer/updateOrder', [OrderController::class, 'updateOrder']);
+    Route::post('customer/cancelConfirmOrder', [OrderController::class, 'cancelConfirmOrder']);
     //Coupon Scan
     Route::post('customer/couponScans', [CouponController::class, 'customerCouponScans']);
     Route::post('customer/getScanedCoupons', [CouponController::class, 'customerScanedCouponList']);

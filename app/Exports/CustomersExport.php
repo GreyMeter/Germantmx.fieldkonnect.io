@@ -19,7 +19,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
-class CustomersExport implements FromCollection,WithHeadings,ShouldAutoSize,WithMapping
+class CustomersExport implements FromCollection,WithHeadings,ShouldAutoSize,WithMapping, WithEvents
 {
     public function __construct($request)
     {    
@@ -120,7 +120,7 @@ class CustomersExport implements FromCollection,WithHeadings,ShouldAutoSize,With
     {
         // return ['Created Date','Customer ID','Customer Type','Created by','Firm Name', 'First Name', 'Last Name', 'Mobile', 'Email','Address', 'Gmap address','Pin Code','Zip Code','Market Place','City','District','State','Beat Name', 'Latitude', 'Longitude','GST No','Adhar No','Pan No','Other No','Shop Image', 'Employee Name', 'Grade', 'Visit Status','Contact number -2','Customer Code','Employee Code','Branch Name','Department','Designation','Parent Customer'];
 
-    return ['Created Date','customer_id','customer_code','status','Customer Type','Created by','firm_name','Parent Customer','first_name', 'last_name', 'Mobile','contact_number2', 'email','address', 'Gmap address','Pin Code','Zip Code','market_place','City','District','State','grade','visit_status','gstin_no','aadhar_no','pan_no','other_no','Shop Image','Employee Code','Employee Name','Designation','Branch Name','Division','Latitude', 'Longitude','employee_id','parent_id','pincode_id','city_id','district_id','state_id','customer_type_id','Working Status','Creation Date'];
+    return ['Created Date','customer_id','customer_code','status','Customer Type','Customer Parity','Created by','firm_name','Parent Customer','first_name', 'last_name', 'Mobile','contact_number2', 'email','address', 'Gmap address','Pin Code','Zip Code','market_place','City','District','State','grade','visit_status','gstin_no','aadhar_no','pan_no','other_no','Shop Image','Employee Code','Employee Name','Designation','Branch Name','Division','Latitude', 'Longitude','employee_id','parent_id','pincode_id','city_id','district_id','state_id','customer_type_id','Working Status','Creation Date'];
 
     }
 
@@ -182,6 +182,7 @@ class CustomersExport implements FromCollection,WithHeadings,ShouldAutoSize,With
             $data['customer_code'], 
             $data['active'], 
             isset($data['customertypes']['customertype_name']) ? $data['customertypes']['customertype_name'] :'',
+            $data['customer_parity'], 
             $data['createdbyname'] = isset($data['createdbyname']['name']) ? $data['createdbyname']['name'] : 'Self',
             $data['name'],
             //$data->parentdetail->first_name??'',
@@ -236,6 +237,53 @@ class CustomersExport implements FromCollection,WithHeadings,ShouldAutoSize,With
     }
 
 
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                $lastRow = $sheet->getHighestDataRow();
+                $lastColumn = $sheet->getHighestDataColumn();
 
+                $firstRowRange = 'A1:' . $lastColumn . '1';
+                $sheet->getRowDimension(1)->setRowHeight(25);
+                $sheet->getStyle($firstRowRange)->getAlignment()->setWrapText(true);
+                $sheet->getStyle($firstRowRange)->getFont()->setSize(14);
+
+                $event->sheet->getStyle($firstRowRange)->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'color' => ['rgb' => 'FFFFFF'],
+                    ],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                    ],
+                    'fill' => [
+                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => '00aadb'],
+                    ],
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'color' => ['argb' => '000000'],
+                        ],
+                    ],
+                ]);
+
+                $event->sheet->getStyle('A1:' . $lastColumn . '' . $lastRow)->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'color' => ['argb' => '000000'],
+                        ],
+                    ],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT,
+                    ],
+                ]);
+            },
+        ];
+    }
 
 }

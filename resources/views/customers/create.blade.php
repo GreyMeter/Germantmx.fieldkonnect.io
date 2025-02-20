@@ -361,8 +361,8 @@
                     <div class="form-group has-default bmd-form-group">
                       <select name="customer_parity" id="customer_parity" class="form-control select2">
                         <option value="">Select Customer Parity</option>
-                        <option value="general_parity" {{($customers && $customers['customer_parity'] == 'general_parity')? 'selected':''}}>General Parity</option>
-                        <option value="south_parity" {{($customers && $customers['customer_parity'] == 'south_parity')? 'selected':''}}>South Parity</option>
+                        <option value="General Parity" {{($customers && $customers['customer_parity'] == 'General Parity')? 'selected':''}}>General Parity</option>
+                        <option value="South Parity" {{($customers && $customers['customer_parity'] == 'South Parity')? 'selected':''}}>South Parity</option>
                       </select>
                     </div>
                     @if ($errors->has('order_limit'))

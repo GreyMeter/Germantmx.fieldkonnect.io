@@ -4041,12 +4041,13 @@ class ReportController extends Controller
                     }
                 })
                 ->editColumn('days', function ($data) {
+                    $blink = 'blink-text';
                     if (count($data->order_confirm) > 0) {
                         if (($data->qty - $data->order_confirm->pluck('qty')->sum()) > 0) {
                             $days = isset($data->created_at)
                                 ? \Carbon\Carbon::parse($data->created_at->toDateString())->diffInDays(now()->toDateString())
                                 : '';
-                            $blink = 'blink-text';
+                            
                         } else {
                             $lastCreatedAt = $data->order_confirm()
                                 ->latest('created_at')
@@ -4058,6 +4059,7 @@ class ReportController extends Controller
                         $days = isset($data->created_at)
                             ? \Carbon\Carbon::parse($data->created_at->toDateString())->diffInDays(now()->toDateString())
                             : '';
+                            
                     }
 
                     if ($days > 10) {

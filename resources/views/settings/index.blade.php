@@ -137,10 +137,10 @@
                   <div class="col-md-6">
                      <div class="">
                         <div class="row">
-                           <div class="col-md-4">
+                           <div class="col-md-3">
                               <label class="form-control">Slider Images </label>
                            </div>
-                           <div class="col-md-7">
+                           <div class="col-md-9">
                               <input type="file" multiple accept="image/*" name="slider_image[]" class="form-control" id="slider_image">
                               @if ($errors->has('slider_image'))
                               <div class="error col-lg-12">
@@ -153,30 +153,12 @@
                   </div>
 
                   <div class="col-md-6">
-                     <div class="">
-                        <div class="row">
-                           <div class="col-md-4">
-                              <label class="form-control">News </label>
-                           </div>
-                           <div class="col-md-7">
-                              <input type="text" name="news" class="form-control" id="news" value="{{old('news', $setting['news']??'')}}" required>
-                              @if ($errors->has('news'))
-                              <div class="error col-lg-12">
-                                 <p class="text-danger">{{ $errors->first('news') }}</p>
-                              </div>
-                              @endif
-                           </div>
-                        </div>
-                     </div>
-                  </div>
-
-                  <div class="col-md-6">
                      <div class="form-group">
                         <div class="row">
-                           <div class="col-md-4">
+                           <div class="col-md-3">
                               <label class="form-control">Booking Start Time </label>
                            </div>
-                           <div class="col-md-7">
+                           <div class="col-md-9">
                               <input type="time" name="booking_start_time" class="form-control" id="booking_start_time" value="{{old('booking_start_time', $setting['booking_start_time']??'')}}" required>
                               @if ($errors->has('booking_start_time'))
                               <div class="error col-lg-12">
@@ -190,14 +172,31 @@
                   <div class="col-md-6">
                      <div class="form-group">
                         <div class="row">
-                           <div class="col-md-4">
+                           <div class="col-md-3">
                               <label class="form-control">Booking End Time </label>
                            </div>
-                           <div class="col-md-7">
+                           <div class="col-md-9">
                               <input type="time" name="booking_end_time" class="form-control" id="booking_end_time" value="{{old('booking_end_time', $setting['booking_end_time']??'')}}" required>
                               @if ($errors->has('booking_end_time'))
                               <div class="error col-lg-12">
                                  <p class="text-danger">{{ $errors->first('booking_end_time') }}</p>
+                              </div>
+                              @endif
+                           </div>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-md-6">
+                     <div class="">
+                        <div class="row">
+                           <div class="col-md-2">
+                              <label class="form-control">News </label>
+                           </div>
+                           <div class="col-md-10">
+                              <textarea name="news" rows="8" class="form-control" id="news" required>{{ old('news', $setting['news']??'') }}</textarea>
+                              @if ($errors->has('news'))
+                              <div class="error col-lg-12">
+                                 <p class="text-danger">{{ $errors->first('news') }}</p>
                               </div>
                               @endif
                            </div>

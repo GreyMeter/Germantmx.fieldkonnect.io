@@ -231,7 +231,7 @@ class ExpensesController extends Controller
 
                         $expenses->addMedia($file)
                             ->usingFileName($customname)
-                            ->toMediaCollection('expense_file', 's3');
+                            ->toMediaCollection('expense_file', 'public');
                     }
                 }
             } else {
@@ -429,15 +429,12 @@ class ExpensesController extends Controller
 
 
             if ($request->hasFile('expense_file')) {
-
-                // $expense->clearMediaCollection('expense_file');
-
                 $files = $request->file('expense_file');
                 foreach ($files as $file) {
                     $customname = time() . '.' . $file->getClientOriginalExtension();
                     $expense->addMedia($file)
                         ->usingFileName($customname)
-                        ->toMediaCollection('expense_file', 's3');
+                        ->toMediaCollection('expense_file', 'public');
                 }
             }
             return redirect(route('expenses.index'))->with('message', 'expense updated successfully');
@@ -757,14 +754,14 @@ class ExpensesController extends Controller
     {
         $user_id = $request->user_id;
         $userDetail = User::where('id', $user_id)->first();
-        $expenseTypes = ExpensesType::where('payroll_id', $userDetail->payroll)->get();
+        $expenseTypes = ExpensesType::get();
         $html = "";
         $html .= "<option value=''>Select Expense Type</option>";
-        if (!empty($userDetail->payroll)) {
+        // if (!empty($userDetail->payroll)) {
             foreach ($expenseTypes as $expenseType) {
                 $html .= "<option value='" . $expenseType->id . "' data-allowtype='" . $expenseType->allowance_type_id . "' data-rate='" . $expenseType->rate . "'  >" . ucwords($expenseType->name) . "</option>";
             }
-        }
+        // }
 
         return $html;
     }
