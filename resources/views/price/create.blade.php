@@ -153,13 +153,14 @@
           @php
           $add_size = $price->additionalPrices->where('model_name', 'size')->pluck('price_adjustment','model_id')->toArray();
           $add_grade = $price->additionalPrices->where('model_name', 'grade')->pluck('price_adjustment','model_id')->toArray();
+          $add_grade_jindal = $price->additionalPrices->where('model_name', 'grade_jindal')->pluck('price_adjustment','model_id')->toArray();
           $add_brand = $price->additionalPrices->where('model_name', 'brand')->pluck('price_adjustment','model_id')->toArray();
           $add_distributor = $price->additionalPrices->where('model_name', 'distributor')->pluck('price_adjustment','model_id')->toArray();
           $add_general_parity = $price->additionalPrices->where('model_name', 'general_parity')->pluck('price_adjustment','model_id')->toArray();
           $add_south_parity = $price->additionalPrices->where('model_name', 'south_parity')->pluck('price_adjustment','model_id')->toArray();
           @endphp
           <div class="row mt-4">
-            <div class="col-md-3">
+            <div class="col-md-4">
               <h5>Additional Prices Size</h5>
               <table class="table table-striped" id="size_table">
                 <thead>
@@ -179,7 +180,7 @@
                 </tbody>
               </table>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
               <h5>Additional Prices Grade</h5>
               <table class="table table-striped" id="grade_table">
                 <thead>
@@ -199,7 +200,27 @@
                 </tbody>
               </table>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
+              <h5>Additional Prices Grade Jindal</h5>
+              <table class="table table-striped" id="grade_table">
+                <thead>
+                  <tr>
+                    <th>Grade</th>
+                    <th>Price (+/-)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach($grades as $grade)
+                  <tr id="grade_{{$grade->id}}">
+                    <td>{{$grade->unit_name}}</td>
+                    <input type="hidden" name="grade_jindal[id][]" value="{{$grade->id}}">
+                    <td class="brand_msg"><input type="number" class="form-control" name="grade_jindal[price][]" value="{{($price->exists && count($add_grade_jindal)>0) ? ($add_grade_jindal[$grade->id]??'0.00'):'0.00'}}"></td>
+                  </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>
+            <div class="col-md-4 mt-4">
               <h5>Additional Prices Brand</h5>
               <table class="table table-striped" id="brand_table">
                 <thead>
@@ -219,7 +240,7 @@
                 </tbody>
               </table>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4 mt-4">
               <h5>Additional Prices Distributor</h5>
               <table class="table table-striped" id="brand_table">
                 <thead>
@@ -239,7 +260,7 @@
                 </tbody>
               </table>
             </div>
-            <div class="col-md-3 mt-4">
+            {{--<div class="col-md-3 mt-4">
               <h5>Additional Prices General Parity</h5>
               <table class="table table-striped" id="size_table">
                 <thead>
@@ -278,7 +299,7 @@
                   @endforeach
                 </tbody>
               </table>
-            </div>
+            </div>--}}
 
           </div>
 

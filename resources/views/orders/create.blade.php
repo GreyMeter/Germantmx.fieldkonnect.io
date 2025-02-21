@@ -380,15 +380,9 @@
             },
             success: function(res) {
               orderLimit = orderLimit - res.today_order_qty;
-              if(res.check_additional_price != null){
-                $("#base_price").val(
-                    (parseFloat($("#first_base_price").val()) + parseFloat(res.check_additional_price.price_adjustment || 0)).toFixed(2)
-                );
+              if(res.final_price != null){
+                $("#base_price").val(res.final_price);
 
-              }else{
-                $("#base_price").val(
-                    (parseFloat($("#first_base_price").val())).toFixed(2)
-                );
               }
               if (orderLimit < 1) {
                 $("#smt-btn").prop("disabled", true);

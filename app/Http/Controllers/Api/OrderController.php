@@ -214,7 +214,16 @@ class OrderController extends Controller
             if ($order_limit_remain < $request->qty) {
                 return response()->json(['status' => 'error', 'message' =>  'The quantity is greater than today\'s limit.'], $this->badrequest);
             }
-            $request['base_price'] = optional(Price::select('base_price')->first())->base_price;
+
+            $customer = Customers::find($request['customer_id']);
+            $customer_parity = $customer->customer_parity;
+            if ($customer_parity == 'South Parity') {
+                $price = Price::where('id', 2)->first()->base_price;
+            } else {
+                $price = Price::where('id', 1)->first()->base_price;
+            }
+
+            $request['base_price'] = $price;
             $request['po_no'] = generatePoNumber();
             $soda = Order::create($request->all());
 
@@ -602,9 +611,21 @@ class OrderController extends Controller
                 ->whereNot('status', '4')
                 ->sum('qty');
 
+            $customer_parity = $customer->customer_parity;
+
+            $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('model_id', $request['customer_id'])->first();
+            if ($customer_parity == 'South Parity') {
+                $price = Price::where('id', 2)->first()->base_price;
+            } else {
+                $price = Price::where('id', 1)->first()->base_price;
+            }
+            if ($check_additional_price) {
+                $price = number_format((floatval($price) + floatval($check_additional_price->price_adjustment)), 2, '.', '');
+            }
+
             $data['order_limit_remain'] = (int)($customer->order_limit ?? 500) - $today_order_qty;
             $data['po_no'] = generatePoNumber();
-            $data['base_price'] = optional(Price::select('base_price')->first())->base_price;
+            $data['base_price'] = $price;
 
 
             return response()->json(['status' => 'success', 'message' => 'data retrieved successfully.', 'data' => $data], 200);
@@ -622,14 +643,20 @@ class OrderController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
             }
-            $customer = $request->user();
+            $user = $request->user();
+            $customer = Customers::where('id', $request['customer_id'])->first();
+            $customer_parity = $customer->customer_parity;
             $today_order_qty = Order::where('customer_id', $request['customer_id'])
                 ->whereDate('created_at', today())
                 ->whereNot('status', '4')
                 ->sum('qty');
 
             $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('model_id', $request['customer_id'])->first();
-            $price = Price::first()->base_price;
+            if ($customer_parity == 'South Parity') {
+                $price = Price::where('id', 2)->first()->base_price;
+            } else {
+                $price = Price::where('id', 1)->first()->base_price;
+            }
             if ($check_additional_price) {
                 $price = number_format((floatval($price) + floatval($check_additional_price->price_adjustment)), 2, '.', '');
             }
@@ -659,6 +686,7 @@ class OrderController extends Controller
                 return response()->json(['status' => 'error', 'message' =>  'You can book a booking between ' . $start_time . ' to ' . $end_time . '.'], $this->badrequest);
             }
             $customer = $request->user();
+            $customer_parity = $customer->customer_parity;
             $validator = Validator::make($request->all(), [
                 'qty' => 'required',
             ]);
@@ -673,7 +701,14 @@ class OrderController extends Controller
             if ($order_limit_remain < $request->qty) {
                 return response()->json(['status' => 'error', 'message' =>  'The quantity is greater than today\'s limit.'], $this->badrequest);
             }
-            $request['base_price'] = optional(Price::select('base_price')->first())->base_price;
+
+            if ($customer_parity == 'South Parity') {
+                $price = Price::where('id', 2)->first()->base_price;
+            } else {
+                $price = Price::where('id', 1)->first()->base_price;
+            }
+
+            $request['base_price'] = $price;
             $request['customer_id'] = $customer->id;
             $request['created_by'] = NULL;
             $request['po_no'] = generatePoNumber();
@@ -709,7 +744,7 @@ class OrderController extends Controller
             $soda['base_price'] = $soda['base_price'] + $soda['discount_amt'];
             $totalOrderConfirmQty = OrderConfirm::where('order_id', $request->soda_id)->sum('qty');
             if ($soda) {
-                $soda->customer_address = $soda->customer->customeraddress ? $soda->customer->customeraddress->cityname->city_name . ',' . $soda->customer->customeraddress->districtname->district_name . ',' . $soda->customer->customeraddress->statename->state_name . ',' . $soda->customer->customeraddress->countryname->country_name . ',' . $soda->customer->customeraddress->pincodename?->pincode : '-';
+                $soda->customer_address = $soda->customer->customeraddress ? $soda->customer->customeraddress?->cityname?->city_name . ',' . $soda->customer->customeraddress->districtname?->district_name . ',' . $soda->customer->customeraddress->statename?->state_name . ',' . $soda->customer->customeraddress->countryname?->country_name . ',' . $soda->customer->customeraddress->pincodename?->pincode : '-';
                 $soda->totalOrderConfirmQty = $totalOrderConfirmQty;
                 return response()->json(['status' => 'success', 'message' => 'data retrieved successfully.', 'data' => $soda], 200);
             }
@@ -722,7 +757,6 @@ class OrderController extends Controller
     public function insertOrderConfirm(Request $request)
     {
         try {
-            $customer = $request->user();
             $validator = Validator::make($request->all(), [
                 'soda_id' => 'required',
                 'consignee_details' => 'required',
@@ -776,14 +810,23 @@ class OrderController extends Controller
             }
             $tqty = 0;
             $soda = Order::with('customer')->find($request->soda_id);
-            
+
             $totalOrderConfirm = OrderConfirm::where('order_id', $request->soda_id)->distinct('confirm_po_no')->count('confirm_po_no');
             foreach ($request->qty as $k => $qty) {
-                $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'model_name' => 'size'])->first())->price_adjustment;
-                $additional_price_parity = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'model_name' => $soda->customer->customer_parity])->first())->price_adjustment;
-                $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'model_name' => 'grade'])->first())->price_adjustment;
-                $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'model_name' => 'brand'])->first())->price_adjustment;
+                if ($soda->customer->customer_parity == 'South Parity') {
+                    $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '2', 'model_name' => 'size'])->first())->price_adjustment;
+                    $additional_price_parity = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '2', 'model_name' => $soda->customer->customer_parity])->first())->price_adjustment;
+                    $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'price_id' => '2', 'model_name' => 'grade'])->first())->price_adjustment;
+                    $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'price_id' => '2', 'model_name' => 'brand'])->first())->price_adjustment;
+                } else {
+                    $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '1', 'model_name' => 'size'])->first())->price_adjustment;
+                    $additional_price_parity = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '1', 'model_name' => $soda->customer->customer_parity])->first())->price_adjustment;
+                    $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'price_id' => '1', 'model_name' => 'grade'])->first())->price_adjustment;
+                    $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'price_id' => '1', 'model_name' => 'brand'])->first())->price_adjustment;
+                }
+
                 $after_soda_price = ($soda->base_price + $soda->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size + $additional_price_parity;
+
                 $data['confirm_po_no'] = $soda->po_no . '-' . $totalOrderConfirm + 1;
                 $data['order_id'] = $request->soda_id;
                 $data['created_by'] = NULL;
@@ -794,7 +837,7 @@ class OrderController extends Controller
                 $data['brand_id'] = $request->brand_id[$k];
                 $data['category_id'] = $request->size_id[$k];
                 $data['material'] = $request->material[$k];
-                $data['base_price'] = $soda->base_price + $soda->discount_amt;
+                $data['base_price'] = $after_soda_price;
                 $data['soda_price'] = $after_soda_price * $qty;
                 $tqty += $qty;
 
@@ -870,15 +913,22 @@ class OrderController extends Controller
             }
             $tqty = 0;
             $soda = Order::with('customer')->find($request->soda_id);
-            
+
             $totalOrderConfirm = OrderConfirm::where('order_id', $request->soda_id)->distinct('confirm_po_no')->count('confirm_po_no');
             foreach ($request->qty as $k => $qty) {
-                $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'model_name' => 'size'])->first())->price_adjustment;
-                $additional_price_parity = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'model_name' => $soda->customer->customer_parity])->first())->price_adjustment;
-                $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'model_name' => 'grade'])->first())->price_adjustment;
-                $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'model_name' => 'brand'])->first())->price_adjustment;
+                if ($soda->customer->customer_parity == 'South Parity') {
+                    $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '2', 'model_name' => 'size'])->first())->price_adjustment;
+                    $additional_price_parity = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '2', 'model_name' => $soda->customer->customer_parity])->first())->price_adjustment;
+                    $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'price_id' => '2', 'model_name' => 'grade'])->first())->price_adjustment;
+                    $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'price_id' => '2', 'model_name' => 'brand'])->first())->price_adjustment;
+                } else {
+                    $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '1', 'model_name' => 'size'])->first())->price_adjustment;
+                    $additional_price_parity = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '1', 'model_name' => $soda->customer->customer_parity])->first())->price_adjustment;
+                    $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'price_id' => '1', 'model_name' => 'grade'])->first())->price_adjustment;
+                    $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'price_id' => '1', 'model_name' => 'brand'])->first())->price_adjustment;
+                }
 
-                
+
                 $after_soda_price = ($soda->base_price + $soda->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size + $additional_price_parity;
 
                 $data['confirm_po_no'] = $soda->po_no . '-' . $totalOrderConfirm + 1;
@@ -916,7 +966,7 @@ class OrderController extends Controller
             $customer = $request->user();
             $sodas = Order::where('customer_id', $customer->id)->pluck('id');
             $data = OrderConfirm::whereIn('order_id', $sodas)->with('order.customer', 'createdbyname')->selectRaw('*, SUM(qty) as total_qty')
-            ->groupBy('confirm_po_no')->get();
+                ->groupBy('confirm_po_no')->get();
 
             return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
         } catch (\Exception $e) {
@@ -930,7 +980,7 @@ class OrderController extends Controller
             $user = $request->user();
             $sodas = Order::where('created_by', $user->id)->pluck('id');
             $data = OrderConfirm::whereIn('order_id', $sodas)->with('order.customer', 'createdbyname')->selectRaw('*, SUM(qty) as total_qty')
-            ->groupBy('confirm_po_no')->get();
+                ->groupBy('confirm_po_no')->get();
 
             return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
         } catch (\Exception $e) {
@@ -980,7 +1030,7 @@ class OrderController extends Controller
             //     $order->customer = $order->order->customer;
             //     $order->customer_address = $order->order->customer->customeraddress ? $order->order->customer->customeraddress->cityname->city_name . ',' . $order->order->customer->customeraddress->districtname->district_name . ',' . $order->order->customer->customeraddress->statename->state_name . ',' . $order->order->customer->customeraddress->countryname->country_name . ',' . $order->order->customer->customeraddress->pincodename?->pincode : '-';
             // }
-                return response()->json(['status' => 'success', 'message' => 'data retrieved successfully.', 'data' => $order_chain], 200);
+            return response()->json(['status' => 'success', 'message' => 'data retrieved successfully.', 'data' => $order_chain], 200);
             return response()->json(['status' => 'error', 'message' =>  'Soda not found.'], $this->badrequest);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
@@ -997,7 +1047,7 @@ class OrderController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
             }
-            $order = OrderDispatch::with('brands:id,brand_name','order.customer', 'sizes:id,category_name', 'grades:id,unit_name', 'order_dispatch_details.media')->where('dispatch_po_no', $request->dispatch_order_id)->get();
+            $order = OrderDispatch::with('brands:id,brand_name', 'order.customer', 'sizes:id,category_name', 'grades:id,unit_name', 'order_dispatch_details.media')->where('dispatch_po_no', $request->dispatch_order_id)->get();
             if ($order && $order->count() > 0) {
                 return response()->json(['status' => 'success', 'message' => 'data retrieved successfully.', 'data' => $order], 200);
             }
@@ -1058,11 +1108,11 @@ class OrderController extends Controller
         }
         $orders = OrderConfirm::find($request->order_confirm_id);
         if ($orders) {
-            if($orders->cancel_qty+$request->cancel_qty > 3){
+            if ($orders->cancel_qty + $request->cancel_qty > 3) {
                 return response()->json(['status' => 'error', 'message' => 'You can not cancel more than 3 Ton !!']);
             }
-            $orders->qty = $orders->qty-$request->cancel_qty;
-            $orders->cancel_qty = $orders->cancel_qty+$request->cancel_qty;
+            $orders->qty = $orders->qty - $request->cancel_qty;
+            $orders->cancel_qty = $orders->cancel_qty + $request->cancel_qty;
             $orders->cancel_remark = $request->remark;
             $orders->save();
             return response()->json(['status' => 'success', 'message' => 'Order cancle successfully !!']);

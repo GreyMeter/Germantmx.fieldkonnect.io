@@ -980,8 +980,19 @@
             <li class="single-menu nav-link {{ request()->is('prices*') ? 'active' : '' }}">
               <a class="hoveradd" href="{{ url('prices/create') }}">
                 <i class="material-icons icon">payments</i>
-                <span>Prices</span>
-                <div class="d-none mobile_hide">{!! trans('panel.sidemenu.prices') !!}
+                <span>General Prices</span>
+                <div class="d-none mobile_hide">General {!! trans('panel.sidemenu.prices') !!}
+
+                </div>
+              </a>
+            </li>
+            @endif
+            @if(auth()->user()->can('prices_access'))
+            <li class="single-menu nav-link {{ request()->is('south_prices*') ? 'active' : '' }}">
+              <a class="hoveradd" href="{{ url('south_prices/create') }}">
+                <i class="material-icons icon">payments</i>
+                <span>South Prices</span>
+                <div class="d-none mobile_hide">South {!! trans('panel.sidemenu.prices') !!}
 
                 </div>
               </a>

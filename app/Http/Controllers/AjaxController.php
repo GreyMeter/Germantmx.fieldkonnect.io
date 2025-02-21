@@ -18,6 +18,8 @@ use App\Http\Controllers\SendNotifications;
 use Carbon\Carbon;
 use LDAP\Result;
 
+use App\Models\Price;
+
 class AjaxController extends Controller
 {
 
@@ -1374,9 +1376,21 @@ class AjaxController extends Controller
             ->whereNot('status', '4')
             ->sum('qty');
 
+        $customer_parity = Customers::where('id', $request->customer_id)->value('customer_parity');
+
+        if ($customer_parity == 'South Parity') {
+            $base_price = optional(Price::select('base_price')->where('id', 2)->first())->base_price;
+        } else {
+            $base_price = optional(Price::select('base_price')->where('id', 1)->first())->base_price;
+        }
+
+
+
         $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('model_id', $request->customer_id)->first();
 
-        return response()->json(['status' => 'success', 'today_order_qty' => $today_order_qty, 'check_additional_price' => $check_additional_price]);
+        $final_price = $base_price + $check_additional_price->price_adjustment ?? 0;
+
+        return response()->json(['status' => 'success', 'today_order_qty' => $today_order_qty, 'final_price' => $final_price]);
     }
 
     public function getAdditionalPrice(Request $request)
@@ -1407,7 +1421,7 @@ class AjaxController extends Controller
 
     public function sodaDiscount(Request $request)
     {
-        $update = Order::where('id', $request->soda_id)->update(['discount_amt'=>$request->dis_amt]);
+        $update = Order::where('id', $request->soda_id)->update(['discount_amt' => $request->dis_amt]);
 
         if ($update) {
             return response()->json(['status' => 'success', 'message' => 'Discount Add Successfully !!']);
@@ -1417,7 +1431,8 @@ class AjaxController extends Controller
     }
 
     // get prices according to to 
-    public function getPricesOfOrder(Request $request){
+    public function getPricesOfOrder(Request $request)
+    {
         $brand = $request->brand ?? '';
         $grade = $request->grade ?? '';
         $size = $request->size ?? '';
@@ -1425,23 +1440,36 @@ class AjaxController extends Controller
         $parity = Customers::where('id', $request->customer_id)->value('customer_parity');
 
         $additional_price = 0;
-        if(isset($brand) && isset($grade) && isset($size) && isset($parity)){
-           $brand_price = AdditionalPrice::where(['model_name' => 'brand' , 'model_id' => $brand])->first();
-           $grade_price  = AdditionalPrice::where(['model_name' => 'grade' , 'model_id' => $grade])->first();
-           $size_price  = AdditionalPrice::where(['model_name' => 'size' , 'model_id' => $size])->first();
-           $parity_price  = AdditionalPrice::where(['model_name' => $parity , 'model_id' => $size])->first();
+        if (isset($brand) && isset($grade) && isset($size) && isset($parity)) {
+            if ($parity == 'South Parity') {
+                $brand_price = AdditionalPrice::where(['model_name' => 'brand', 'price_id' => '2', 'model_id' => $brand])->first();
+                if($brand == '2'){
+                    $grade_price  = AdditionalPrice::where(['model_name' => 'grade', 'price_id' => '2', 'model_id' => $grade])->first();
+                }else if($brand == '1'){
+                    $grade_price  = AdditionalPrice::where(['model_name' => 'grade_jindal', 'price_id' => '2', 'model_id' => $grade])->first();
+                }
+                $size_price  = AdditionalPrice::where(['model_name' => 'size', 'price_id' => '2', 'model_id' => $size])->first();
+                $parity_price  = AdditionalPrice::where(['model_name' => $parity, 'price_id' => '2', 'model_id' => $size])->first();
+            } else {
+                $brand_price = AdditionalPrice::where(['model_name' => 'brand', 'price_id' => '1', 'model_id' => $brand])->first();
+                if($brand == '2'){
+                    $grade_price  = AdditionalPrice::where(['model_name' => 'grade', 'price_id' => '1', 'model_id' => $grade])->first();
+                }else if($brand == '1'){
+                    $grade_price  = AdditionalPrice::where(['model_name' => 'grade_jindal', 'price_id' => '1', 'model_id' => $grade])->first();
+                }
+                $size_price  = AdditionalPrice::where(['model_name' => 'size', 'price_id' => '1', 'model_id' => $size])->first();
+                $parity_price  = AdditionalPrice::where(['model_name' => $parity, 'price_id' => '1', 'model_id' => $size])->first();
+            }
+            //calculate addition price according to brand , size , grade    
+            $additional_price = $additional_price + (isset($brand_price->price_adjustment) ? $brand_price->price_adjustment : 0) + (isset($grade_price->price_adjustment) ? $grade_price->price_adjustment : 0) + (isset($size_price->price_adjustment) ? $size_price->price_adjustment : 0) + (isset($parity_price->price_adjustment) ? $parity_price->price_adjustment : 0);
+        } else if (isset($brand) && isset($grade) && isset($size)) {
+            $brand_price = AdditionalPrice::where(['model_name' => 'brand', 'model_id' => $brand])->first();
+            $grade_price  = AdditionalPrice::where(['model_name' => 'grade', 'model_id' => $grade])->first();
+            $size_price  = AdditionalPrice::where(['model_name' => 'size', 'model_id' => $size])->first();
 
-           //calculate addition price according to brand , size , grade    
-           $additional_price = $additional_price + (isset($brand_price->price_adjustment) ? $brand_price->price_adjustment : 0) + (isset($grade_price->price_adjustment) ? $grade_price->price_adjustment : 0) +(isset($size_price->price_adjustment) ? $size_price->price_adjustment : 0) +(isset($parity_price->price_adjustment) ? $parity_price->price_adjustment : 0);
-        }else if(isset($brand) && isset($grade) && isset($size)){
-           $brand_price = AdditionalPrice::where(['model_name' => 'brand' , 'model_id' => $brand])->first();
-           $grade_price  = AdditionalPrice::where(['model_name' => 'grade' , 'model_id' => $grade])->first();
-           $size_price  = AdditionalPrice::where(['model_name' => 'size' , 'model_id' => $size])->first();
-
-           //calculate addition price according to brand , size , grade
-           $additional_price = $additional_price + (isset($brand_price->price_adjustment) ? $brand_price->price_adjustment : 0) + (isset($grade_price->price_adjustment) ? $grade_price->price_adjustment : 0) +(isset($size_price->price_adjustment) ? $size_price->price_adjustment : 0);
+            //calculate addition price according to brand , size , grade
+            $additional_price = $additional_price + (isset($brand_price->price_adjustment) ? $brand_price->price_adjustment : 0) + (isset($grade_price->price_adjustment) ? $grade_price->price_adjustment : 0) + (isset($size_price->price_adjustment) ? $size_price->price_adjustment : 0);
         }
-        return response()->json(['status' => true , 'additional_price' => $additional_price]);
+        return response()->json(['status' => true, 'additional_price' => $additional_price]);
     }
-    
 }

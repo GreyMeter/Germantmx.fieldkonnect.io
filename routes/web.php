@@ -75,6 +75,7 @@ use App\Http\Controllers\ServiceChargeProductsController;
 use App\Http\Controllers\FieldKonnectAppSettings;
 use App\Http\Controllers\PlantController;
 use App\Http\Controllers\PriceController;
+use App\Http\Controllers\SouthPriceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -409,6 +410,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     //Price
     Route::resource('prices', PriceController::class);
+    Route::resource('south_prices', SouthPriceController::class);
 
     // Customer Outstanting
     Route::any('stock', [ProductController::class, 'stock'])->name('stock');
