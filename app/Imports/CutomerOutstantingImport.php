@@ -41,13 +41,27 @@ class CutomerOutstantingImport implements ToCollection, WithValidation, WithHead
     public function collection(Collection $rows)
     {
         foreach ($rows as $row) {
+            if (is_numeric($row['date'])) {
+                $excelDate = $row['date'] - 25569;
+                $unixTimestamp = strtotime('+' . $excelDate . ' days', strtotime('1970-01-01'));
+                $row['date'] = !empty($row['date']) ? Carbon::createFromTimestamp($unixTimestamp) : '';
+            } else {
+                $date = $row['date'];
+                $row['date'] = Carbon::createFromFormat('d-m-Y', $date)->format('Y-m-d');
+            }
+            // dd($row);
             $salesTargetUsers = CustomerOutstanting::updateOrCreate(
                 [
-                    'customer_id' => $row['customer_id']
+                    'customer_id' => $row['customer_id'],
+                    'date' => $row['date']
                 ],
                 [
-                    'outstanting' => $row['outstanting'],
-                    'customer_name' => $row['customer_name']
+                    'customer_name' => $row['customer_name'],
+                    'rate' => $row['rate'],
+                    'order_qty' => $row['order_qty'],
+                    'dispatch' => $row['dispatch'],
+                    'pending' => $row['pending'],
+                    'days' => $row['days']
                 ]
             );
         }

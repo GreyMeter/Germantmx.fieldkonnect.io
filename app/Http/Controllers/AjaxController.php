@@ -18,6 +18,8 @@ use App\Http\Controllers\SendNotifications;
 use Carbon\Carbon;
 use LDAP\Result;
 
+use App\Models\Price;
+
 class AjaxController extends Controller
 {
 
@@ -603,20 +605,12 @@ class AjaxController extends Controller
     public function getUserActivityData(Request $request)
     {
         try {
-            // $users = !empty($request->input('user_id')) ? $request->input('user_id') :Auth::user()->id ;
-            // $date = !empty($request->input('date')) ? $request->input('date') : date('Y-m-d');
-            // $collections = UserActivity::with('customers','users')->where(function($query) use($users, $date) {
-            //                         $query->whereDate('created_at','=', date('Y-m-d',strtotime($date)));
-            //                         $query->where('userid', $users);
-            //                     })
-            //                     ->select('customerid','latitude','longitude','time','address','description','type','userid')
-            //                     ->get();
             $date = date('Y-m-d', strtotime($request->input('date')));
             $user_id = $request->input('user_id');
 
             $punchInOut = Attendance::where('user_id', $user_id)->where('punchin_date', $date)->get();
             $checkInOut = CheckIn::with('visitreports')->with('customers')->where('user_id', $user_id)->where('checkin_date', $date)->get();
-            $orders = Order::with('buyers')->where('created_by', $user_id)->whereRaw('DATE(created_at)="' . $date . '"')->get();
+            $orders = Order::with('customer')->where('created_by', $user_id)->whereRaw('DATE(created_at)="' . $date . '"')->get();
             $customer_add = Customers::with('customeraddress')->where('created_by', $user_id)->whereRaw('DATE(created_at)="' . $date . '"')->get();
             $customer_update = Customers::with('customeraddress')->where('created_by', $user_id)->whereColumn('updated_at', '>', 'created_at')->whereRaw('DATE(updated_at)="' . $date . '"')->get();
 
@@ -670,7 +664,7 @@ class AjaxController extends Controller
                 $orderData[$k]['time'] = date('H:i:s', strtotime($val->created_at));
                 $orderData[$k]['latitude'] = '';
                 $orderData[$k]['longitude'] = '';
-                $orderData[$k]['msg'] = $val->buyers->name . ' - ' . $val->buyers->customeraddress->cityname->city_name . ',<br>Qty : ' . $val->orderdetails->sum('quantity') . ',<br>Total : ' . $val->grand_total;
+                $orderData[$k]['msg'] = $val->customer->name . ' - ' . $val->customer->customeraddress->cityname->city_name . ',<br>Qty : ' . $val->qtys;
             }
 
             foreach ($customer_add as $k => $val) {
@@ -1379,9 +1373,24 @@ class AjaxController extends Controller
     {
         $today_order_qty = Order::where('customer_id', $request->customer_id)
             ->whereDate('created_at', today())
+            ->whereNot('status', '4')
             ->sum('qty');
 
-        return response()->json(['status' => 'success', 'today_order_qty' => $today_order_qty]);
+        $customer_parity = Customers::where('id', $request->customer_id)->value('customer_parity');
+
+        if ($customer_parity == 'South Parity') {
+            $base_price = optional(Price::select('base_price')->where('id', 2)->first())->base_price;
+        } else {
+            $base_price = optional(Price::select('base_price')->where('id', 1)->first())->base_price;
+        }
+
+
+
+        $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('model_id', $request->customer_id)->first();
+
+        $final_price = $base_price + $check_additional_price->price_adjustment ?? 0;
+
+        return response()->json(['status' => 'success', 'today_order_qty' => $today_order_qty, 'final_price' => $final_price]);
     }
 
     public function getAdditionalPrice(Request $request)
@@ -1412,12 +1421,55 @@ class AjaxController extends Controller
 
     public function sodaDiscount(Request $request)
     {
-        $update = Order::where('id', $request->soda_id)->update(['discount_amt'=>$request->dis_amt]);
+        $update = Order::where('id', $request->soda_id)->update(['discount_amt' => $request->dis_amt]);
 
         if ($update) {
             return response()->json(['status' => 'success', 'message' => 'Discount Add Successfully !!']);
         } else {
             return response()->json(['status' => 'error', 'message' => 'Somthing went wrong.']);
         }
+    }
+
+    // get prices according to to 
+    public function getPricesOfOrder(Request $request)
+    {
+        $brand = $request->brand ?? '';
+        $grade = $request->grade ?? '';
+        $size = $request->size ?? '';
+
+        $parity = Customers::where('id', $request->customer_id)->value('customer_parity');
+
+        $additional_price = 0;
+        if (isset($brand) && isset($grade) && isset($size) && isset($parity)) {
+            if ($parity == 'South Parity') {
+                $brand_price = AdditionalPrice::where(['model_name' => 'brand', 'price_id' => '2', 'model_id' => $brand])->first();
+                if($brand == '2'){
+                    $grade_price  = AdditionalPrice::where(['model_name' => 'grade', 'price_id' => '2', 'model_id' => $grade])->first();
+                }else if($brand == '1'){
+                    $grade_price  = AdditionalPrice::where(['model_name' => 'grade_jindal', 'price_id' => '2', 'model_id' => $grade])->first();
+                }
+                $size_price  = AdditionalPrice::where(['model_name' => 'size', 'price_id' => '2', 'model_id' => $size])->first();
+                $parity_price  = AdditionalPrice::where(['model_name' => $parity, 'price_id' => '2', 'model_id' => $size])->first();
+            } else {
+                $brand_price = AdditionalPrice::where(['model_name' => 'brand', 'price_id' => '1', 'model_id' => $brand])->first();
+                if($brand == '2'){
+                    $grade_price  = AdditionalPrice::where(['model_name' => 'grade', 'price_id' => '1', 'model_id' => $grade])->first();
+                }else if($brand == '1'){
+                    $grade_price  = AdditionalPrice::where(['model_name' => 'grade_jindal', 'price_id' => '1', 'model_id' => $grade])->first();
+                }
+                $size_price  = AdditionalPrice::where(['model_name' => 'size', 'price_id' => '1', 'model_id' => $size])->first();
+                $parity_price  = AdditionalPrice::where(['model_name' => $parity, 'price_id' => '1', 'model_id' => $size])->first();
+            }
+            //calculate addition price according to brand , size , grade    
+            $additional_price = $additional_price + (isset($brand_price->price_adjustment) ? $brand_price->price_adjustment : 0) + (isset($grade_price->price_adjustment) ? $grade_price->price_adjustment : 0) + (isset($size_price->price_adjustment) ? $size_price->price_adjustment : 0) + (isset($parity_price->price_adjustment) ? $parity_price->price_adjustment : 0);
+        } else if (isset($brand) && isset($grade) && isset($size)) {
+            $brand_price = AdditionalPrice::where(['model_name' => 'brand', 'model_id' => $brand])->first();
+            $grade_price  = AdditionalPrice::where(['model_name' => 'grade', 'model_id' => $grade])->first();
+            $size_price  = AdditionalPrice::where(['model_name' => 'size', 'model_id' => $size])->first();
+
+            //calculate addition price according to brand , size , grade
+            $additional_price = $additional_price + (isset($brand_price->price_adjustment) ? $brand_price->price_adjustment : 0) + (isset($grade_price->price_adjustment) ? $grade_price->price_adjustment : 0) + (isset($size_price->price_adjustment) ? $size_price->price_adjustment : 0);
+        }
+        return response()->json(['status' => true, 'additional_price' => $additional_price]);
     }
 }

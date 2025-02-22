@@ -29,6 +29,16 @@
             </span>
           </div>
           @endif
+          @if(session()->has('message_danger'))
+          <div class="alert alert-danger">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <i class="material-icons">close</i>
+            </button>
+            <span>
+              {{ session()->get('message_danger') }}
+            </span>
+          </div>
+          @endif
           {!! Form::model($orders,[
           'route' => ['orders.dispatch', encrypt($orders->id) ],
           'method' => 'POST',
@@ -95,6 +105,21 @@
             </div>
             <div class="col-md-6">
               <div class="row">
+                <label class="col-md-3 col-form-label">Material<span class="text-danger"> *</span></label>
+                <div class="col-md-9">
+                  <div class="form-group has-default bmd-form-group">
+                    <input type="text" readonly name="material" id="material" class="form-control" value="{!! old( 'material', $orders['material'])!!}">
+                  </div>
+                  @if ($errors->has('material'))
+                  <div class="error col-lg-12">
+                    <p class="text-danger">{{ $errors->first('material') }}</p>
+                  </div>
+                  @endif
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="row">
                 <label class="col-md-3 col-form-label">Grade<span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
@@ -121,7 +146,7 @@
                 <label class="col-md-3 col-form-label">{!! trans('panel.product.fields.brand_name') !!}<span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                  <input type="hidden" id="add_brand_price">
+                    <input type="hidden" id="add_brand_price">
                     <select class="form-control select2" name="brand_id" id="brand_id" style="width: 100%;" {{isset($cnf)?'required':''}}>
                       <option value="">Select {!! trans('panel.product.fields.brand_name') !!}</option>
                       @if(@isset($brands ))
@@ -144,7 +169,7 @@
                 <label class="col-md-3 col-form-label">Size<small>(mm)</small><span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                  <input type="hidden" id="add_size_price">
+                    <input type="hidden" id="add_size_price">
                     <select class="form-control select2" name="category_id" id="size_id" style="width: 100%;" {{isset($cnf)?'required':''}}>
                       <option value="">Select Size</option>
                       @if(@isset($categories ))
@@ -157,6 +182,29 @@
                   @if ($errors->has('category_id'))
                   <div class="error col-lg-12">
                     <p class="text-danger">{{ $errors->first('category_id') }}</p>
+                  </div>
+                  @endif
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="row">
+                <label class="col-md-3 col-form-label">Plant<span class="text-danger"> *</span></label>
+                <div class="col-md-9">
+                  <div class="form-group has-default bmd-form-group">
+                    <input type="hidden" id="add_size_price">
+                    <select class="form-control select2" name="plant_id" id="plant_id" style="width: 100%;" {{isset($cnf)?'required':''}}>
+                      <option value="">Select Plant</option>
+                      @if(@isset($plants ))
+                      @foreach($plants as $plant)
+                      <option value="{!! $plant['id'] !!}" {{ old( 'plant_id' , (!empty($orders->plant_id)) ? ($orders->plant_id) :('') ) == $plant['id'] ? 'selected' : '' }}>{!! $plant['plant_name'] !!}</option>
+                      @endforeach
+                      @endif
+                    </select>
+                  </div>
+                  @if ($errors->has('plant_id'))
+                  <div class="error col-lg-12">
+                    <p class="text-danger">{{ $errors->first('plant_id') }}</p>
                   </div>
                   @endif
                 </div>
@@ -179,7 +227,7 @@
             </div>
             <div class="col-md-6">
               <div class="row">
-                <label class="col-md-3 col-form-label">Soda Price<small>(₹)</small> <span class="text-danger"> *</span></label>
+                <label class="col-md-3 col-form-label">Total Price<small>(₹)</small> <span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
                     <input readonly type="text" name="soda_price" id="soda_price" class="form-control" value="{!! old( 'soda_price', $orders['soda_price']) !!}" required>
@@ -198,7 +246,7 @@
                 <label class="col-md-3 col-form-label">Freight Price </label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                    <input type="text" name="rate" id="rate" class="form-control" value="{!! old( 'rate', $orders['rate']) !!}">
+                    <input type="text" name="rate" id="rate" class="form-control" value="{!! old( 'rate', $orders['rate'])??0 !!}">
                     @if ($errors->has('rate'))
                     <div class="error col-lg-12">
                       <p class="text-danger">{{ $errors->first('rate') }}</p>
@@ -239,7 +287,7 @@
   <script type="text/javascript">
     $('#customer_id').on('select2:select', function(e) {
       var customerId = $(this).val();
-      if(customerId != ''){
+      if (customerId != '') {
         var selectedOption = $(this).find(':selected');
         var orderLimit = selectedOption.data('limit');
         if (orderLimit < 1) {
@@ -272,12 +320,16 @@
                 $("#qty").prop('max', orderLimit);
                 $("#qty").val(orderLimit).trigger('keyup');
 
-                $("#soda_price").val((mtLimit * {{$base_price}}).toFixed(2));
+                $("#soda_price").val((mtLimit * {
+                  {
+                    $base_price
+                  }
+                }).toFixed(2));
               }
             }
           });
         }
-      }else{
+      } else {
         $("#qty-errors").html("");
       }
     });
@@ -299,7 +351,7 @@
           calcualteSodaPrice();
         }
       });
-    })
+    }).trigger('change');
 
     $('#brand_id').on('change', function() {
       var id = $(this).val();
@@ -314,7 +366,7 @@
           calcualteSodaPrice();
         }
       });
-    })
+    }).trigger('change');
 
     $('#size_id').on('change', function() {
       var id = $(this).val();
@@ -329,23 +381,46 @@
           calcualteSodaPrice();
         }
       });
-    })
+    }).trigger('change');
 
-    function calcualteSodaPrice(){
+    function calcualteSodaPrice() {
       var additionalSizePrice = parseFloat($('#add_size_price').val()) || 0.00;
       var additionalBrandPrice = parseFloat($('#add_brand_price').val()) || 0.00;
       var additionalGradePrice = parseFloat($('#add_grade_price').val()) || 0.00;
 
+
       var newQty = $('#qty').val();
-      var conversionFactor = 0.90718474;
-      mtLimit = newQty * conversionFactor;
-      var sodaPrice = parseFloat((mtLimit * {{$base_price}}).toFixed(2)) || 0.00;
-      $("#soda_price").val(sodaPrice+additionalBrandPrice+additionalGradePrice+additionalSizePrice);
+      // var conversionFactor = 0.90718474;
+      mtLimit = newQty;
+      var fRate = $("#rate").val();
+      var bp = {
+        {
+          $base_price
+        }
+      } - fRate;
+      var sodaPrice = parseFloat((mtLimit * (bp + additionalBrandPrice + additionalGradePrice + additionalSizePrice)).toFixed(2)) || 0.00;
+      $("#soda_price").val(sodaPrice);
+      $("#final_rate").val(sodaPrice);
     }
 
-    $("#rate").on('keyup', function(){
-      var rate = $(this).val();
-      $("#final_rate").val(parseFloat($("#soda_price").val())+parseFloat(rate));
+    $("#rate").on('keyup', function() {
+      var fRate = $(this).val();
+      var additionalSizePrice = parseFloat($('#add_size_price').val()) || 0.00;
+      var additionalBrandPrice = parseFloat($('#add_brand_price').val()) || 0.00;
+      var additionalGradePrice = parseFloat($('#add_grade_price').val()) || 0.00;
+
+
+      var newQty = $('#qty').val();
+      // var conversionFactor = 0.90718474;
+      mtLimit = newQty;
+      var bp = {
+        {
+          $base_price
+        }
+      } - fRate;
+      var sodaPrice = parseFloat((mtLimit * (bp + additionalBrandPrice + additionalGradePrice + additionalSizePrice)).toFixed(2)) || 0.00;
+      $("#soda_price").val(sodaPrice);
+      $("#final_rate").val(sodaPrice);
     })
   </script>
 </x-app-layout>

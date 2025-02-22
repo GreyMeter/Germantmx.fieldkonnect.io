@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Customers;
 use App\Models\Status;
 use App\Models\City;
+use App\Models\Plant;
 use App\Models\User;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Redirect;
@@ -23,6 +24,7 @@ use Gate;
 use Excel;
 use App\DataTables\OrderDataTable;
 use App\DataTables\OrderDispatchDataTable;
+use App\Exports\FinalOrderExport;
 use App\Exports\OrderEmailExport;
 use App\Imports\OrderImport;
 use App\Exports\OrderExport;
@@ -38,6 +40,9 @@ use App\Models\OrderDispatch;
 use App\Models\Price;
 use App\Models\AdditionalPrice;
 use App\Models\UnitMeasure;
+use App\Models\OrderDispactchDetails;
+use App\Models\Settings;
+use Carbon\Carbon;
 // use App\Models\Customers;
 use Dompdf\Dompdf;
 use Dompdf\Options;
@@ -101,20 +106,31 @@ class OrderController extends Controller
     public function store(OrderRequest $request)
     {
         try {
+            $currentTime = Carbon::now('Asia/Kolkata');
+            $hour = $currentTime->hour;
+            $booking_start_time = Settings::where('key_name', 'booking_start_time')->first();
+            $booking_end_time = Settings::where('key_name', 'booking_end_time')->first();
+            if ($hour >= (int)$booking_end_time->value || $hour < (int)$booking_start_time->value) {
+                //convert the time to 12 hours
+                $start_time = date('g:i A', strtotime($booking_start_time->value));
+                $end_time = date('g:i A', strtotime($booking_end_time->value));
+                return Redirect::to('orders')->with('message_danger', 'You can book a booking between ' . $start_time . ' to ' . $end_time . '.');
+            }
+
             abort_if(Gate::denies('order_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
             $request['created_by'] = Auth::user()->id;
             $request['po_no'] = generatePoNumber();
             $order = Order::create($request->all());
-            
-            $data['type'] = 'Soda Created';
-            $data['data'] = 'New soda created successfully with PO Number is '.$request['po_no'].'.';
+
+            $data['type'] = 'Booking Created';
+            $data['data'] = 'New booking created successfully with PO Number is ' . $request['po_no'] . '.';
             $data['customer_id'] = $request['customer_id'];
             addNotification($data);
 
 
 
 
-            return Redirect::to('orders')->with('message_success', 'Soda Store Successfully And order PO Number is <span title="Copy" id="copyText">' . $request['po_no'] . '</span>');
+            return Redirect::to('orders')->with('message_success', 'Booking Store Successfully And order PO Number is <span title="Copy" id="copyText">' . $request['po_no'] . '</span>');
         } catch (\Exception $e) {
             return redirect()->back()->withErrors($e->getMessage())->withInput();
         }
@@ -142,8 +158,9 @@ class OrderController extends Controller
         $id = decrypt($id);
         $totalOrderDispatchQty = OrderDispatch::where('order_confirm_id', $id)->sum('qty');
         $orders = OrderConfirm::with('order', 'brands', 'sizes', 'grades', 'order.customer', 'createdbyname')->find($id);
-
-        return view('orders.confirm_show', compact('orders', 'totalOrderDispatchQty'));
+        $order_chain =  OrderConfirm::with('order', 'brands', 'sizes', 'grades', 'order.customer', 'createdbyname')->where(['confirm_po_no' => $orders->confirm_po_no])->get();
+        $plants = Plant::where('active', 'Y')->latest()->get();
+        return view('orders.confirm_show', compact('orders', 'totalOrderDispatchQty', 'order_chain', 'plants'));
     }
 
     /**
@@ -164,7 +181,8 @@ class OrderController extends Controller
         $units = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name')->get();
         $base_price = $orders->base_price;
         $cnf = $request->cnf ?? false;
-        return view('orders.create', compact('categories', 'customers', 'brands', 'units', 'base_price', 'cnf', 'totalOrderConfirmQty'))->with('orders', $orders);
+        $materials = config('constants.material');
+        return view('orders.create', compact('categories', 'customers', 'brands', 'units', 'base_price', 'cnf', 'totalOrderConfirmQty', 'materials'))->with('orders', $orders);
     }
 
     public function confirm_orders_edit($id, Request $request)
@@ -179,7 +197,8 @@ class OrderController extends Controller
         $units = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name')->get();
         $base_price = $orders->base_price;
         $cnf = $request->cnf ?? false;
-        return view('orders.confirm_despatch', compact('categories', 'customers', 'brands', 'units', 'base_price', 'cnf', 'totalOrderDispatchQty'))->with('orders', $orders);
+        $plants = Plant::where('active', 'Y')->latest()->get();
+        return view('orders.confirm_despatch', compact('categories', 'customers', 'brands', 'units', 'base_price', 'cnf', 'totalOrderDispatchQty', 'plants'))->with('orders', $orders);
     }
 
     /**
@@ -331,7 +350,15 @@ class OrderController extends Controller
         abort_if(Gate::denies('order_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
-        return Excel::download(new OrderExport($request), 'orders.xlsx');
+        return Excel::download(new OrderExport($request), 'Booking.xlsx');
+    }
+
+    public function final_order_download(Request $request)
+    {
+        abort_if(Gate::denies('order_confirm_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if (ob_get_contents()) ob_end_clean();
+        ob_start();
+        return Excel::download(new FinalOrderExport($request), 'Final Ordes.xlsx');
     }
     public function template()
     {
@@ -537,14 +564,14 @@ class OrderController extends Controller
     public function orderCancle($orderid, Request $request)
     {
         $orderid = decrypt($orderid);
-        $orders = $this->orders->with('orderdetails')->find($orderid);
+        $orders = $this->orders->find($orderid);
         if ($orders) {
-            $orders->status_id = '4';
-            $orders->order_remark = $request->remark;
+            $orders->status = '4';
+            $orders->cancel_remark = $request->remark;
             $orders->save();
-            return response()->json(['status' => 'success', 'message' => 'Order cancle successfully !!']);
+            return response()->json(['status' => 'success', 'message' => 'Booking cancle successfully !!']);
         } else {
-            return response()->json(['status' => 'error', 'message' => 'Order not found !!']);
+            return response()->json(['status' => 'error', 'message' => 'Booking not found !!']);
         }
     }
 
@@ -631,14 +658,32 @@ class OrderController extends Controller
     public function confirm($id, Request $request)
     {
         $id = decrypt($id);
-        $orders = Order::find($id);
+        $orders = Order::with('customer')->find($id);
+        $firstOrder = Order::where('customer_id', $orders->customer->id)->where('id', '<', $id)->count() == 0;
+
+            if (!$firstOrder) {
+                // Check for older orders with pending quantity
+                $pendingOrders = Order::where('customer_id', $orders->customer->id)
+                    ->where('id', '<', $id) // Older orders
+                    ->get();
+
+                foreach ($pendingOrders as $pendingOrder) {
+                    $totalOrderedQty = $pendingOrder->qty;
+
+                    // Get total confirmed quantity for this order
+                    $confirmedQty = OrderConfirm::where('order_id', $pendingOrder->id)->sum('qty');
+
+                    // Calculate pending quantity
+                    $pendingQty = $totalOrderedQty - $confirmedQty;
+
+                    if ($pendingQty > 0) {
+                        return Redirect::to('orders')->with('message_danger', 'Order confirmation blocked. Older orders(' . $pendingOrder->po_no . ') have pending quantity.');
+                    }
+                }
+            }
         $tqty = 0;
+        $totalOrderConfirm = OrderConfirm::where('order_id', $id)->distinct('confirm_po_no')->count('confirm_po_no');
         foreach ($request->qty as $k => $qty) {
-            $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->category_id[$k], 'model_name' => 'size'])->first())->price_adjustment;
-            $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'model_name' => 'grade'])->first())->price_adjustment;
-            $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'model_name' => 'brand'])->first())->price_adjustment;
-            $after_soda_price = ($orders->base_price-$orders->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size;
-            $totalOrderConfirm = OrderConfirm::where('order_id', $id)->count('id');
             $data['confirm_po_no'] = $orders->po_no . '-' . $totalOrderConfirm + 1;
             $data['order_id'] = $id;
             $data['created_by'] = Auth::user()->id;
@@ -648,26 +693,33 @@ class OrderController extends Controller
             $data['unit_id'] = $request->grade_id[$k];
             $data['brand_id'] = $request->brand_id[$k];
             $data['category_id'] = $request->category_id[$k];
-            $data['base_price'] = $orders->base_price-$orders->discount_amt;
-            $data['soda_price'] = $after_soda_price * $qty;
+            $data['material'] = $request->material[$k];
+            $data['base_price'] = $request->booking_price[$k];
+            $data['soda_price'] = $request->total_price[$k];
             $tqty += $qty;
 
             $soda = OrderConfirm::create($data);
         }
 
         $Ndata['type'] = 'Order Comfirmed';
-        $Ndata['data'] = $tqty.' Quantity confirmed of PO Number '.$request['po_no'].' .';
+        $Ndata['data'] = $tqty . ' Quantity confirmed of PO Number ' . $request['po_no'] . ' .';
         $Ndata['customer_id'] = $orders['customer_id'];
         addNotification($Ndata);
 
-        return Redirect::to('orders_confirm')->with('message_success', 'Soda Confirm Successfully.');
+        return Redirect::to('orders_confirm')->with('message_success', 'Booking Confirm Successfully.');
     }
 
     public function dispatch_order($id, Request $request)
     {
         $id = decrypt($id);
         $orders = OrderConfirm::find($id);
-        
+        dd($request->all());
+        $stockA = manageStock($request->all());
+
+        if (!$stockA) {
+            return redirect()->back()->with('message_danger', 'Stock not available')->withInput();
+        }
+
         $totalOrderDispacth = OrderDispatch::where('order_confirm_id', $id)->count('id');
         $request['dispatch_po_no'] = $orders->confirm_po_no . '-' . $totalOrderDispacth + 1;
         $request['order_confirm_id'] = $id;
@@ -677,11 +729,121 @@ class OrderController extends Controller
 
         $orderConfirm = OrderDispatch::create($request->all());
 
+
         $Ndata['type'] = 'Order Disapatch';
-        $Ndata['data'] = $request['qty'].' Quantity dispatch of order Number '.$orders->confirm_po_no.' .';
+        $Ndata['data'] = $request['qty'] . ' Quantity dispatch of order Number ' . $orders->confirm_po_no . ' .';
         $Ndata['customer_id'] = $orders->order->customer_id;
         addNotification($Ndata);
 
         return Redirect::to('orders_confirm')->with('message_success', 'Order Dispatch Successfully.');
+    }
+
+    // multiple order dispach 
+
+    public function dispatch_order_multi($id, Request $request)
+    {
+        $id = decrypt($id);
+        $orders = OrderConfirm::where(['confirm_po_no' => $id])->get();
+        $check_stock = true;
+        foreach ($request->dispatch_qty as $key => $qty) {
+            if ($qty > 0) {
+                $check_stock = checkStock($orders[$key], $qty, $request->plant_id[$key]);
+            }
+        }
+        if (!$check_stock) {
+            return Redirect::back()->with('message_error', 'Please Check your available stock');
+        }
+        if (count($request->dispatch_qty) > 0) {
+            if (!getOrderQuantityByPo($id)) {
+                $totalOrderDispacth = OrderDispatch::where('order_confirm_id', $orders[0]->id)->count('id');
+                $dispatch_po_no     = $id . '-' . $totalOrderDispacth + 1;
+                $order_dispatch = false;
+                foreach ($request->dispatch_qty as $key => $qty) {
+                    if ($qty > 0) {
+                        if (getOrderQuantity($orders[$key]->id) >= $qty) {
+                            $orderDispatch = OrderDispatch::create([
+                                'order_confirm_id' => $orders[$key]->id,
+                                'order_id'         => $orders[$key]->order_id,
+                                'po_no'            => $orders[$key]->po_no,
+                                'confirm_po_no'    => $id,
+                                'created_by'       => Auth::user()->id,
+                                'dispatch_po_no'   => $dispatch_po_no,
+                                'qty'              => $qty,
+                                'unit_id'          => $orders[$key]->unit_id,
+                                'brand_id'         => $orders[$key]->brand_id,
+                                'category_id'      => $orders[$key]->category_id,
+                                'plant_id'         => $request->plant_id[$key],
+                                'base_price'       => $orders[$key]->base_price,
+                                'soda_price'       => $orders[$key]->base_price * $qty,
+                                'rate'             => 0,
+                                'final_rate'       => $orders[$key]->base_price * $qty
+                            ]);
+                            $Ndata['type'] = 'Order Disapatch';
+                            $Ndata['data'] = $request['qty'] . ' Quantity dispatch of order Number ' . $id . ' .';
+                            $Ndata['customer_id'] = $orders[$key]->order->customer_id;
+                            addNotification($Ndata);
+                            manageStockMulti($orders[$key], $qty, $request->plant_id[$key]);
+
+                            $order_dispatch = true;
+                        }
+                    }
+                }
+                if ($order_dispatch == true) {
+                    $order_dis = OrderDispactchDetails::updateOrCreate(
+                        ['order_dispatch_po_no' => $dispatch_po_no],
+                        [
+                            'driver_name' => $request->driver_name ?? '',
+                            'driver_contact_number' => $request->driver_contact_number,
+                            'vehicle_number' => $request->vehicle_number,
+                        ]
+                    );
+
+                    if ($request->hasFile('tc')) {
+                        $file = $request->file('tc');
+
+                        $customname = time() . '.' . $file->getClientOriginalExtension();
+                        $order_dis->addMedia($file)
+                            ->usingFileName($customname)
+                            ->toMediaCollection('tc', 'public');
+                    }
+                    if ($request->hasFile('invoice')) {
+                        $file = $request->file('invoice');
+
+                        $customname = time() . '.' . $file->getClientOriginalExtension();
+                        $order_dis->addMedia($file)
+                            ->usingFileName($customname)
+                            ->toMediaCollection('invoice', 'public');
+                    }
+                    if ($request->hasFile('e_way_bill')) {
+                        $file = $request->file('e_way_bill');
+
+                        $customname = time() . '.' . $file->getClientOriginalExtension();
+                        $order_dis->addMedia($file)
+                            ->usingFileName($customname)
+                            ->toMediaCollection('e_way_bill', 'public');
+                    }
+                    if ($request->hasFile('wevrage_slip')) {
+                        $file = $request->file('wevrage_slip');
+
+                        $customname = time() . '.' . $file->getClientOriginalExtension();
+                        $order_dis->addMedia($file)
+                            ->usingFileName($customname)
+                            ->toMediaCollection('wevrage_slip', 'public');
+                    }
+                }
+                return Redirect::to('orders_confirm')->with('message_success', 'Order Dispatch Successfully.');
+            } else {
+                return Redirect::back()->with('message_error', 'Order Quantity must less then remaining qty');
+            }
+        }
+    }
+
+    // orderdispatch show 
+    public function orders_dispatch($id, Request $request)
+    {
+        $id = decrypt($id);
+        $orders = OrderDispatch::find($id);
+        $dispatch_orders = OrderDispatch::where(['dispatch_po_no' => $orders->dispatch_po_no])->get();
+        return view('orders.order_dispatch_show', compact('dispatch_orders', 'orders'));
     }
 }

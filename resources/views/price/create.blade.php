@@ -6,7 +6,7 @@
       width: 66px;
       height: 23px;
       background: #17a2b8;
-      top: 10px;
+      top: 12px;
       color: #fff;
       padding: 3px 5px;
       border-radius: 8px 8px 8px 1px;
@@ -14,6 +14,7 @@
       font-weight: 600;
       transition: opacity 0.6s ease;
       font-size: 12px;
+      left: 13px;
     }
 
     .show-before td.brand_msg:before {
@@ -152,7 +153,11 @@
           @php
           $add_size = $price->additionalPrices->where('model_name', 'size')->pluck('price_adjustment','model_id')->toArray();
           $add_grade = $price->additionalPrices->where('model_name', 'grade')->pluck('price_adjustment','model_id')->toArray();
+          $add_grade_jindal = $price->additionalPrices->where('model_name', 'grade_jindal')->pluck('price_adjustment','model_id')->toArray();
           $add_brand = $price->additionalPrices->where('model_name', 'brand')->pluck('price_adjustment','model_id')->toArray();
+          $add_distributor = $price->additionalPrices->where('model_name', 'distributor')->pluck('price_adjustment','model_id')->toArray();
+          $add_general_parity = $price->additionalPrices->where('model_name', 'general_parity')->pluck('price_adjustment','model_id')->toArray();
+          $add_south_parity = $price->additionalPrices->where('model_name', 'south_parity')->pluck('price_adjustment','model_id')->toArray();
           @endphp
           <div class="row mt-4">
             <div class="col-md-4">
@@ -196,6 +201,26 @@
               </table>
             </div>
             <div class="col-md-4">
+              <h5>Additional Prices Grade Jindal</h5>
+              <table class="table table-striped" id="grade_table">
+                <thead>
+                  <tr>
+                    <th>Grade</th>
+                    <th>Price (+/-)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach($grades as $grade)
+                  <tr id="grade_{{$grade->id}}">
+                    <td>{{$grade->unit_name}}</td>
+                    <input type="hidden" name="grade_jindal[id][]" value="{{$grade->id}}">
+                    <td class="brand_msg"><input type="number" class="form-control" name="grade_jindal[price][]" value="{{($price->exists && count($add_grade_jindal)>0) ? ($add_grade_jindal[$grade->id]??'0.00'):'0.00'}}"></td>
+                  </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>
+            <div class="col-md-4 mt-4">
               <h5>Additional Prices Brand</h5>
               <table class="table table-striped" id="brand_table">
                 <thead>
@@ -215,6 +240,66 @@
                 </tbody>
               </table>
             </div>
+            <div class="col-md-4 mt-4">
+              <h5>Additional Prices Distributor</h5>
+              <table class="table table-striped" id="brand_table">
+                <thead>
+                  <tr>
+                    <th>Distributor</th>
+                    <th>Price (+/-)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach($distributors as $distributor)
+                  <tr id="distributor_{{$distributor->id}}" class="show-before">
+                    <td>{{$distributor->name}}</td>
+                    <input type="hidden" name="distributor[id][]" value="{{$distributor->id}}">
+                    <td class="distributor_msg"><input type="number" class="form-control" name="distributor[price][]" value="{{($price->exists && count($add_distributor)>0) ? ($add_distributor[$distributor->id]??'0.00'):'0.00'}}"></td>
+                  </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>
+            {{--<div class="col-md-3 mt-4">
+              <h5>Additional Prices General Parity</h5>
+              <table class="table table-striped" id="size_table">
+                <thead>
+                  <tr>
+                    <th>Size</th>
+                    <th>Price (+/-)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach($sizes as $category)
+                  <tr id="general_parity_{{$category->id}}">
+                    <td>{{$category->category_name}} MM</td>
+                    <input type="hidden" name="general_parity[id][]" value="{{$category->id}}">
+                    <td class="brand_msg"><input type="number" class="form-control" name="general_parity[price][]" value="{{($price->exists && count($add_general_parity)>0) ? ($add_general_parity[$category->id]??'0.00'):'0.00'}}"></td>
+                  </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>
+            <div class="col-md-3 mt-4">
+              <h5>Additional Prices South Parity</h5>
+              <table class="table table-striped" id="size_table">
+                <thead>
+                  <tr>
+                    <th>Size</th>
+                    <th>Price (+/-)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach($sizes as $category)
+                  <tr id="south_parity_{{$category->id}}">
+                    <td>{{$category->category_name}} MM</td>
+                    <input type="hidden" name="south_parity[id][]" value="{{$category->id}}">
+                    <td class="brand_msg"><input type="number" class="form-control" name="south_parity[price][]" value="{{($price->exists && count($add_south_parity)>0) ? ($add_south_parity[$category->id]??'0.00'):'0.00'}}"></td>
+                  </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>--}}
 
           </div>
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Attachment;
+use App\Models\BranchStock;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +23,8 @@ use App\Models\SchemeHeader;
 use App\Models\Coupons;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\OrderConfirm;
+use App\Models\OrderDispatch;
 use Illuminate\Http\Request;
 
 if (! function_exists('sendmessage')) {
@@ -809,4 +812,71 @@ function addNotification(array $data)
 
 function getAllNotification(){
     return Notification::where('active', 'Y')->orderBy('id', 'desc')->get();
+}
+
+function manageStock($data){
+    $PlantStock = BranchStock::where(['plant_id'=>$data['plant_id'], 'brand_id'=>$data['brand_id'], 'unit_id'=>$data['unit_id'], 'category_id'=>$data['category_id']])->first();
+    if($PlantStock){
+        if($PlantStock->stock < $data['qty']){
+            return false;
+        }
+        $PlantStock->stock = $PlantStock->stock - $data['qty'];
+        $PlantStock->save();
+        return true;
+    }else{
+        return false;
+    }
+}
+
+// checkstock first 
+function manageStockMulti($order , $qty , $plant_id){
+    $PlantStock = BranchStock::where(['plant_id'=>$plant_id, 'brand_id'=>$order['brand_id'], 'unit_id'=>$order['unit_id'], 'category_id'=>$order['category_id']])->first();
+
+    if($PlantStock){
+        if($PlantStock->stock < $qty ){
+            return false;
+        }
+        $PlantStock->stock = $PlantStock->stock - $qty;
+        $PlantStock->save();
+        return true;
+    }else{
+        return false;
+    }
+}
+
+function checkStock($order , $qty , $plant_id){
+    $PlantStock = BranchStock::where(['plant_id'=>$plant_id, 'brand_id'=>$order['brand_id'], 'unit_id'=>$order['unit_id'], 'category_id'=>$order['category_id']])->first();
+    if($PlantStock){
+        if($PlantStock->stock < $qty ){
+            return false;
+        }
+        return true;
+    }else{
+        return false;
+    }
+}
+
+// get dispatch order count 
+function totalOrderDispatchQty($id){
+    $totalOrderDispatchQty = OrderDispatch::where('order_confirm_id', $id)->sum('qty');
+    return $totalOrderDispatchQty ?? 0;
+}
+
+function getOrderQuantity($id){
+    $order = OrderConfirm::find($id);
+    $totalOrderDispatchQty = OrderDispatch::where('order_confirm_id', $order->id)->sum('qty');
+    $remaining = $order->qty;
+    if(isset($order) && $totalOrderDispatchQty){
+        $remaining = $order->qty - $totalOrderDispatchQty;
+    }
+    return $remaining ?? 0;
+}
+
+function getOrderQuantityByPo($id){
+    $order_qty = OrderConfirm::where(['confirm_po_no' => $id])->sum('qty');
+    $totalOrderDispatchQty = OrderDispatch::where(['confirm_po_no' => $id])->sum('qty');
+    if($order_qty <= $totalOrderDispatchQty){
+        return true;
+    }
+    return false;
 }

@@ -9,7 +9,7 @@ class OrderDispatch extends Model
 {
     use HasFactory;
 
-    protected $fillable = [ 'order_id','order_confirm_id','po_no','confirm_po_no','dispatch_po_no','qty','unit_id','brand_id','category_id','base_price','soda_price','rate','final_rate','status','created_by', 'updated_by','deleted_at','created_at','updated_at'];
+    protected $fillable = [ 'order_id','order_confirm_id','po_no','confirm_po_no','dispatch_po_no','qty','unit_id','brand_id','category_id','plant_id','base_price','soda_price','rate','final_rate','status','created_by', 'updated_by','deleted_at','created_at','updated_at'];
 
     public $timestamps = true;
 
@@ -41,5 +41,14 @@ class OrderDispatch extends Model
     public function grades()
     {
         return $this->belongsTo('App\Models\UnitMeasure', 'unit_id', 'id');
+    }
+
+    public function plant()
+    {
+        return $this->belongsTo('App\Models\Plant', 'plant_id', 'id');
+    }
+
+    public function order_dispatch_details(){
+        return $this->belongsTo('App\Models\OrderDispactchDetails', 'dispatch_po_no', 'order_dispatch_po_no');
     }
 }

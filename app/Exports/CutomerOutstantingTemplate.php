@@ -26,7 +26,12 @@ class CutomerOutstantingTemplate implements FromCollection,WithHeadings,ShouldAu
         return [
             'Customer ID',
             'Customer Name', 
-            'Outstanting',
+            'Date',
+            'Rate',
+            'Order Qty',
+            'Dispatch',
+            'Pending',
+            'Days'
         ];
     }
 

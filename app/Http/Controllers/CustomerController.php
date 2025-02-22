@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\{Customers, UserLogin, CustomerType, FirmType, Regions, Pincode, Country, CustomerDetails, Address, Attachment, SurveyData, Field, State, City, Beat, BeatCustomer, DealIn, Redemption, SchemeDetails};
+use App\Models\{Customers, UserLogin, CustomerType, FirmType, Regions, Pincode, Country, CustomerDetails, Address, Attachment, SurveyData, Field, State, City, Beat, BeatCustomer, DealIn, Price, PriceHistory, Redemption, SchemeDetails};
 use App\Models\User;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -213,14 +213,14 @@ class CustomerController extends Controller
                                         </div>';
                 })
                 ->addColumn('image', function ($query) {
-                    $profileimage = !empty($query->profile_image) ? '/steel_fieldKonnect/public/uploads/' . $query->profile_image : asset('assets/img/placeholder.jpg');
+                    $profileimage = !empty($query->profile_image) ? '/public/uploads/' . $query->profile_image : asset('assets/img/placeholder.jpg');
                     return '<img src="' . $profileimage . '" border="0" width="70" class="rounded imageDisplayModel" align="center" />';
                 })
                 ->addColumn('createdbyname.name', function ($query) {
                     return $query->created_by ? $query->createdbyname->name : 'Self';
                 })
                 ->addColumn('profileimage', function ($query) {
-                    $profileimage = !empty($query->shop_image) ? '/steel_fieldKonnect/public/uploads/' . $query->shop_image : asset('assets/img/placeholder.jpg');
+                    $profileimage = !empty($query->shop_image) ? '/public/uploads/' . $query->shop_image : asset('assets/img/placeholder.jpg');
                     return '<img src="' . $profileimage . '" border="0" width="70" class="rounded imageDisplayModel" align="center" />';
                 })
                 ->addColumn('createdbyname.name', function ($query) {
@@ -302,6 +302,7 @@ class CustomerController extends Controller
     {
         try {
 
+            
             ////abort_if(Gate::denies('customer_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
             $request['active'] = 'Y';
             $request['created_by'] = Auth::user()->id;
@@ -826,14 +827,14 @@ class CustomerController extends Controller
     }
     public function download(Request $request)
     {
-        ////abort_if(Gate::denies('customer_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('customer_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
         return Excel::download(new CustomersExport($request), 'customers.xlsx');
     }
     public function distributordownload()
     {
-        ////abort_if(Gate::denies('customer_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('customer_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
         return Excel::download(new DistributorExport, 'distributor.xlsx');
@@ -842,7 +843,7 @@ class CustomerController extends Controller
 
     public function template()
     {
-        ////abort_if(Gate::denies('customer_template'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('customer_template'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
         return Excel::download(new CustomersTemplate, 'customers.xlsx');

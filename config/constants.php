@@ -13,12 +13,21 @@ return [
         'Other Course',
     ],
     'pay_roll' => [
-        '1' => 'Silver',
-        '2' => 'FOS'
+        '1' => 'FOS'
     ],
     'redeem_mode' => [
         '1' => 'Gift',
         '2' => 'Neft'
+    ],
+    'material' => [
+        ['id' => 'Straight', 'material' =>'Straight'],
+        [ 'id' => 'Bend', 'material' =>'Bend']
+    ],
+
+    'puchin_working_type' => [
+        'Tour' => 'Tour',
+        'Office Work' => 'Office Work',
+        'Market Visit' => 'Market Visit'
     ],
 
     'WEEK_LIST'=>['Sun' => 'Sunday', 'Mon' => 'Monday','Tue'=>'Tuesday','Wed'=>'Wednesday','Thu'=>'Thursday','Fri'=>'Friday','Sat'=>'Saturday'],

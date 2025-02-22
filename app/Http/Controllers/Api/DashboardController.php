@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\SendNotifications;
+use App\Models\AdditionalPrice;
 use App\Models\Address;
 use App\Models\Attachment;
 use Illuminate\Http\Request;
@@ -46,6 +47,7 @@ use App\Models\FieldKonnectAppSetting;
 use App\Models\Notification;
 use App\Models\Price;
 use App\Models\PrimarySales;
+use App\Models\Settings;
 
 class DashboardController extends Controller
 {
@@ -450,7 +452,31 @@ class DashboardController extends Controller
     public function getsettings()
     {
         try {
-            $data = LoyaltyAppSetting::with('media')->first();
+            $data = Settings::select('id', 'key_name', 'value')->get()->groupBy('key_name')->map(function ($item, $key) {
+                // If it's "slider_image", always return an array
+                if ($key === 'slider_image') {
+                    return $item->map(fn($i) => ['id' => $i->id, 'value' => $i->value])->all();
+                }
+
+                // Return as a string for single values, array for multiple
+                return $item->count() > 1
+                    ? $item->map(fn($i) => ['id' => $i->id, 'value' => $i->value])->all()
+                    : $item->first()->value;
+            })->toArray();
+
+            if (isset($data['slider_image']) && is_array($data['slider_image'])) {
+                $data['slider_image'] = collect($data['slider_image'])->map(function ($item) {
+                    $item['value'] = asset($item['value']);
+                    return $item;
+                })->all();
+            }
+
+            $data['news'] = [
+                'english' => $data['news'],
+                'hindi'   => $this->translateText($data['news'], 'hi'),
+                'bengali' => $this->translateText($data['news'], 'bn'),
+            ];
+
             return response(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
@@ -660,8 +686,8 @@ class DashboardController extends Controller
         $data['order_value'] = $order_value > 0 ? number_format(($order_value / 100000), 2, '.', '') : "";
         $data['order_qty'] = $order_qty > 0 ? $order_qty : "";
         $data['customer_visit'] = $customer_visit > 0 ? (string)$customer_visit : "";
-        $data['todayBeatSchedule'] = count($todayBeatSchedule) > 0 ? true:false;
-        $data['beatUser'] = count($beatUser) > 0 ? true:false;
+        $data['todayBeatSchedule'] = count($todayBeatSchedule) > 0 ? true : false;
+        $data['beatUser'] = count($beatUser) > 0 ? true : false;
 
         $branches = Branch::where('active', 'Y')->select('id', 'branch_name')->get();
         $divisions = Division::where('active', 'Y')->select('id', 'division_name')->get();
@@ -716,12 +742,22 @@ class DashboardController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data], 200);
     }
 
-    public function today_rate(Request $request){
+    public function today_rate(Request $request)
+    {
         $customer = $request->user();
         $notify = Customers::where('id', $customer->id)->first()->notify;
-        $data = Price::first()->base_price;
+        $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('model_id', $customer->id)->first();
+        $customer_parity = $customer->customer_parity;
+        if ($customer_parity == 'South Parity') {
+            $price = Price::where('id', 2)->first()->base_price;
+        } else {
+            $price = Price::where('id', 1)->first()->base_price;
+        }
+        if ($check_additional_price) {
+            $data = number_format((floatval($price) + floatval($check_additional_price->price_adjustment)), 2, '.', '');
+        }
 
-        return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'todayrate' => $data, 'notify' =>$notify], 200);
+        return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'todayrate' => $data, 'notify' => $notify], 200);
     }
 
     public function getCustomerNotification(Request $request)
@@ -729,8 +765,57 @@ class DashboardController extends Controller
         try {
             $customer = $request->user();
             $all_noti = Notification::where('customer_id', $customer->id)->orderBy('id', 'desc')->get();
-            Customers::where('id', $customer->id)->update(['notify'=>false]);
+            Customers::where('id', $customer->id)->update(['notify' => false]);
             return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $all_noti], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        }
+    }
+
+    private function translateText($text, $targetLang)
+    {
+        $url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=" . $targetLang . "&dt=t&q=" . urlencode($text);
+
+        $response = file_get_contents($url);
+        $result = json_decode($response, true);
+
+        return $result[0][0][0] ?? $text; // Return translated text
+    }
+
+    public function getOutstanding(Request $request)
+    {
+        try {
+            $customer = $request->user();
+
+            $db_data = Order::with('order_confirm', 'customer')->where('customer_id', $customer->id)->orderBy('created_at', 'desc')->get();
+            $data = [];
+            foreach ($db_data as $key => $value) {
+
+                if (count($value->order_confirm) > 0) {
+                    if (($value->qty - $value->order_confirm->pluck('qty')->sum()) > 0) {
+                        $days = isset($value->created_at)
+                            ? \Carbon\Carbon::parse($value->created_at->toDateString())->diffInDays(now()->toDateString())
+                            : '';
+                    } else {
+                        $lastCreatedAt = $value->order_confirm()
+                            ->latest('created_at')
+                            ->value('created_at');
+                        $days = \Carbon\Carbon::parse($value->created_at->toDateString())->diffInDays(\Carbon\Carbon::parse($lastCreatedAt)->toDateString());
+                    }
+                } else {
+                    $days = isset($value->created_at)
+                        ? \Carbon\Carbon::parse($value->created_at->toDateString())->diffInDays(now()->toDateString())
+                        : '';
+                }
+
+
+                $data[$key]['date'] = date('d M Y', strtotime($value->created_at));
+                $data[$key]['po_no'] = $value->po_no;
+                $data[$key]['pending_qty'] = $value->qty - $value->order_confirm->pluck('qty')->sum();
+                $data[$key]['days'] = $days;
+            }
+
+            return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
         }

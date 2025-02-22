@@ -1,8 +1,26 @@
 <x-app-layout>
   <style>
-    table tbody tr{
+    table tbody tr {
       font-size: 14px !important;
       font-weight: 100 !important;
+    }
+
+    @keyframes blink {
+      0% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0;
+      }
+
+      100% {
+        opacity: 1;
+      }
+    }
+
+    .blink-text {
+      animation: blink 1.5s infinite;
     }
   </style>
   <div class="row">
@@ -20,7 +38,7 @@
                   @csrf
                   <div class="d-flex flex-wrap flex-row">
                     <!-- division filter -->
-                   {{-- <div class="p-2" style="width:200px;">
+                    {{-- <div class="p-2" style="width:200px;">
                       <label for="division">Division</label>
                       <select class="select2" name="division[]" placeholder="Division" multiple id="ps_division_id" data-style="select-with-transition" title="{!! trans('panel.secondary_dashboard.division') !!}">
                         <option value="" disabled>{!! trans('panel.secondary_dashboard.division') !!}</option>
@@ -119,30 +137,30 @@
                 @endif
                 <div class="row next-btn">
                   @if(auth()->user()->can(['customer_outstanting_upload']))
-                  <form action="{{ URL::to('customer_outstanting/upload') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
-                    {{ csrf_field() }}
-                    <div class="input-group" style="flex-wrap:nowrap;">
-                      <div class="fileinput fileinput-new text-center" data-provides="fileinput">
-                        <span class="btn btn-just-icon btn-theme btn-file">
-                          <span class="fileinput-new"><i class="material-icons">attach_file</i></span>
-                          <span class="fileinput-exists">Change</span>
-                          <input type="hidden">
-                          <input title="Please select a file for upload data" type="file" title="Select file for upload data" name="import_file" style="flex-wrap: nowrap;" required accept=".xls,.xlsx" />
-                        </span>
-                      </div>
-                      <div class="input-group-append">
-                        <button class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.upload') !!} Customer Outstanding">
-                          <i class="material-icons">cloud_upload</i>
-                          <div class="ripple-container"></div>
-                        </button>
-                      </div>
+                  {{-- <form action="{{ URL::to('customer_outstanting/upload') }}" class="form-horizontal" method="post" enctype="multipart/form-data">
+                  {{ csrf_field() }}
+                  <div class="input-group" style="flex-wrap:nowrap;">
+                    <div class="fileinput fileinput-new text-center" data-provides="fileinput">
+                      <span class="btn btn-just-icon btn-theme btn-file">
+                        <span class="fileinput-new"><i class="material-icons">attach_file</i></span>
+                        <span class="fileinput-exists">Change</span>
+                        <input type="hidden">
+                        <input title="Please select a file for upload data" type="file" title="Select file for upload data" name="import_file" style="flex-wrap: nowrap;" required accept=".xls,.xlsx" />
+                      </span>
                     </div>
-                  </form>
+                    <div class="input-group-append">
+                      <button class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.upload') !!} Customer Outstanding">
+                        <i class="material-icons">cloud_upload</i>
+                        <div class="ripple-container"></div>
+                      </button>
+                    </div>
+                  </div>
+                  </form> --}}
                   @endif
                   <!-- primary sales import -->
                   @if(auth()->user()->can(['customer_outstanting_template']))
                   <!-- primary sales template creation -->
-                  <a href="{{ URL::to('customer_outstanting_template') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.template') !!} Customer Outstanding"><i class="material-icons">text_snippet</i></a>
+                  {{--<a href="{{ URL::to('customer_outstanting_template') }}" class="btn btn-just-icon btn-theme" title="{!! trans('panel.global.template') !!} Customer Outstanding"><i class="material-icons">text_snippet</i></a>--}}
                   @endif
                 </div>
               </div>
@@ -162,20 +180,18 @@
             </span>
           </div>
           @endif
-          
+
           <div class="table-responsive">
             <table id="getprimarysales" class="table table-striped table-bordered table-hover table-checkable no-wrap">
               <thead class=" text-primary">
-                <!-- <th>Branch</th> -->
-                <th>Customer Name</th>
-                <!-- <th>Year</th>
-                <th>Quarter</th>
-                <th>0-30</th>
-                <th>31-60</th>
-                <th>61-90</th>
-                <th>91-150</th>
-                <th>>150</th> -->
-                <th>Total Outstanding</th>
+                <th>Date</th>
+                <th>PO Number</th>
+                <th>Party Name</th>
+                <th>Rate</th>
+                <th>Order QTY</th>
+                <th>Dispatch QTY</th>
+                <th>Pending QTY</th>
+                <th>Days</th>
               </thead>
               <tbody>
               </tbody>
@@ -205,18 +221,24 @@
         ajax: {
           url: "{{ route('reports.customer_outstanting') }}",
           data: function(d) {
-              d.new_group = $('#ps_new_group').val(),
+            d.new_group = $('#ps_new_group').val(),
               d.search = $('input[type="search"]').val()
           }
         },
-        columns: [
-          // {
-          //   data: 'branch.branch_name',
-          //   name: 'branch.branch_name',
-          //   orderable: false,
-          //   searchable: false,
-          //   "defaultContent": ''
-          // },
+        columns: [{
+            data: 'date',
+            name: 'date',
+            orderable: false,
+            searchable: false,
+            "defaultContent": ''
+          },
+          {
+            data: 'po_no',
+            name: 'po_no',
+            orderable: false,
+            searchable: false,
+            "defaultContent": ''
+          },
           {
             data: 'customer.name',
             name: 'customer.name',
@@ -224,57 +246,36 @@
             searchable: false,
             "defaultContent": ''
           },
-          // {
-          //   data: 'year',
-          //   name: 'year',
-          //   orderable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'quarter',
-          //   name: 'quarter',
-          //   orderable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'first_slot',
-          //   name: 'first_slot',
-          //   orderable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'second_slot',
-          //   name: 'second_slot',
-          //   orderable: false,
-          //   searchable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'thired_slot',
-          //   name: 'thired_slot',
-          //   orderable: false,
-          //   searchable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'fourth_slot',
-          //   name: 'fourth_slot',
-          //   orderable: false,
-          //   searchable: false,
-          //   "defaultContent": ''
-          // },
-          // {
-          //   data: 'fifth_slot',
-          //   name: 'fifth_slot',
-          //   orderable: false,
-          //   searchable: false,
-          //   "defaultContent": ''
-          // },
           {
-            data: 'outstanting',
-            name: 'outstanting',
-            searchable: false,
+            data: 'base_price',
+            name: 'base_price',
             orderable: false,
+            "defaultContent": ''
+          },
+          {
+            data: 'qty',
+            name: 'qty',
+            orderable: false,
+            "defaultContent": ''
+          },
+          {
+            data: 'dispatch',
+            name: 'dispatch',
+            orderable: false,
+            "defaultContent": ''
+          },
+          {
+            data: 'pending',
+            name: 'pending',
+            orderable: false,
+            searchable: false,
+            "defaultContent": ''
+          },
+          {
+            data: 'days',
+            name: 'days',
+            orderable: false,
+            searchable: false,
             "defaultContent": ''
           }
         ]
@@ -284,7 +285,7 @@
       });
     });
 
-    $('#reset-filter').on('click', function(){
+    $('#reset-filter').on('click', function() {
       $('#prifilfrm').find('input:text, input:password, input:file, select, textarea').val('');
       $('#prifilfrm').find('select').change();
     })

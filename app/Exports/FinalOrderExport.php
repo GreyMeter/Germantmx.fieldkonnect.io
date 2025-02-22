@@ -4,6 +4,7 @@ namespace App\Exports;
 
 use App\Models\Customers;
 use App\Models\Order;
+use App\Models\OrderConfirm;
 use App\Models\OrderDetails;
 use App\Models\User;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -15,7 +16,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Illuminate\Support\Facades\Auth;
 
 
-class OrderExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithEvents
+class FinalOrderExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithEvents
 {
     public function __construct($request)
     {
@@ -31,7 +32,7 @@ class OrderExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
 
     public function collection()
     {
-        return Order::with('createdbyname', 'customer')->where( function ($query) {
+        return OrderConfirm::with('order', 'brands', 'sizes', 'grades', 'order.customer')->where( function ($query) {
             if (!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin')) {
                 $query->whereIn('created_by', $this->userids);
             }
@@ -49,7 +50,7 @@ class OrderExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
 
     public function headings(): array
     {
-        return ['id', 'Order Date', 'PO Number', 'Distributor/Dealer Name', 'Quantity', 'Base Price', 'Created By'];
+        return ['id', 'Order Date', 'PO Number', 'Order Number', 'Distributor/Dealer Name', 'Brand', 'Grade', 'Size', 'Quantity', 'Base Price', 'consignee_details'];
         
     }
 
@@ -59,10 +60,14 @@ class OrderExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
             $data['id'],
             date('d M Y', strtotime($data['created_at'])),
             $data['po_no'],
-            $data['customer']?$data['customer']['name']:'-',
+            $data['confirm_po_no'],
+            $data['order']?($data['order']['customer']?$data['order']['customer']['name']:'-'):'-',
+            $data['brands']?$data['brands']['brand_name']:'-',
+            $data['grades']?$data['grades']['unit_name']:'-',
+            $data['sizes']?$data['sizes']['category_name']:'-',
             $data['qty'],
             $data['base_price'],
-            $data['createdbyname']?$data['createdbyname']['name']:'Self',
+            $data['consignee_details'],
         ];
     }
 
@@ -105,6 +110,10 @@ class OrderExport implements FromCollection, WithHeadings, WithMapping, ShouldAu
                         'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT,
                     ],
                 ]);
+
+                for ($col = 'A'; $col <= $lastColumn; $col++) {
+                    $event->sheet->getDelegate()->getColumnDimension($col)->setAutoSize(true);
+                }
             },
         ];
     }

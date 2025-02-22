@@ -3,6 +3,7 @@
 namespace App\DataTables;
 
 use App\Models\OrderConfirm;
+use Illuminate\Http\Request;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Html\Editor\Editor;
@@ -21,6 +22,9 @@ class OrderConfirmDataTable extends DataTable
             ->addIndexColumn()
             ->editColumn('created_at', function ($data) {
                 return isset($data->created_at) ? showdatetimeformat($data->created_at) : '';
+            })
+            ->editColumn('qty', function ($data) {
+                return isset($data->total_qty) ? $data->total_qty : '';
             })
             ->addColumn('action', function ($query) {
                 $btn = '';
@@ -63,21 +67,22 @@ class OrderConfirmDataTable extends DataTable
      * @return \Illuminate\Database\Eloquent\Builder
      */
 
-    public function query(OrderConfirm $model)
+    public function query(OrderConfirm $model, Request $request)
     {
         $userids = getUsersReportingToAuth();
 
-        $query = $model->with('order','brands', 'sizes', 'grades', 'order.customer', 'createdbyname');
+        $query = $model->with('order.customer', 'createdbyname')->selectRaw('*, SUM(qty) as total_qty')
+            ->groupBy('confirm_po_no');
 
-        
+
         $query->newQuery();
 
-        if (request()->has('retailers_id') && request()->get('retailers_id') != '') {
-            $query->where('buyer_id', request()->get('retailers_id'));
+        if ($request->start_date && !empty($request->start_date)) {
+            $query->whereDate('created_at', '>=', $request->start_date);
         }
 
-        if (request()->has('retailers_id') && request()->get('retailers_id') != '') {
-            $query->where('buyer_id', request()->get('retailers_id'));
+        if ($request->end_date && !empty($request->end_date)) {
+            $query->whereDate('created_at', '<=', $request->end_date);
         }
 
         return $query->latest();

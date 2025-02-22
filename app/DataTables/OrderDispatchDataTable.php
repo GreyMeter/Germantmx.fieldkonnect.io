@@ -22,6 +22,9 @@ class OrderDispatchDataTable extends DataTable
             ->editColumn('created_at', function ($data) {
                 return isset($data->created_at) ? showdatetimeformat($data->created_at) : '';
             })
+            ->editColumn('qty', function ($data) {
+                return isset($data->total_qty) ? $data->total_qty : '';
+            })
             ->addColumn('action', function ($query) {
                 $btn = '';
                 $activebtn = '';
@@ -30,28 +33,28 @@ class OrderDispatchDataTable extends DataTable
                 //                     <i class="material-icons">edit</i>
                 //                 </a>';
                 // }
-                if (auth()->user()->can(['order_show'])) {
-                    $btn = $btn . '<a href="' . url("orders_confirm/" . encrypt($query->id)) . '" class="btn btn-theme btn-just-icon btn-sm" title="' . trans('panel.global.show') . ' ' . trans('panel.order.title_singular') . '">
+                // if (auth()->user()->can(['order_show'])) {
+                    $btn = $btn . '<a href="' . url("orders_dispatch/" . encrypt($query->id)) . '" class="btn btn-theme btn-just-icon btn-sm" title="' . trans('panel.global.show') . ' ' . trans('panel.order.title_singular') . '">
                                     <i class="material-icons">visibility</i>
                                 </a>';
-                }
-                if (auth()->user()->can(['order_delete'])) {
-                    $btn = $btn . ' <a href="" class="btn btn-danger btn-just-icon btn-sm delete" value="' . $query->id . '" title="' . trans('panel.global.delete') . ' ' . trans('panel.order.title_singular') . '">
-                                <i class="material-icons">clear</i>
-                              </a>';
-                }
-                if (auth()->user()->can(['order_active'])) {
-                    $active = ($query->active == 'Y') ? 'checked="" value="' . $query->active . '"' : 'value="' . $query->active . '"';
-                    $activebtn = '<div class="togglebutton">
-                                <label>
-                                  <input type="checkbox"' . $active . ' id="' . $query->id . '" class="activeRecord">
-                                  <span class="toggle"></span>
-                                </label>
-                              </div>';
-                }
+                // }
+                // if (auth()->user()->can(['order_delete'])) {
+                //     $btn = $btn . ' <a href="" class="btn btn-danger btn-just-icon btn-sm delete" value="' . $query->id . '" title="' . trans('panel.global.delete') . ' ' . trans('panel.order.title_singular') . '">
+                //                 <i class="material-icons">clear</i>
+                //               </a>';
+                // }
+                // if (auth()->user()->can(['order_active'])) {
+                //     $active = ($query->active == 'Y') ? 'checked="" value="' . $query->active . '"' : 'value="' . $query->active . '"';
+                //     $activebtn = '<div class="togglebutton">
+                //                 <label>
+                //                   <input type="checkbox"' . $active . ' id="' . $query->id . '" class="activeRecord">
+                //                   <span class="toggle"></span>
+                //                 </label>
+                //               </div>';
+                // }
                 return '<div class="btn-group btn-group-sm" role="group" aria-label="Small button group">
                                 ' . $btn . '
-                            </div>' . $activebtn;
+                            </div>';
             })
             ->rawColumns(['action', 'created_at']);
     }
@@ -67,7 +70,7 @@ class OrderDispatchDataTable extends DataTable
     {
         $userids = getUsersReportingToAuth();
 
-        $query = $model->with('order','order_confirm','brands', 'sizes', 'grades', 'order.customer', 'createdbyname');
+        $query = $model->with('order','order_confirm','brands', 'sizes', 'grades', 'order.customer', 'createdbyname', 'plant')->selectRaw('*, SUM(qty) as total_qty')->groupBy('dispatch_po_no');
 
         
         $query->newQuery();

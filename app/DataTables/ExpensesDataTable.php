@@ -33,9 +33,9 @@ class ExpensesDataTable extends DataTable
                 $name = '(' . $query->users->employee_codes . ')' . $query->users->name;
                 return $name;
             })
-            ->addColumn('users.getdesignation.designation_name', function ($query) {
-                return $query->users->getdesignation->designation_name ?? '';
-            })
+            // ->addColumn('users.getdesignation.designation_name', function ($query) {
+            //     return $query->users->getdesignation->designation_name ?? '';
+            // })
             ->addColumn('expense_type.name', function ($query) {
                 return $query->expense_type->name ?? '';
             })
@@ -58,12 +58,8 @@ class ExpensesDataTable extends DataTable
             })
             ->editColumn('attech', function ($query) {
                 $is_avail = 'No';
-                if ($query->getMedia('expense_file')->count() > 0) {
-                    foreach ($query->getMedia('expense_file') as $image) {
-                        if (Storage::disk('s3')->exists($image->getPath())) {
-                            $is_avail = 'Yes';
-                        }
-                    }
+                if ($query->getFirstMedia('expense_file')) {
+                        $is_avail = 'Yes';
                 }
 
                 return $is_avail;

@@ -6,7 +6,7 @@
           <div class="card-icon">
             <i class="material-icons">perm_identity</i>
           </div>
-          <h4 class="card-title ">{{ $orders->exists?($cnf?'Confirm':trans('panel.global.edit')):trans('panel.global.create') }} Soda
+          <h4 class="card-title ">{{ $orders->exists?($cnf?'Confirm':trans('panel.global.edit')):trans('panel.global.create') }} Booking
             <span class="pull-right">
               <div class="btn-group">
                 @if(auth()->user()->can(['order_access']))
@@ -68,6 +68,7 @@
                       @endforeach
                       @endif
                     </select>
+                    <input type="hidden" name="order_customer_id" id="order_customer_id" value="{!! old( 'customer_id' , (!empty($orders->customer_id)) ? ($orders->customer_id) :('') ) !!}">
                   </div>
                   @if ($errors->has('customer_id'))
                   <div class="error col-lg-12">
@@ -115,7 +116,8 @@
                 <label class="col-md-3 col-form-label">Base Price<small>(1MT)</small> <span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                    <input readonly type="text" name="base_price" id="base_price" class="form-control" value="{!! $orders['base_price']?$orders['base_price']-$orders['discount_amt']:$base_price !!}" maxlength="200" required>
+                    <input readonly type="text" name="base_price" id="base_price" class="form-control" value="{!! $orders['base_price']?$orders['base_price']+$orders['discount_amt']:$base_price !!}" maxlength="200" required>
+                    <input type="hidden" name="first_base_price" id="first_base_price" value="{{$base_price}}">
                     @if ($errors->has('base_price'))
                     <div class="error col-lg-12">
                       <p class="text-danger">{{ $errors->first('base_price') }}</p>
@@ -134,7 +136,10 @@
                   <th class="text-center brand"> Brand </th>
                   <th class="text-center grade"> Grade</th>
                   <th class="text-center size"> Size </th>
+                  <th class="text-center material"> Material </th>
                   <th class="text-center"> QTY <small>(MT)</small> </th>
+                  <th class="text-center material"> Booking Price </th>
+                  <th class="text-center material"> Total Price </th>
                   <th class="text-center"> </th>
                 </tr>
               </thead>
@@ -266,17 +271,96 @@
 
         var newRow =
           '<tr> <td>' + counter + '</td>' +
-          '<td class="group" style="width:30%"><div class="input_section"><select required name="brand_id[]" class="form-control brand' + counter + '"></select></div></td>' +
-          '<td style="width:30%" class="subCat"><div class="input_section"><select required name="grade_id[]" class="form-control grade' + counter + '"></select></div></td>' +
-          '<td style="width:30%"><div class="input_section"><select required name="category_id[]" class="form-control allsizes size' + counter + '"></select></div></td>' +
+          '<td class="group" style="width:30%"><div class="input_section"><select required name="brand_id[]" class="form-control brand' + counter + ' brand_change"></select></div></td>' +
+          '<td style="width:30%" class="subCat"><div class="input_section"><select required name="grade_id[]" class="form-control grade' + counter + ' grade_change"></select></div></td>' +
+          '<td style="width:30%"><div class="input_section"><select required name="category_id[]" class="form-control allsizes size' + counter + ' size_change"></select></div></td>' +
+          '<td style="width:30%"><div class="input_section"><select required name="material[]" class="form-control material' + counter + ' material_change"><option value="">Select Material</option><option value="Straight">Straight</option><option value="Bend">Bend</option></select></div></td>' +
           '<td><div class="input_section"><input required type="number" name="qty[]"class="form-control points rowchange" /></div></td>' +
+          '<td><div class="input_section"><input required type="number" name="booking_price[]"class="form-control  booking_price_change"  readonly/></div></td>'+
+          '<td ><div class="input_section"><input style="width : 120px !important" required type="number" name="total_price[]"class="form-control  total_price_change" readonly/></div></td>'+
           '<td class="td-actions text-center"><a class="remove-rows btn btn-danger btn-just-icon btn-sm"><i class="fa fa-minus"></i></a></td> </tr>';
         $table.append(newRow);
+        addJquery();
         $('.select2bs4').select2({
           theme: 'bootstrap4'
         })
       });
     })
+    $(document).on('click', '.remove-rows', function() {
+        $(this).closest('tr').remove(); // Remove the row
+        counter--;
+    });
+
+    function addJquery(){
+      $(document).on('change', '.brand_change, .grade_change, .size_change', function() {           
+          var row = $(this).closest('tr'); // Get the closest row of the changed input/select
+          console.log(row);
+          row.find('.total_price_change').val(''); // Update the booking price in the row
+          row.find('.booking_price_change').val('');
+          var brand = row.find('.brand_change').val();
+          var grade = row.find('.grade_change').val();
+          var size = row.find('.size_change').val();
+          var material = row.find('.material_change').val();
+          var quantity = row.find('.points').val();
+
+          if(brand && grade && size ){
+              getPrices(brand , grade , size , material , quantity , row);
+          }else{
+            row.find('.total_price_change').text(''); // Update the booking price in the row
+            row.find('.booking_price_change').text('');
+          }
+      });
+
+      $('.points').on('input' , function(){
+          var row = $(this).closest('tr'); // Get the closest row of the changed input/select
+          console.log(row);
+          
+          row.find('.total_price_change').val(''); // Update the booking price in the row
+          row.find('.booking_price_change').val('');
+          var brand = row.find('.brand_change').val();
+          var grade = row.find('.grade_change').val();
+          var size = row.find('.size_change').val();
+          var material = row.find('.material_change').val();
+          var quantity = row.find('.points').val();
+          if(brand && grade && size){
+            getPrices(brand , grade , size , material , quantity , row);       
+          }      
+      });
+    }
+
+    function getPrices(brand='' , grade='' , size='' , material='' , quantity=1 , row){
+        var bookingPrice = $('#base_price').val();  // Example booking price
+        var totalPrice = '';    // Example total price
+        var additional_charge = ''
+        var customer_id = $('#order_customer_id').val();
+        if (brand && grade && size) {
+          // Simulate price calculations (replace with your actual logic)
+          $.ajax({
+            url: "{{ url('getPricesOfOrder') }}",
+            data: {
+              "brand": brand,
+              "grade": grade,
+              "size": size,
+              "customer_id": customer_id,
+            },
+            success: function(res) {
+              if(res.status == true){
+                bookingPrice = parseInt(bookingPrice, 10) + parseInt(res.additional_price, 10);
+                row.find('.booking_price_change').val(bookingPrice);
+                if(quantity){
+                  let total_value = parseInt(quantity, 10)*parseInt(bookingPrice, 10);
+                  row.find('.total_price_change').val(total_value); 
+                }else{
+                  let total_value = 1*parseInt(bookingPrice, 10);
+                  row.find('.total_price_change').val(total_value);
+                }
+              }
+            }
+          });
+       } 
+    }
+ 
+
     $('#customer_id').on('select2:select', function(e) {
       var customerId = $(this).val();
       if (customerId != '') {
@@ -296,6 +380,10 @@
             },
             success: function(res) {
               orderLimit = orderLimit - res.today_order_qty;
+              if(res.final_price != null){
+                $("#base_price").val(res.final_price);
+
+              }
               if (orderLimit < 1) {
                 $("#smt-btn").prop("disabled", true);
                 $("#qty-errors").html("Today's order limit is zero, Don't hesitate to get in touch with the administrator.");

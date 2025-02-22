@@ -1,4 +1,15 @@
 <x-app-layout>
+  <style>
+    .error {
+      color: red !important;
+      font-size: 14px;
+      margin-top: 5px;
+      display: block;
+    }
+    input.is-invalid, select.is-invalid {
+      border-color: red !important;
+    }
+  </style>
   <div class="content-header">
     <div class="container-fluid">
       <div class="row mb-2">
@@ -10,21 +21,29 @@
     <div class="row">
       <div class="col-12">
         <div class="card">
+          @if(session('message_error'))
+              <div class="alert alert-danger">
+                  {{ session('message_error') }}
+              </div>
+          @endif
           <div class="card-body">
+            
             <div class="row">
               <div class="col-12">
                 <h3 class="card-title pb-3">{!! trans('panel.order.title_singular') !!} Detail</h3>
               </div>
               <!-- /.col -->
+              
+
               <div class="col-12">
-                @if($orders['status'] == '0')
+                {{-- @if($orders['status'] == '0')
                 @if($orders->qty > $totalOrderDispatchQty)
                 <a href="{{ url('orders_confirm/' . encrypt($orders->id) . '/edit?cnf=true') }}" class="btn btn-success">Dispatch Order</a>
-                <a class="btn btn-danger bg-danger">Cancle Order</a>
+                <!-- <a class="btn btn-danger bg-danger">Cancle Order</a> -->
                 @else
                 <button type="button" class="btn btn-success">This order has fully dispatched</button>
                 @endif
-                @endif
+                @endif --}}
                 <span class="pull-right">
                   <div class="btn-group">
                     @if(auth()->user()->can(['order_access']))
@@ -65,8 +84,8 @@
                   <h3 style="margin-bottom: 10px;font-weight: 500;">Customer Deatils:</h3>
                   <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
                     <strong>Name:{!! isset($orders['order']['customer']['name']) ? $orders['order']['customer']['name'] :'' !!} </strong><br>
-                    Address:{!! $orders['order']['customer']['customeraddress']['address1'] !!} ,{!! $orders['order']['customer']['customeraddress']['address2'] !!}<br>
-                    {!! $orders['order']['customer']['customeraddress']['locality'] !!}, {!! $orders['order']['customer']['customeraddress']['cityname']['city_name'] !!} {!! $orders['order']['customer']['customeraddress']['pincodename']['pincode'] !!}<br>
+                    Address:{!! $orders['order']['customer']['customeraddress']['address1']??'' !!} ,{!! $orders['order']['customer']['customeraddress']['address2']??'' !!}<br>
+                    {!! $orders['order']['customer']['customeraddress']['locality']??'' !!}, {!! $orders['order']['customer']['customeraddress']['cityname']['city_name']??'' !!} {!! $orders['order']['customer']['customeraddress']['pincodename']['pincode']??'' !!}<br>
                     Phone: {!! $orders['order']['customer']['mobile'] !!}<br>
                     Email: {!! $orders['order']['customer']['email'] !!}
                   </address>
@@ -90,7 +109,50 @@
               <!-- /.row -->
 
               <!-- Table row -->
+              {!! Form::model($orders,[
+                'route' => ['orders.dispatch_multi', encrypt($orders->confirm_po_no) ],
+                'method' => 'POST',
+                'id' => 'createProductFormMulti',
+                'files' => true
+                ]) !!}
+
               <div class="row">
+                <div class="col-12">
+                  <!-- New Row for Driver Details -->
+                  <div class="card p-3 mb-3 bg-light">
+                    <h5 class="mb-3"><strong>Driver Details</strong></h5>
+                    <div class="row">
+                      <div class="col-md-4">
+                        <label>Driver Name<span class="text-danger"> *</span></label>
+                        <input type="text" name="driver_name" class="form-control" required>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Driver Contact<span class="text-danger"> *</span></label>
+                        <input type="text" name="driver_contact_number" class="form-control" required>
+                      </div>
+                      <div class="col-md-4">
+                        <label>Vehicle Number<span class="text-danger"> *</span></label>
+                        <input type="text" name="vehicle_number" id="vehicle_number" class="form-control" required>
+                      </div>
+                      <div class="col-md-3 mt-3">
+                        <label>TC Image</label>
+                        <input type="file" accept="image/*" name="tc" id="tc" class="form-control">
+                      </div>
+                      <div class="col-md-3 mt-3">
+                        <label>Invoice Image</label>
+                        <input type="file" accept="image/*" name="invoice" id="invoice" class="form-control">
+                      </div>
+                      <div class="col-md-3 mt-3">
+                        <label>E-way Bill Image</label>
+                        <input type="file" accept="image/*" name="e_way_bill" id="e_way_bill" class="form-control">
+                      </div>
+                      <div class="col-md-3 mt-3">
+                        <label>Wevrage Slip Image</label>
+                        <input type="file" accept="image/*" name="wevrage_slip" id="wevrage_slip" class="form-control">
+                      </div>
+                    </div>
+                  </div>
+                </div>
                 <div class="col-12 table-responsive">
                   <table class="table table-striped">
                     <thead>
@@ -98,29 +160,65 @@
                         <th>Brand</th>
                         <th>Grade</th>
                         <th>Size</th>
-                        <th>Quantity<small>(Tonn)</small></th>
+                        <th>Material</th>
+                        <th>Total Quantity<small>(Tonn)</small></th>
+                        <th>Remaining Quantity<small>(Tonn)</small></th>
                         <th>Base Price<small>(1MT)</small></th>
                         <th>Total</th>
+                        <th>Plants</th>
                       </tr>
                     </thead>
                     <tbody>
-                      @if($orders->exists )
-                      <tr>
-                        <td>{{$orders->brands?$orders->brands->brand_name:'-'}}</td>
-                        <td>{{$orders->grades?$orders->grades->unit_name:'-'}}</td>
-                        <td>{{$orders->sizes?$orders->sizes->category_name:'-'}}</td>
-                        <td>{{$orders->qty}}</td>
-                        <td>{{$orders->base_price}}</td>
-                        <td>{{$orders->soda_price}}</td>
-                      </tr>
+                      @if($orders->exists)
+                          @foreach ($order_chain as $order)
+                              <tr>
+                                  <td>{{$order->brands ? $order->brands->brand_name : '-'}}</td>
+                                  <td>{{$order->grades ? $order->grades->unit_name : '-'}}</td>
+                                  <td>{{$order->sizes ? $order->sizes->category_name : '-'}}</td>
+                                  <td>{{$order->material}}</td>
+                                  <td>{{$order->qty}}</td>
+                                  <td>
+                                      <input type="number" class="form-control dispatch_qty" value="{{ getOrderQuantity($order->id) }}" name="dispatch_qty[]" step="1">
+                                  </td>
+                                  <td>
+                                      <input type="text" class="form-control dispatch_base_price" value="{{$order->base_price}}" name="dispatch_base_price[]" readonly> 
+                                  </td>
+                                  <td>
+                                      <input type="text" class="form-control dispatch_soda_price" name="dispatch_soda_price[]" readonly>
+                                  </td>
+                                  <td>
+                                      <select class="form-control" name="plant_id[]" style="width: 100%;" {{isset($cnf) ? 'required' : ''}} required>
+                                          <option value="">Select Plant</option>
+                                          @if(@isset($plants))
+                                              @foreach($plants as $key => $plant)
+                                                  <option value="{{ $plant['id'] }}" {{ $key+1 == 1 ? 'selected' : '' }}>
+                                                      {{ $plant['plant_name'] }}
+                                                  </option>
+                                              @endforeach
+                                          @endif
+                                      </select>
+                                  </td>
+                              </tr>
+                          @endforeach
                       @endif
-                    </tbody>
+                  </tbody>
                   </table>
+                </div>
+                <div class="col-12">
+                  @if($orders['status'] == '0')
+                    @if(!getOrderQuantityByPo($orders->confirm_po_no))
+                      <button type="submit" class="btn btn-success">Dispatch Order</button>
+                      {{-- <a href="{{ url('orders_confirm/' . encrypt($orders->id) . '/edit?cnf=true') }}" class="btn btn-success">Dispatch Order</a> --}}
+                      <!-- <a class="btn btn-danger bg-danger">Cancle Order</a> -->
+                      @else
+                      <button type="button" class="btn btn-success">This order has fully dispatched</button>
+                    @endif
+                  @endif
                 </div>
                 <!-- /.col -->
               </div>
               <!-- /.row -->
-
+              {{ Form::close() }}
               <div class="row">
                 <!-- accepted payments column -->
                 <div class="col-6">
@@ -183,6 +281,96 @@
       });
 
     })
+
+    $('disptch_qty_change').on('change' , function(){
+        var row = $(this).closest('tr');
+    })
+
+    $(document).ready(function() {
+        function calculateTotal(row) {
+            var qty = parseFloat(row.find('.dispatch_qty').val()) || 0;
+            var basePrice = parseFloat(row.find('.dispatch_base_price').val()) || 0;
+            var total = (qty * basePrice).toFixed(2);
+            row.find('.dispatch_soda_price').val(total);
+        }
+
+        $.validator.addMethod("vehicleFormat", function(value, element) {
+          return /^[A-Z]{2} \d{2} [A-Z]{2} \d{4}$/.test(value);
+        }, "Invalid format! Example: MP 12 XX 1234");
+
+        $('#createProductFormMulti').validate({
+          rules: {
+            driver_name: {
+              required: true,
+              minlength: 3
+            },
+            driver_contact: {
+              required: true,
+              digits: true,
+              minlength: 10,
+              maxlength: 10
+            },
+            vehicle_number: {
+              required: true,
+              vehicleFormat: true 
+            }
+          },
+          errorClass: "error", // Use the correct error class
+          highlight: function(element) {
+            $(element).addClass('is-invalid'); // Add red border
+          },
+          unhighlight: function(element) {
+            $(element).removeClass('is-invalid'); // Remove red border
+          }
+        });
+
+        $('#createProductFormMulti').validate({
+
+        });
+
+        // Run calculation on page load
+        $('tr').each(function() {
+            calculateTotal($(this));
+        });
+
+        // Trigger calculation when quantity or base price changes
+        $(document).on('input', '.dispatch_qty', function() {
+            var row = $(this).closest('tr');
+            calculateTotal(row);
+        });
+    });
+
+    $(document).ready(function() {
+    $('#vehicle_number').on('input', function() {
+      var inputVal = $(this).val().replace(/\s+/g, '').toUpperCase(); // Remove spaces and convert to uppercase
+      var formattedVal = '';
+
+      if (inputVal.length > 0) {
+        formattedVal = inputVal.substring(0, 2); // State Code
+      }
+      if (inputVal.length > 2) {
+        formattedVal += ' ' + inputVal.substring(2, 4); // District Code
+      }
+      if (inputVal.length > 4) {
+        formattedVal += ' ' + inputVal.substring(4, 6); // Two Alphabets
+      }
+      if (inputVal.length > 6) {
+        formattedVal += ' ' + inputVal.substring(6, 10); // Four Digits
+      }
+
+      $(this).val(formattedVal); // Set formatted value
+
+      // Validation: MP 12 AB 1234
+      var vehiclePattern = /^[A-Z]{2} \d{2} [A-Z]{2} \d{4}$/;
+      if (!vehiclePattern.test(formattedVal)) {
+        $('#vehicle_error').removeClass('d-none'); // Show error message
+        $(this).addClass('is-invalid'); // Add red border
+      } else {
+        $('#vehicle_error').addClass('d-none'); // Hide error message
+        $(this).removeClass('is-invalid'); // Remove red border
+      }
+    });
+    });
   </script>
   <!-- /.content -->
 </x-app-layout>

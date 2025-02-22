@@ -104,9 +104,9 @@ class ReportingActivityController extends Controller
 
         $punchInOut = Attendance::where('user_id', $user_id)->where('punchin_date', $date)->get();
         $checkInOut = CheckIn::with('visitreports')->with('customers')->where('user_id', $user_id)->where('checkin_date', $date)->get();
-        $orders = Order::with('buyers')->where('created_by', $user_id)->whereRaw('DATE(created_at)="'.$date.'"')->get();
+        $orders = Order::with('customer')->where('created_by', $user_id)->whereRaw('DATE(created_at)="'.$date.'"')->get();
         $customer_add = Customers::with('customeraddress')->where('created_by', $user_id)->whereRaw('DATE(created_at)="'. $date.'"')->get();
-        $customer_update = Customers::with('customeraddress')->where('created_by', $user_id)->whereColumn('updated_at','>','created_at')->whereRaw('DATE(updated_at)="'. $date.'"')->get();
+        // $customer_update = Customers::with('customeraddress')->where('created_by', $user_id)->whereColumn('updated_at','>','created_at')->whereRaw('DATE(updated_at)="'. $date.'"')->get();
 
         $punchInData = array();
         $punchOutData = array();
@@ -158,7 +158,7 @@ class ReportingActivityController extends Controller
             $orderData[$k]['time'] = date('H:i:s', strtotime($val->created_at));
             $orderData[$k]['latitude'] = '';
             $orderData[$k]['longitude'] = '';
-            $orderData[$k]['msg'] = $val->buyers->name.' - '.$val->buyers->customeraddress->cityname->city_name.',<br>Qty : '.$val->orderdetails->sum('quantity').',<br>Total : '.$val->grand_total;
+            $orderData[$k]['msg'] = $val->customer->name.' - '.$val->customer->customeraddress->cityname->city_name.', Qty : '.$val->qty;
         }
 
         foreach ($customer_add as $k => $val) {
@@ -173,13 +173,13 @@ class ReportingActivityController extends Controller
             }
         }
 
-        foreach ($customer_update as $k => $val) {
-            $customerUpdateData[$k]['title'] = 'Customer Edit';
-            $customerUpdateData[$k]['time'] = date('H:i:s', strtotime($val->created_at));
-            $customerUpdateData[$k]['latitude'] = $val->latitude;
-            $customerUpdateData[$k]['longitude'] = $val->longitude;
-            $customerUpdateData[$k]['msg'] = $val->name.' - '. $val->customeraddress->cityname->city_name;
-        }
+        // foreach ($customer_update as $k => $val) {
+        //     $customerUpdateData[$k]['title'] = 'Customer Edit';
+        //     $customerUpdateData[$k]['time'] = date('H:i:s', strtotime($val->updated_at));
+        //     $customerUpdateData[$k]['latitude'] = $val->latitude;
+        //     $customerUpdateData[$k]['longitude'] = $val->longitude;
+        //     $customerUpdateData[$k]['msg'] = $val->name.' - '. $val->customeraddress->cityname->city_name;
+        // }
 
         $data = array_merge($punchInData, $punchOutData, $checkInData, $checkOutData, $orderData, $customerAddData, $customerUpdateData);
 

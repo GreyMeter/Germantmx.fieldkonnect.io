@@ -395,42 +395,35 @@ class UserController extends Controller
     {
         try
         { 
-            $user_id = $request->user()->id;
-            $tours = TourProgramme::where(function ($query) use($user_id) {
-                            $query->where('type', '=', '');
-                            $query->whereDate('date', '=', date('Y-m-d'));
-                            $query->where('userid', '=', $user_id);
-                        })
-                        ->select('id','date', 'userid', 'town', 'objectives', 'type', 'status')
-                        ->latest()->get();
+            // $user_id = $request->user()->id;
+            // $tours = TourProgramme::where(function ($query) use($user_id) {
+            //                 $query->where('type', '=', '');
+            //                 $query->whereDate('date', '=', date('Y-m-d'));
+            //                 $query->where('userid', '=', $user_id);
+            //             })
+            //             ->select('id','date', 'userid', 'town', 'objectives', 'type', 'status')
+            //             ->latest()->get();
 
-            $cities = City::whereHas('assignusers', function ($query) use($user_id){
-                                $query->where('userid','=',$user_id);
-                            })
-                            ->select('id','city_name', 'grade')
-                            ->orderBy('city_name','asc')->get();
-            $worktypes = collect([
-              collect(["type" => 'Tour', "is_city" => true , "is_beat" => true , 'image' => true , 'summary' => true , 'city_required' => true , 'beat_required' => true ]), 
-              collect(["type" => 'Office Work', "is_city" => true , "is_beat" => false , 'image' => true , 'summary' => true , 'city_required' => true , 'beat_required' => false ]), 
-              collect(["type" => 'Suburban', "is_city" => true , "is_beat" => true , 'image' => true , 'summary' => true , 'city_required' => true , 'beat_required' => true ]), 
-              collect(["type" => 'Central Market', "is_city" => true , "is_beat" => true , 'image' => true , 'summary' => true , 'city_required' => true , 'beat_required' => true ]), 
-              collect(["type" => 'Holiday', "is_city" => false , "is_beat" => false , 'image' => false , 'summary' => false , 'city_required' => false , 'beat_required' => false ]), 
-              collect(["type" => 'Leave', "is_city" => false , "is_beat" => false , 'image' => false , 'summary' => false , 'city_required' => false , 'beat_required' => false]),   
-            ]);
+            // $cities = City::whereHas('assignusers', function ($query) use($user_id){
+            //                     $query->where('userid','=',$user_id);
+            //                 })
+            //                 ->select('id','city_name', 'grade')
+            //                 ->orderBy('city_name','asc')->get();
+            $worktypes = Config('constants.puchin_working_type');
 
-            $beats = Beat::whereHas('beatusers', function ($query) use($user_id){
-                                $query->where('user_id', '=', $user_id);
-                                $query->where('active', '=', 'Y');
-                            })
-                            ->select('id as beat_id','beat_name','city_id')
-                            ->orderBy('city_id','asc')
-                            ->get();
+            // $beats = Beat::whereHas('beatusers', function ($query) use($user_id){
+            //                     $query->where('user_id', '=', $user_id);
+            //                     $query->where('active', '=', 'Y');
+            //                 })
+            //                 ->select('id as beat_id','beat_name','city_id')
+            //                 ->orderBy('city_id','asc')
+            //                 ->get();
 
             $data = collect([
-                "tours" => $tours,
-                "cities" => $cities,
+                // "tours" => $tours,
+                // "cities" => $cities,
                 "worktypes" => $worktypes,
-                "beats" => $beats
+                // "beats" => $beats
             ]);
             return response()->json(['status' => 'success','message' => 'Data retrieved successfully.','data' => $data ], $this->successStatus);
         }

@@ -75,6 +75,7 @@ use App\Http\Controllers\ServiceChargeProductsController;
 use App\Http\Controllers\FieldKonnectAppSettings;
 use App\Http\Controllers\PlantController;
 use App\Http\Controllers\PriceController;
+use App\Http\Controllers\SouthPriceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -110,6 +111,7 @@ Route::get('contactus', function () {
 });
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('/privcay-policy', [NewJoiningController::class, 'privacyPolicy'])->name('privacyPolicy');
+Route::resource('supports', SupportController::class);
 
 //New Joining without auth Route
 Route::get('/new-joining-form', [NewJoiningController::class, 'create'])->name('joining-form');
@@ -408,6 +410,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     //Price
     Route::resource('prices', PriceController::class);
+    Route::resource('south_prices', SouthPriceController::class);
 
     // Customer Outstanting
     Route::any('stock', [ProductController::class, 'stock'])->name('stock');
@@ -422,9 +425,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::any('orders_confirm/{id}', [OrderController::class, 'confirm_orders_show'])->name('orders.confirm.show');
     Route::any('orders_confirm/{id}/edit', [OrderController::class, 'confirm_orders_edit'])->name('orders.confirm.edit');
     Route::any('orders_dispatch/{id}', [OrderController::class, 'dispatch_order'])->name('orders.dispatch');
+    Route::any('orders_dispatch_multi/{id}', [OrderController::class, 'dispatch_order_multi'])->name('orders.dispatch_multi');
     Route::any('orders_dispatch', [OrderController::class, 'order_dispatch'])->name('orders.dispatch.list');
+    Route::any('orders_dispatch/{id}', [OrderController::class, 'orders_dispatch'])->name('orders.orders_dispatch');
 
-    // Route::any('orders-download', [OrderController::class, 'download'])->name('orders.download');
+    Route::any('orders-download', [OrderController::class, 'download'])->name('orders.download');
+    Route::any('final-orders-download', [OrderController::class, 'final_order_download'])->name('final_orders.download');
     // Route::any('orders-template', [OrderController::class, 'template'])->name('orders.template');
     // Route::post('orders-upload', [OrderController::class, 'upload'])->name('orders.upload');
     // Route::post('orders-active', [OrderController::class, 'active'])->name('orders.active');
@@ -434,7 +440,7 @@ Route::group(['middleware' => ['auth']], function () {
     // Route::any('submit-expected-delivery', [OrderController::class, 'submitExpectedDelivery'])->name('orders.submitexpecteddelivery');
     // Route::any('order-dispatched/{id}', [OrderController::class, 'orderDispatched'])->name('orders.dispatched');
     // Route::any('order-partially-dispatched/{id}', [OrderController::class, 'orderPartiallyDispatched'])->name('orders.partiallydispatched');
-    // Route::any('order-cancle/{id}', [OrderController::class, 'orderCancle'])->name('orders.orderCancle');
+    Route::any('order-cancle/{id}', [OrderController::class, 'orderCancle'])->name('orders.orderCancle');
     // Route::post('submit-dispatched', [OrderController::class, 'submitDispatched'])->name('orders.submitdispatched');
     // Route::any('order-detail-delete', [OrderController::class, 'deleteOrderDtails'])->name('orders.deletedetails');
 
@@ -475,7 +481,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::any('redeemedPoint', [WalletController::class, 'redeemedPoint'])->name('wallets.redeemedPoint');
     Route::any('walletsInfo', [WalletController::class, 'walletsInfo'])->name('wallets.info');
     //Settings
-    Route::get('settings', [SettingController::class, 'index']);
+    Route::resource('settings', SettingController::class);
     Route::any('settings-download', [SettingController::class, 'download'])->name('settings.download');
     Route::any('settings-template', [SettingController::class, 'template'])->name('settings.template');
     Route::post('settings-upload', [SettingController::class, 'upload'])->name('settings.upload');
@@ -565,7 +571,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('payments-upload', [PaymentController::class, 'upload'])->name('payments.upload');
     Route::any('paymentsInfo', [PaymentController::class, 'paymentsInfo'])->name('payments.info');
     //Supports
-    Route::resource('supports', SupportController::class);
+    // Route::resource('supports', SupportController::class);
     Route::any('supports-download', [SupportController::class, 'download'])->name('supports.download');
     Route::any('supports-template', [SupportController::class, 'template'])->name('supports.template');
     Route::post('supports-upload', [SupportController::class, 'upload'])->name('supports.upload');
@@ -974,7 +980,7 @@ Route::any('getBrand', [AjaxController::class, 'getBrand']);
 Route::any('getGrade', [AjaxController::class, 'getGrade']);
 Route::any('getSize', [AjaxController::class, 'getSize']);
 Route::any('sodaDiscount', [AjaxController::class, 'sodaDiscount']);
-
+Route::any('getPricesOfOrder', [AjaxController::class, 'getPricesOfOrder']);
 
 
 

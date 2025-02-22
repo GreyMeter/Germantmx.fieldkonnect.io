@@ -35,7 +35,7 @@ use App\Models\DealIn;
 use App\Models\OrderDetails;
 use App\Models\ParentDetail;
 use App\Models\EmployeeDetail;
-
+use Illuminate\Support\Facades\Hash;
 
 class CustomerController extends Controller
 {
@@ -66,7 +66,7 @@ class CustomerController extends Controller
                 'customertype'       => 'nullable|exists:customer_types,id',
             ]);
             if ($validator->fails()) {
-                return response()->json(['status' => 'error', 'message' => $validator->messages()->all()], $this->badrequest);
+                return response()->json(['status' => 'error', 'message' => $validator->errors()], $this->badrequest);
             }
             //$request['fordelete'] = implode(',', $request->getContent());
             $request['mobile'] = preg_replace("/[^0-9]/", "", $request['mobile']);
@@ -86,7 +86,11 @@ class CustomerController extends Controller
                 } else {
 
                     $name = explode(" ", $request['full_name']);
-                    $request['last_name'] = isset($request['last_name']) ? $request['last_name'] : array_pop($name);
+                    if(count($name) > 1){
+                        $request['last_name'] = isset($request['last_name']) ? $request['last_name'] : array_pop($name);
+                    }else{
+                        $request['last_name'] = isset($request['last_name']) ? $request['last_name'] : "";
+                    }
                     $request['first_name'] = isset($request['first_name']) ? $request['first_name'] : implode(" ", $name);
                     $request['created_by'] = $user->id;
 
@@ -112,6 +116,7 @@ class CustomerController extends Controller
                         'notification_id' => !empty($request['notification_id']) ? $request['notification_id'] : '',
                         'latitude' => !empty($request['latitude']) ? $request['latitude'] : null,
                         'longitude' => !empty($request['longitude']) ? $request['longitude'] : null,
+                        'in_store' => !empty($request['in_store']) ? $request['in_store'] : 0,
                         'device_type' => !empty($request['device_type']) ? ucfirst($request['device_type']) : '',
                         'gender' => !empty($request['gender']) ? ucfirst($request['gender']) : '',
                         'customer_code' => !empty($request['customer_code']) ? $request['customer_code'] : '',
@@ -122,7 +127,6 @@ class CustomerController extends Controller
                         //'executive_id' =>  !empty($request['executive_id'])? $request['executive_id'] : $request['created_by'],
                         'created_by' =>  !empty($request['created_by']) ? $request['created_by'] : null,
                         'manager_name' => !empty($request['manager_name']) ? $request['manager_name'] : '',
-                        'manager_phone' => !empty($request['manager_phone']) ? $request['manager_phone'] : '',
                         'contact_number' => !empty($request['contact_number']) ? $request['contact_number'] : '',
                         //'parent_id' => !empty($request['parent_id'])? $request['parent_id'] :null,
                         'created_at' => getcurentDateTime(),
@@ -226,6 +230,7 @@ class CustomerController extends Controller
                             $image = $request->file('shopimage');
                             $filename = 'customer';
                             $request['shop_image'] = fileupload($image, $this->path . '/shopimage', $filename);
+                            Customers::where('id', $request['customer_id'])->update(['profile_image'=>$request['shop_image']]);
                         }
 
                         // if($request->file('image')){
@@ -575,7 +580,7 @@ class CustomerController extends Controller
             $user = $request->user();
             $userids = getUsersReportingToAuth($user->id);
             $pageSize = $request->input('pageSize');
-            $query = $this->customers->with('customeraddress:customer_id,address1,address2', 'customerdetails:customer_id,grade,visit_status', 'customertypes')->select('id', 'name', 'first_name', 'last_name', 'mobile', 'email', 'profile_image', 'customer_code', 'latitude', 'longitude')->whereIn('executive_id', $userids)->latest();
+            $query = $this->customers->with('customeraddress:customer_id,address1,address2', 'customerdetails:customer_id,grade,visit_status', 'customertypes')->select('id', 'name', 'first_name', 'last_name', 'mobile', 'email', 'profile_image', 'customer_code', 'latitude', 'longitude')->whereIn('created_by', $userids)->latest();
             $db_data = (!empty($pageSize)) ? $query->paginate($pageSize) : $query->get();
             $data = collect([]);
             if ($db_data->isNotEmpty()) {
@@ -723,7 +728,7 @@ class CustomerController extends Controller
 
         try {
             $validator = Validator::make($request->all(), [
-                'customer_id' => 'nullable|exists:customers,id',
+                'customer_id' => 'required|exists:customers,id',
             ]);
             if ($validator->fails()) {
                 return response()->json(['status' => 'error', 'message' => $validator->messages()->all()], $this->badrequest);
@@ -735,41 +740,41 @@ class CustomerController extends Controller
 
             $customer_id = $request->input('customer_id');
 
-            $orders = Order::where(function ($query) use ($customer_id, $fromdate, $todate) {
+            // $orders = Order::where(function ($query) use ($customer_id, $fromdate, $todate) {
 
-                $query->where('buyer_id', '=', $customer_id);
+            //     $query->where('buyer_id', '=', $customer_id);
 
-                if (!empty($fromdate) && !empty($todate)) {
-                    $query->whereBetween('order_date', [$fromdate, $todate]);
-                } else {
-                    $cdate = Carbon::now();
-                    $firstDateOfCurrentMonth = $cdate->startOfMonth()->toDateString();
-                    $query->where('order_date', '>=', $firstDateOfCurrentMonth);
-                }
-            })
-                ->select('sub_total', 'id', 'total_qty')->get();
+            //     if (!empty($fromdate) && !empty($todate)) {
+            //         $query->whereBetween('order_date', [$fromdate, $todate]);
+            //     } else {
+            //         $cdate = Carbon::now();
+            //         $firstDateOfCurrentMonth = $cdate->startOfMonth()->toDateString();
+            //         $query->where('order_date', '>=', $firstDateOfCurrentMonth);
+            //     }
+            // })
+            //     ->select('sub_total', 'id', 'total_qty')->get();
 
-            //nnn
+            // //nnn
 
-            $sum_quantity = 0;
-            foreach ($orders as $order) {
-                $sum_quantity = OrderDetails::where('order_id', $order->id)->sum('quantity') ?? 0;
-            }
+            // $sum_quantity = 0;
+            // foreach ($orders as $order) {
+            //     $sum_quantity = OrderDetails::where('order_id', $order->id)->sum('quantity') ?? 0;
+            // }
 
-            $sum_quantity = (int)$sum_quantity;
+            // $sum_quantity = (int)$sum_quantity;
 
 
             ///nnn
 
-            $sales = Sales::where(function ($query) use ($customer_id, $fromdate, $todate) {
-                $query->where('buyer_id', '=', $customer_id);
-                if (!empty($fromdate) && !empty($todate)) {
-                    $query->whereBetween('invoice_date', [$fromdate, $todate]);
-                }
-            })->select('grand_total')->get();
+            // $sales = Sales::where(function ($query) use ($customer_id, $fromdate, $todate) {
+            //     $query->where('buyer_id', '=', $customer_id);
+            //     if (!empty($fromdate) && !empty($todate)) {
+            //         $query->whereBetween('invoice_date', [$fromdate, $todate]);
+            //     }
+            // })->select('grand_total')->get();
 
             $checkins = CheckIn::with('visitreports', 'visitreports.visittypename')->where('customer_id', '=', $customer_id)->select('checkin_date', 'checkin_time')->latest()->limit(10)->get();
-            $last_order_date = Order::where('buyer_id', '=', $customer_id)->latest()->pluck('order_date')->first();
+            // $last_order_date = Order::where('buyer_id', '=', $customer_id)->latest()->pluck('order_date')->first();
             $data = $this->customers->with('customerdetails', 'visitsinfo', 'getparentdetail', 'parentdetail', 'customeraddress', 'customerdocuments', 'surveys', 'surveys.fields', 'customeraddress.cityname', 'customeraddress.districtname', 'customeraddress.statename', 'customeraddress.pincodename', 'customertypes', 'customerdeals')->where('id', $customer_id)->select(
                 'id',
                 'name',
@@ -787,12 +792,12 @@ class CustomerController extends Controller
                 DB::raw('(SELECT SUM(paid_amount) FROM sales WHERE sales.buyer_id = id) as totalpaid')
             )->first();
 
-            $total_value = $orders->sum('sub_total');
-            $total_qty = $orders->sum('total_qty');
-            $beatinfo = Beat::whereHas('beatcustomers', function ($query) use ($customer_id) {
-                $query->where('customer_id', '=', $customer_id);
-            })
-                ->select('beat_name', 'id')->first();
+            // $total_value = $orders->sum('sub_total');
+            // $total_qty = $orders->sum('total_qty');
+            // $beatinfo = Beat::whereHas('beatcustomers', function ($query) use ($customer_id) {
+            //     $query->where('customer_id', '=', $customer_id);
+            // })
+            //     ->select('beat_name', 'id')->first();
 
 
             //$data['parent_name'] = $data->parentdetail->name??'';
@@ -831,13 +836,13 @@ class CustomerController extends Controller
             $data['beat_name'] = isset($beatinfo['beat_name']) ? $beatinfo['beat_name'] : '';
             $data['beat_id'] = isset($beatinfo['id']) ? $beatinfo['id'] : null;
             $data['outstanding'] = $data['totalamount'] - $data['totalpaid'];
-            $data['total_order_value'] = $total_value;
+            // $data['total_order_value'] = $total_value;
             // $data['total_order_quantity'] = $total_qty; 
-            $data['total_order_quantity'] = $sum_quantity;
+            // $data['total_order_quantity'] = $sum_quantity;
 
-            $data['avg_order_value'] = ($total_value >= 1) ? number_format((float)$total_value / $orders->count(), 1, '.', '') . ' %'  : '';
-            $data['avg_order_quantity'] = ($total_qty >= 1) ? number_format((float)$total_qty / $orders->count(), 1, '.', '') . ' %'  : '';
-            $data['total_sales_value'] = $sales->sum('grand_total');
+            // $data['avg_order_value'] = ($total_value >= 1) ? number_format((float)$total_value / $orders->count(), 1, '.', '') . ' %'  : '';
+            // $data['avg_order_quantity'] = ($total_qty >= 1) ? number_format((float)$total_qty / $orders->count(), 1, '.', '') . ' %'  : '';
+            // $data['total_sales_value'] = $sales->sum('grand_total');
             if (!empty($last_order_date) && isset($last_order_date)) {
                 $dateTime1 = Carbon::parse($last_order_date);
                 $data['last_order_date'] = $dateTime1->format('d-m-Y');

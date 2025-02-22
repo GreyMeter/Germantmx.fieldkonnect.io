@@ -52,7 +52,7 @@
           </div>
           @endif
           <div class="table-responsive">
-            <table id="getattendance" class="table table-striped- table-bordered table-hover table-checkable responsive no-wrap">
+            <table id="getattendance" class="table table-striped- table-bordered table-hover table-checkable no-wrap">
               <thead class=" text-primary">
                 <th>No</th>
                 <th>User ID</th>
@@ -61,7 +61,7 @@
                 <th>Checkin Time</th>
                 <th>Checkin Out</th>
                 <th>Total Visit Time</th>
-                <th>Beat Name</th>
+                <!-- <th>Beat Name</th> -->
                 <th>Customer Id</th>
                 <th>Customer Name</th>
                 <th>Customer Mobile</th>
@@ -69,10 +69,10 @@
                 <th>City</th>
                 <th>Pin</th>
                 <th>Address</th>
-                <th>Order Qty SKU</th>
+                <!-- <th>Order Qty SKU</th>
                 <th>Order Value </th>
                 <th>Unique SKU</th>
-                <th>Unique Orders</th>
+                <th>Unique Orders</th> -->
                 <th>Visit Remark </th>
               </thead>
               <tbody>
@@ -113,6 +113,7 @@
           {
             data: 'user_id',
             name: 'user_id',
+            orderable: false,
             "defaultContent": ''
           },
           {
@@ -125,11 +126,13 @@
           {
             data: 'checkin_date',
             name: 'checkin_date',
+            orderable: false,
             "defaultContent": ''
           },
           {
             data: 'checkin_time',
             name: 'checkin_time',
+            orderable: false,
             "defaultContent": ''
           },
           {
@@ -146,67 +149,74 @@
             orderable: false,
             searchable: false
           },
-          {
-            data: 'beat_name',
-            name: 'beat_name',
-            "defaultContent": ''
-          },
+          // {
+          //   data: 'beat_name',
+          //   name: 'beat_name',
+          //   "defaultContent": ''
+          // },
           {
             data: 'customer_id',
             name: 'customer_id',
+            orderable: false,
             "defaultContent": ''
           },
           {
             data: 'customers.name',
             name: 'customers.name',
+            orderable: false,
             "defaultContent": ''
           },
           {
             data: 'customers.mobile',
             name: 'customers.mobile',
+            orderable: false,
             "defaultContent": ''
           },
           {
             data: 'district_name',
             name: 'district_name',
+            orderable: false,
             "defaultContent": ''
           },
           {
             data: 'city_name',
             name: 'city_name',
+            orderable: false,
             "defaultContent": ''
           },
           {
             data: 'pincode',
             name: 'pincode',
+            orderable: false,
             "defaultContent": ''
           },
           {
             data: 'address',
             name: 'address',
+            orderable: false,
             "defaultContent": ''
           },
-          {
-            data: 'ordersum',
-            name: 'ordersum',
-            "defaultContent": '',
-            orderable: false,
-            searchable: false
-          },
-          {
-            data: 'uniquesku',
-            name: 'uniquesku',
-            "defaultContent": '',
-            orderable: false,
-            searchable: false
-          },
-          {
-            data: 'uniqueorder',
-            name: 'uniqueorder',
-            "defaultContent": '',
-            orderable: false,
-            searchable: false
-          },
+          // {
+          //   data: 'ordersum',
+          //   name: 'ordersum',
+          //   "defaultContent": '',
+          //   orderable: false,
+          //   searchable: false
+          // },
+          // {
+          //   data: 'uniquesku',
+          //   name: 'uniquesku',
+          //   "defaultContent": '',
+          //   orderable: false,
+          //   searchable: false
+          // },
+          // {
+          //   data: 'uniqueorder',
+          //   name: 'uniqueorder',
+          //   "defaultContent": '',
+          //   orderable: false,
+          //   searchable: false
+          // },
           {
             data: 'remarks',
             name: 'remarks',
@@ -214,11 +224,11 @@
             orderable: false,
             searchable: false
           },
-          {
-            data: 'created_at',
-            name: 'created_at',
-            "defaultContent": ''
-          },
+          // {
+          //   data: 'created_at',
+          //   name: 'created_at',
+          //   "defaultContent": ''
+          // },
         ]
       });
       $('#start_date').change(function() {

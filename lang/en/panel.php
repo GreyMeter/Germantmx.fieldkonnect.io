@@ -94,6 +94,11 @@ return [
 
     ],
 
+    'order_dispatch' => [
+        'title' => 'Order Dispatch',
+        'target_users'        => 'Target Users',
+    ],
+
     'dealer_distributor_user' => [
         'title' => 'Dealer Distributor users',
         'title_singular' => 'Dealer Distributor user',
@@ -523,7 +528,7 @@ return [
         'no_alerts'                            => 'No alerts',
         'calendar'                             => 'Calendar',
         'messenger'                            => 'Messenger',
-        'parentcustomer'                       => 'Parent Customer',
+        'parentcustomer'                       => 'Parent Distributor',
         'contact_number_two'                   => 'Contact Number-2',
         'create_department'                   => 'Create Department',
         'list_price'                          => 'Rate(LP)',

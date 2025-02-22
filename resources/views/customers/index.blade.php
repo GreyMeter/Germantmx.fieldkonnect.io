@@ -13,7 +13,7 @@
               <form method="GET" action="{{ URL::to('customers-download') }}">
                   <div class="d-flex flex-wrap flex-row">
 
-                  <div class="p-2" style="width:200px;">
+                  <!-- <div class="p-2" style="width:200px;">
                     <select class="selectpicker" name="executive_id" id="executive_id" data-style="select-with-transition" title="Select User">
                        <option value="">Select User</option>
                       @if(@isset($users ))
@@ -80,7 +80,7 @@
                        <option value="Y">Active</option>
                        <option value="N">Inactive</option>
                     </select>
-                   </div> 
+                   </div>  -->
 
                     <div class="p-2" style="width:150px;"><input type="text" class="form-control datepicker" id="start_date" name="start_date" placeholder="Start Date" autocomplete="off" readonly></div>
                     <div class="p-2" style="width:150px;"><input type="text" class="form-control datepicker" id="end_date" name="end_date" placeholder="End Date" autocomplete="off" readonly></div>
@@ -227,7 +227,7 @@
               <th>{!! trans('panel.customers.fields.customertype') !!}</th>
               <th>{!! trans('panel.global.created_by') !!}</th>
               <th>{!! trans('panel.global.created_at') !!}</th>
-              <th>Beat Name</th>
+              <!-- <th>Beat Name</th> -->
             </thead>
             <tbody>
             </tbody>
@@ -282,7 +282,7 @@
             {data: 'customertypes.customertype_name', name: 'customertypes.customertype_name',"defaultContent": '', orderable: false},
             {data: 'createdbyname.name', name: 'createdbyname.name',"defaultContent": '', orderable: false},
             {data: 'created_at', name: 'created_at',"defaultContent": '', orderable: false},
-            {data: 'beat_name', name: 'beat_name',"defaultContent": '', orderable: false},
+            // {data: 'beat_name', name: 'beat_name',"defaultContent": '', orderable: false},
            
         ]
     });

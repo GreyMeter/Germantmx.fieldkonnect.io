@@ -4014,12 +4014,63 @@ class ReportController extends Controller
         $dealers = Customers::where('customertype', ['1', '3'])->get();
 
         if ($request->ajax()) {
-            $data = CustomerOutstanting::with('customer');
+            // $data = CustomerOutstanting::with('customer');
+
+            $data = Order::with('order_confirm', 'customer')->orderBy('created_at', 'desc')->get();
+
+            // dd($data->get());
 
             return Datatables::of($data)
                 ->addIndexColumn()
 
-                ->rawColumns([])
+                ->editColumn('date', function ($data) {
+                    return isset($data->created_at) ? date('d M Y', strtotime($data->created_at)) : '';
+                })
+                ->editColumn('dispatch', function ($data) {
+                    if (count($data->order_confirm) > 0) {
+                        return $data->order_confirm->pluck('qty')->sum();
+                    } else {
+                        return '0';
+                    }
+                })
+                ->editColumn('pending', function ($data) {
+                    if (count($data->order_confirm) > 0) {
+                        return $data->qty - $data->order_confirm->pluck('qty')->sum();
+                    } else {
+                        return $data->qty;
+                    }
+                })
+                ->editColumn('days', function ($data) {
+                    $blink = 'blink-text';
+                    if (count($data->order_confirm) > 0) {
+                        if (($data->qty - $data->order_confirm->pluck('qty')->sum()) > 0) {
+                            $days = isset($data->created_at)
+                                ? \Carbon\Carbon::parse($data->created_at->toDateString())->diffInDays(now()->toDateString())
+                                : '';
+                            
+                        } else {
+                            $lastCreatedAt = $data->order_confirm()
+                                ->latest('created_at')
+                                ->value('created_at');
+                            $days = \Carbon\Carbon::parse($data->created_at->toDateString())->diffInDays(\Carbon\Carbon::parse($lastCreatedAt)->toDateString());
+                            $blink = '';
+                        }
+                    } else {
+                        $days = isset($data->created_at)
+                            ? \Carbon\Carbon::parse($data->created_at->toDateString())->diffInDays(now()->toDateString())
+                            : '';
+                            
+                    }
+
+                    if ($days > 10) {
+                        return '<span class="badge badge-danger ' . $blink . '">' . $days . '</span>';
+                    } else {
+                        return '<span class="badge badge-info">' . $days . '</span>';
+                    }
+                })
+
+
+                ->rawColumns(['date', 'dispatch', 'pending', 'days'])
                 ->make(true);
         }
 
@@ -4175,21 +4226,21 @@ class ReportController extends Controller
             })
             ->addColumn('ovper', function ($data) use ($request, $months, $f_year_array, $quarter_name) {
                 if ($request->quarter == '4') {
-                    $total_outstanding = CustomerOutstanting::where('user_id', $data->user_id)->where('year', $f_year_array[1])->where('quarter', 'Like' , '%'.$quarter_name.'%')->sum('amount');
-                    $sixty_outstanding = CustomerOutstanting::where('user_id', $data->user_id)->whereNotIn('days', ['0-30', '31-60'])->where('year', $f_year_array[1])->where('quarter', 'Like' , '%'.$quarter_name.'%')->sum('amount');
-                }else{
-                    $total_outstanding = CustomerOutstanting::where('user_id', $data->user_id)->where('year', $f_year_array[0])->where('quarter', 'Like' , '%'.$quarter_name.'%')->sum('amount');
-                    $sixty_outstanding = CustomerOutstanting::where('user_id', $data->user_id)->whereNotIn('days', ['0-30', '31-60'])->where('year', $f_year_array[0])->where('quarter', 'Like' , '%'.$quarter_name.'%')->sum('amount');
+                    $total_outstanding = CustomerOutstanting::where('user_id', $data->user_id)->where('year', $f_year_array[1])->where('quarter', 'Like', '%' . $quarter_name . '%')->sum('amount');
+                    $sixty_outstanding = CustomerOutstanting::where('user_id', $data->user_id)->whereNotIn('days', ['0-30', '31-60'])->where('year', $f_year_array[1])->where('quarter', 'Like', '%' . $quarter_name . '%')->sum('amount');
+                } else {
+                    $total_outstanding = CustomerOutstanting::where('user_id', $data->user_id)->where('year', $f_year_array[0])->where('quarter', 'Like', '%' . $quarter_name . '%')->sum('amount');
+                    $sixty_outstanding = CustomerOutstanting::where('user_id', $data->user_id)->whereNotIn('days', ['0-30', '31-60'])->where('year', $f_year_array[0])->where('quarter', 'Like', '%' . $quarter_name . '%')->sum('amount');
                 }
                 return $total_outstanding > 0 ? number_format((($sixty_outstanding / $total_outstanding) * 100), 2, '.', '') : '0';
             })
             ->addColumn('svper', function ($data) use ($request, $months, $f_year_array, $quarter_name) {
                 if ($request->quarter == '4') {
-                $total_stock = BranchStock::where('branch_id', $data->branch_id)->where('year', $f_year_array[1])->where('quarter', 'Like' , '%'.$quarter_name.'%')->sum('amount');
-                $ninty_stock = BranchStock::where('branch_id', $data->branch_id)->whereNotIn('days', ['0-30', '31-60', '61-90'])->where('year', $f_year_array[1])->where('quarter', 'Like' , '%'.$quarter_name.'%')->sum('amount');
-                }else{
-                    $total_stock = BranchStock::where('branch_id', $data->branch_id)->where('year', $f_year_array[0])->where('quarter', 'Like' , '%'.$quarter_name.'%')->sum('amount');
-                $ninty_stock = BranchStock::where('branch_id', $data->branch_id)->whereNotIn('days', ['0-30', '31-60', '61-90'])->where('year', $f_year_array[0])->where('quarter', 'Like' , '%'.$quarter_name.'%')->sum('amount');
+                    $total_stock = BranchStock::where('branch_id', $data->branch_id)->where('year', $f_year_array[1])->where('quarter', 'Like', '%' . $quarter_name . '%')->sum('amount');
+                    $ninty_stock = BranchStock::where('branch_id', $data->branch_id)->whereNotIn('days', ['0-30', '31-60', '61-90'])->where('year', $f_year_array[1])->where('quarter', 'Like', '%' . $quarter_name . '%')->sum('amount');
+                } else {
+                    $total_stock = BranchStock::where('branch_id', $data->branch_id)->where('year', $f_year_array[0])->where('quarter', 'Like', '%' . $quarter_name . '%')->sum('amount');
+                    $ninty_stock = BranchStock::where('branch_id', $data->branch_id)->whereNotIn('days', ['0-30', '31-60', '61-90'])->where('year', $f_year_array[0])->where('quarter', 'Like', '%' . $quarter_name . '%')->sum('amount');
                 }
                 return $total_stock > 0 ? number_format((($ninty_stock / $total_stock) * 100), 2, '.', '') : '0';
             })
@@ -4268,7 +4319,7 @@ class ReportController extends Controller
                     $fincentive = '0';
                     $wincentive =  '0';
                 }
-                return number_format($fincentive,2,'.','');;
+                return number_format($fincentive, 2, '.', '');;
             })
             ->addColumn('total_inc_w', function ($data) use ($request, $months, $f_year_array) {
                 $fmonth = $months[0];
@@ -4345,7 +4396,7 @@ class ReportController extends Controller
                     $fincentive = '0';
                     $wincentive =  '0';
                 }
-                return number_format($wincentive,2,'.','');
+                return number_format($wincentive, 2, '.', '');
             })
 
             ->rawColumns(['achiv', 'taper', 'ovper', 'svper', 'total_inc', 'total_inc_w'])

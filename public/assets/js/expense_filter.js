@@ -87,12 +87,6 @@ $(document).ready(function () {
                 searchable: false
             },
             {
-                data: 'users.getdesignation.designation_name',
-                name: 'users.getdesignation.designation_name',
-                orderable: false,
-                searchable: false
-            },
-            {
                 data: 'expense_type.name',
                 name: 'expense_type.name',
                 orderable: false,
@@ -125,12 +119,6 @@ $(document).ready(function () {
             {
                 data: 'date_create',
                 name: 'date_create',
-                orderable: false,
-                searchable: false
-            },
-            {
-                data: 'users.getbranch.branch_name',
-                name: 'users.getbranch.branch_name',
                 orderable: false,
                 searchable: false
             },

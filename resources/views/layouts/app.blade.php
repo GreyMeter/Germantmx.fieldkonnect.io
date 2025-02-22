@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token() }}">
 
-  <title>{{ config('app.name', 'Laravel') }}</title>
+  <title>{{ config('app.name', 'GermanTMX') }}</title>
   <!--  <link href="{{ url('/').'/'.asset('assets/css/testdash2.css') }}" rel="stylesheet" /> -->
   <link href="{{ url('/').'/'.asset('assets/css/materialdashboard2.css?v=' . now()->timestamp) }}" rel="stylesheet" />
   <link rel="stylesheet" type="text/css"
@@ -14,13 +14,13 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">
   <!-- CSS Files -->
 
-  <link href="{{ url('/').'/'.asset('assets/css/newdesign.css??') }}" rel="stylesheet" />
-  <link href="{{ url('/').'/'.asset('assets/css/custom1.css??') }}" rel="stylesheet" />
+  <link href="{{ url('/').'/'.asset('assets/css/newdesign.css?v=' . now()->timestamp) }}" rel="stylesheet" />
+  <link href="{{ url('/').'/'.asset('assets/css/custom1.css?v=' . now()->timestamp) }}" rel="stylesheet" />
   <!-- CSS Just for demo purpose, don't include it in your project -->
   <link href="{{ url('/').'/'.asset('assets/demo/demo.css??') }}" rel="stylesheet" />
   <!-- <link href="{{ url('/').'/'.asset('assets/css/jquery-ui.css') }}" rel="stylesheet" /> -->
   <link href="{{ url('/').'/'.asset('assets/css/responsive.bootstrap4.css??') }}" rel="stylesheet" />
-  <link rel="stylesheet" href="{{ url('/').'/'.asset('assets/plugins/select2/css/select2.css?') }}">
+  <link rel="stylesheet" href="{{ url('/').'/'.asset('assets/plugins/select2/css/select2.css?v=' . now()->timestamp) }}">
   <link href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" rel="stylesheet">
   <script src="{{ url('/').'/'.asset('assets/js/core/jquery.min.js') }}"></script>
   <script src="{{ url('/').'/'.asset('assets/js/core/jquery-ui.js') }}"></script>
@@ -766,10 +766,10 @@
               class="nav-link {{ request()->is('customers*') || request()->is('customertype*') || request()->is('firmtype*') || request()->is('customersLogin*') || request()->is('customers-survey*') || request()->is('fields*') || request()->is('customer_outstanting*') ? 'active' : '' }}">
               <a class="collapsed hoveradd" data-toggle="collapse" href="#customerMenu" aria-expanded="false">
                 <i class="material-icons icon">contact_emergency</i>
-                <span> {!! trans('panel.sidemenu.customers_master') !!}
+                <span> Distributor
 
                 </span>
-                <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.customers_master') !!}
+                <div class="d-none mobile_hide"> Distributor
 
                 </div>
               </a>
@@ -870,7 +870,6 @@
             @endif
             @if(auth()->user()->can('product_access'))
             <li
-
               class="nav-link {{ request()->is('categories*') || request()->is('subcategories*') || request()->is('brands*') || request()->is('products*') || request()->is('units*') || request()->is('production*') || request()->is('units*') || request()->is('plants*') || request()->is('stock*') ? 'active' : '' }}">
               <a class="collapsed hoveradd" data-toggle="collapse" href="#productMenu" aria-expanded="false">
                 <i class="material-icons icon">conveyor_belt</i>
@@ -939,8 +938,8 @@
                   <li class="nav-link-btn {{ request()->is('plants*') ? 'active' : '' }}">
                     <a class="hoveradd2" href="{{ url('plants') }}">
                       <i class="material-icons icon">domain</i>
-                      <span>Unit</span>
-                      <div class="d-none mobile_hide">Unit
+                      <span>Plants</span>
+                      <div class="d-none mobile_hide">Plants
 
                       </div>
                     </a>
@@ -981,8 +980,19 @@
             <li class="single-menu nav-link {{ request()->is('prices*') ? 'active' : '' }}">
               <a class="hoveradd" href="{{ url('prices/create') }}">
                 <i class="material-icons icon">payments</i>
-                <span>Prices</span>
-                <div class="d-none mobile_hide">{!! trans('panel.sidemenu.prices') !!}
+                <span>General Prices</span>
+                <div class="d-none mobile_hide">General {!! trans('panel.sidemenu.prices') !!}
+
+                </div>
+              </a>
+            </li>
+            @endif
+            @if(auth()->user()->can('prices_access'))
+            <li class="single-menu nav-link {{ request()->is('south_prices*') ? 'active' : '' }}">
+              <a class="hoveradd" href="{{ url('south_prices/create') }}">
+                <i class="material-icons icon">payments</i>
+                <span>South Prices</span>
+                <div class="d-none mobile_hide">South {!! trans('panel.sidemenu.prices') !!}
 
                 </div>
               </a>
@@ -1005,8 +1015,8 @@
                   <li class="nav-link-btn {{ request()->is('orders') ? 'active' : '' }}">
                     <a class="hoveradd2" href="{{ url('orders') }}">
                       <i class="material-icons icon">list_alt</i>
-                      <span>Soda</span>
-                      <div class="d-none mobile_hide">Soda
+                      <span>Booking</span>
+                      <div class="d-none mobile_hide">Booking
 
                       </div>
                     </a>
@@ -1016,8 +1026,8 @@
                   <li class="nav-link-btn {{ request()->is('orders_confirm') ? 'active' : '' }}">
                     <a class="hoveradd2" href="{{ url('orders_confirm') }}">
                       <i class="material-icons icon">app_registration</i>
-                      <span>Orders</span>
-                      <div class="d-none mobile_hide">Orders
+                      <span>Final Orders</span>
+                      <div class="d-none mobile_hide">Final Orders
 
                       </div>
                     </a>
@@ -1040,14 +1050,14 @@
             @endif
 
             @if(auth()->user()->can('hr_access'))
-            <li class="nav-link {{ request()->is('reports/attendancereport*') || request()->is('reports/attendancereportSummary*') || request()->is('holidays*') || request()->is('leaves*') || request()->is('appraisal*') || request()->is('sales_weightage*') || request()->is('users*') || request()->is('targets*') || request()->is('livelocation*') || request()->is('roles*') || request()->is('permissions*') || request()->is('tours*') || request()->is('usercity*') || request()->is('new-joinings*') ? 'active' : '' }}">
+            <li class="nav-link {{ request()->is('reports/attendancereport*') || request()->is('reports/attendancereportSummary*') || request()->is('holidays*') || request()->is('leaves*') || request()->is('appraisal*') || request()->is('sales_weightage*') || request()->is('users*') || request()->is('targets*') || request()->is('livelocation*') || request()->is('roles*') || request()->is('permissions*') || request()->is('tours*') || request()->is('usercity*') || request()->is('new-joinings*') || request()->is('reports/customervisit*') ? 'active' : '' }}">
               <a class="collapsed hoveradd" data-toggle="collapse" href="#hr" aria-expanded="false">
                 <i class="material-icons icon">family_restroom</i>
                 <span> {!! trans('panel.sidemenu.hr') !!}
                 </span>
                 <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.hr') !!}</div>
               </a>
-              <div class="collapse {{ request()->is('reports/attendancereport*') || request()->is('reports/attendancereportSummary*') || request()->is('holidays*') || request()->is('leaves*') || request()->is('appraisal*') || request()->is('sales_weightage*') || request()->is('users*') || request()->is('targets*') || request()->is('livelocation*') || request()->is('roles*') || request()->is('permissions*') || request()->is('tours*') || request()->is('usercity*') || request()->is('new-joinings*') ? 'show' : '' }}" id="hr">
+              <div class="collapse {{ request()->is('reports/attendancereport*') || request()->is('reports/attendancereportSummary*') || request()->is('holidays*') || request()->is('leaves*') || request()->is('appraisal*') || request()->is('sales_weightage*') || request()->is('users*') || request()->is('targets*') || request()->is('livelocation*') || request()->is('roles*') || request()->is('permissions*') || request()->is('tours*') || request()->is('usercity*') || request()->is('new-joinings*') || request()->is('reports/customervisit*') ? 'show' : '' }}" id="hr">
                 <ul class="navd">
                   @if(auth()->user()->can('role_access'))
                   <li class="nav-link-btn {{ request()->is('roles*') ? 'active' : '' }}">
@@ -1062,8 +1072,8 @@
                   <li class="nav-link-btn {{ request()->is('reports/attendancereport') ? 'active' : '' }}">
                     <a class="hoveradd2" href="{{ url('reports/attendancereport') }}">
                       <i class="material-icons icon">report</i>
-                      <span>Attendance Detail Report</span>
-                      <div class="d-none mobile_hide"> Attendance Detail Report</div>
+                      <span>Attendance </span>
+                      <div class="d-none mobile_hide"> Attendance </div>
                     </a>
                   </li>
                   @endif
@@ -1073,6 +1083,15 @@
                       <i class="material-icons icon">summarize</i>
                       <span>Attendance Summary Report</span>
                       <div class="d-none mobile_hide">Attendance Summary Report</div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('visit_report'))
+                  <li class="nav-link-btn {{ request()->is('reports/customervisit*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('reports/customervisit') }}">
+                      <i class="material-icons icon">dashboard_customize</i>
+                      <span>Customer Visit</span>
+                      <div class="d-none mobile_hide"> Customer Visit</div>
                     </a>
                   </li>
                   @endif
@@ -1167,22 +1186,6 @@
                     </a>
                     <div class="collapse" id="userMenu" style="">
                       <ul class="navd">
-                        <!--                 @if(auth()->user()->can('appraisal_pms'))
-                                          <li class="nav-item {{ request()->is('appraisal/create') ? 'active' : '' }}">
-                                            <a class="hoveradd2" href="{{ url('appraisal/index') }}">
-                                              <i class="material-icons">verified_user</i>
-                                              <p>Appraisal(PMS)</p>
-                                            </a>
-                                          </li>
-                                          @endif
-                                          @if(auth()->user()->can('sales_weightage'))
-                                          <li class="nav-item {{ request()->is('sales_weightage') ? 'active' : '' }}">
-                                            <a class="nav-link" href="{{ url('sales_weightage') }}">
-                                              <i class="material-icons">check</i>
-                                              <p>{!! trans('panel.sales_weightage.title') !!}</p>
-                                            </a>
-                                          </li>
-                                          @endif -->
                         @if(auth()->user()->can('new_joining_access'))
                         <li class="nav-link-btn {{ request()->is('new-joinings*') ? 'active' : '' }}">
                           <a class="hoveradd2" href="{{ url('new-joinings') }}">
@@ -1223,8 +1226,8 @@
                         <li class="nav-link-btn {{ request()->is('livelocation*') ? 'active' : '' }}">
                           <a class="hoveradd2" href="{{ url('livelocation') }}">
                             <i class="material-icons icon">share_location</i>
-                            <span>User Live Location</span>
-                            <div class="d-none mobile_hide"> User Live Location</div>
+                            <span>Sales team activities</span>
+                            <div class="d-none mobile_hide"> Sales team activities</div>
                           </a>
                         </li>
                         @endif
@@ -1248,6 +1251,62 @@
                         @endif
                       </ul>
                     </div>
+                  </li>
+                  @endif
+                </ul>
+              </div>
+            </li>
+            @endif
+
+            @if(auth()->user()->can('setting_access'))
+            <li class="nav-link {{ request()->is('settings*') ? 'active' : '' }}">
+              <a class="collapsed hoveradd" data-toggle="collapse" href="#settings" aria-expanded="false">
+                <i class="material-icons icon">manage_accounts</i>
+                <span> {!! trans('panel.sidemenu.setting') !!}
+                </span>
+                <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.setting') !!}</div>
+              </a>
+              <div class="collapse {{ request()->is('settings*') ? 'show' : '' }}" id="settings">
+                <ul class="navd">
+                  @if(auth()->user()->can('setting_access'))
+                  <li class="nav-link-btn {{ request()->is('settings*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('settings') }}">
+                      <i class="material-icons icon">settings</i>
+                      <span>{!! trans('panel.sidemenu.setting') !!}</span>
+                      <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.setting') !!}</div>
+                    </a>
+                  </li>
+                  @endif
+                </ul>
+              </div>
+            </li>
+            @endif
+
+            @if(auth()->user()->can(['account_access']))
+            <li class="nav-link {{ request()->is('expenses*') ? 'active' : '' }}">
+              <a class="collapsed hoveradd" data-toggle="collapse" href="#accountMenu" aria-expanded="false">
+                <i class="material-icons icon">store</i>
+                <span> {!! trans('panel.sidemenu.account') !!}</span>
+                <div class="d-none mobile_hide"> {!! trans('panel.sidemenu.account') !!}</div>
+              </a>
+              <div class="collapse {{ request()->is('expenses*') ? 'show' : '' }}" id="accountMenu">
+                <ul class="navd">
+                  @if(auth()->user()->can(['expenses_type']))
+                  <li class="nav-item-btn {{ request()->is('expenses_type*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('expenses_type') }}">
+                      <i class="material-icons icon">dashboard</i>
+                      <span>{!! trans('panel.sidemenu.expenses_type') !!}</span>
+                      <div class="d-none mobile_hide">{!! trans('panel.sidemenu.expenses_type') !!}</div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('expense_access'))
+                  <li class="nav-item-btn {{ request()->is('expenses') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('expenses') }}">
+                      <i class="material-icons icon">outlet</i>
+                      <span>Expense</span>
+                      <div class="d-none mobile_hide"> Expense</div>
+                    </a>
                   </li>
                   @endif
                 </ul>
@@ -1297,7 +1356,7 @@
           @auth
           <div class="collapse navbar-collapse justify-content-end">
             <ul class="navbar-nav">
-              <li class="nav-item dropdown">
+              <li class="nav-item dropdown notifications_section">
                 <a class="nav-link" href="http://example.com" id="navbarDropdownMenuLink" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
                   <i class="material-icons">notifications</i>
@@ -1306,14 +1365,19 @@
                     Some Actions
                   </p>
                 </a>
-                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
-                  <h3 class="ml-3">Alerts</h3>
-                  <hr>
-                  @foreach(getAllNotification() as $k=>$val)
-                  <a class="dropdown-item" href="#">{{$k+1}}) {{ $val->data}}</a>
-                  <small style="    display: flex;align-items: center;justify-content: right;" class="ml-3"><i style="font-size: 16px !important;" class="material-icons">schedule</i>{{date('d-M-Y h:i A', strtotime($val->created_at))}}</small>
-                  <hr>
-                  @endforeach
+                <div class="dropdown-menu dropdown-menu-right pt-0 " aria-labelledby="navbarDropdownMenuLink">
+                  <h4 class="card-title  notifications_bg">Alerts</h4>
+                  <!-- <hr> -->
+                  <div class="icon_list">
+                    @foreach(getAllNotification() as $k=>$val)
+                    <a class="dropdown-item notifications_icon" href="#"><span>{{$k+1}}) {{ $val->data}}</span>
+                      <div class="clock_icon">
+                        <i style="font-size: 16px !important;" class="material-icons pr-2">schedule</i>{{date('d-M-Y h:i A', strtotime($val->created_at))}}
+                      </div>
+                    </a>
+                    <!-- <hr> -->
+                    @endforeach
+                  </div>
                 </div>
               </li>
               <li class="nav-item dropdown">

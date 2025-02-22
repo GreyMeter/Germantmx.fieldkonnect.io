@@ -1,5 +1,48 @@
 <x-app-layout>
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAVSDwHbKULnZa93kYpYINTqX4eaWy9q18" type="text/javascript"></script>
+    <style>
+        .dot-bouncing {
+            position: relative;
+            height: 10px;
+            font-size: 10px;
+        }
+
+        .dot-bouncing::before {
+            content: "⚽ 🏀 🏐";
+            display: inline-block;
+            position: relative;
+            animation: dot-bouncing 1.5s infinite;
+        }
+
+        @keyframes dot-bouncing {
+            0% {
+                top: -20px;
+                animation-timing-function: ease-in;
+            }
+
+            34% {
+                transform: scale(1, 1);
+            }
+
+            35% {
+                top: 20px;
+                animation-timing-function: ease-out;
+                transform: scale(1.5, 0.5);
+            }
+
+            45% {
+                transform: scale(1, 1);
+            }
+
+            90% {
+                top: -20px;
+            }
+
+            100% {
+                top: -20px;
+            }
+        }
+    </style>
     <div class="row mt-4">
         <div class="col-lg-12">
             <div class="card mt-4" data-animation="true">
@@ -26,11 +69,11 @@
                         </span>
                     </div>
                     @endif
-                    <h5 class="font-weight-normal mt-4">User Live Location</h5>
+                    <h5 class="font-weight-normal mt-4">Sales team activities</h5>
                     <form target="_blank" method="post" action="{{url('map-all')}}">
                         @csrf
                         <div class="row">
-                            <div class="col-md-3">
+                            <!-- <div class="col-md-3">
                                 <div class="dropdown bootstrap-select show-tick">
                                     <select class="selectpicker" multiple id="branch_id" name="branch_id" data-style="select-with-transition" title="Choose Branch" data-size="10" tabindex="-98">
                                         <option disabled=""> Select Branch</option>
@@ -65,7 +108,7 @@
                                         @endif
                                     </select>
                                 </div>
-                            </div>
+                            </div> -->
                             <div class="col-md-3">
                                 <div class="dropdown bootstrap-select show-tick">
                                     <select class="select2" id="user_id" name="user_id" data-style="select-with-transition" title="Choose User" data-size="10" tabindex="-98" required>
@@ -86,15 +129,15 @@
                             <div class="col-md-2">
                                 <button type="button" class="btn btn-info" onclick="getActivityData()">Activity</button>
                             </div>
-                            <div class="col-md-3 pl-0">
-                                <!-- <button type="button" class="btn btn-info btn-sm" onclick="getLocationData()">Location</button> -->
+                            <!-- <div class="col-md-3 pl-0">
+                                <button type="button" class="btn btn-info btn-sm" onclick="getLocationData()">Location</button>
                                 <input type="submit" class="btn btn-primary" value="Complete Map">
-                            </div>
+                            </div> -->
                         </div>
                     </form>
                     <div class="row p-3">
                         <div class="col-md-7">
-                            <div id="map" style="width: 500px; height: 400px;"></div>
+                            <div id="map" style="width: 700px; height: 500px;"></div>
                         </div>
                         <div class="col-md-5 mt-2" id="custom-scroll" style="overflow-y: scroll; height:400px">
                             <ul class="timeline timeline-simple" id="todayActivity">
@@ -142,7 +185,7 @@
 
         function getActivityData() {
             $("#todayActivity").empty();
-            $("#todayActivity").append('Please Wait...');
+            $("#todayActivity").append('<div class="snippet" data-title="dot-bouncing"><div class="stage"><div class="dot-bouncing"></div></div></div>');
             var date = $("input[name=date]").val();
             var user_id = $("select[name=user_id]").val();
             $.ajax({

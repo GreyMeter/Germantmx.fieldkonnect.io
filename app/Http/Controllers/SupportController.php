@@ -27,7 +27,7 @@ class SupportController extends Controller
 {
     public function __construct() 
     {     
-        $this->middleware('auth');   
+        // $this->middleware('auth');   
         
         $this->supports = new Support();
     }
@@ -41,71 +41,71 @@ class SupportController extends Controller
     // }
     public function index(Request $request)
     {
-        abort_if(Gate::denies('supports_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        if ($request->ajax()) {
-            $data = Support::latest();
-            return Datatables::of($data)
-                    ->addIndexColumn()
-                    ->editColumn('created_at', function($data)
-                    {
-                        return isset($data->created_at) ? showdatetimeformat($data->created_at) : '';
-                    })
-                    ->addColumn('action', function ($query) {
-                          $btn = '';
-                          if(auth()->user()->can(['supports_edit']))
-                          {
-                            $btn = $btn.'<a href="'.url("supports/".encrypt($query->id).'/edit') .'" class="btn btn-info btn-sm" title="'.trans('panel.global.show').' '.trans('panel.support.title_singular').'">
-                                            <i class="material-icons">edit</i>
-                                        </a>';
-                          }
-                          if(auth()->user()->can(['supports_show']))
-                          {
-                            $btn = $btn.'<a href="'.url("supports/".encrypt($query->id)).'" class="btn btn-warning btn-sm" title="'.trans('panel.global.show').' '.trans('panel.support.title_singular').'">
-                                            <i class="material-icons">visibility</i>
-                                        </a>';
-                          }
-                          if(auth()->user()->can(['supports_delete']))
-                          {
-                            $btn = $btn.' <a href="" class="btn btn-danger btn-sm delete" value="'.$query->id.'" title="'.trans('panel.global.delete').' '.trans('panel.support.title_singular').'">
-                                        <i class="material-icons">clear</i>
-                                      </a>';
-                          }
-                          return '<div class="btn-group btn-group-sm" role="group" aria-label="Small button group">
-                                        '.$btn.'
-                                    </div>';
-                    })
-                    ->filter(function ($query) use ($request) {
-                                if($request['status'] == 'Open')
-                                {
-                                    $query->whereNull('assigned_to');
-                                }
-                                if($request['status'] == 'in_progress')
-                                {
-                                    $query->whereNotNull('assigned_to');
-                                    $query->where('isanswered','=',0);
-                                }
-                                if($request['status'] == 'Answered')
-                                {
-                                    $query->where('isanswered','=',1);
-                                    $query->whereNull('closed_at');
-                                }
-                                if($request['status'] == 'Hold')
-                                {
-                                    $query->whereNotNull('lock_at');
-                                }
-                                if($request['status'] == 'Closed')
-                                {
-                                    $query->whereNotNull('closed_at');
-                                }
-                                if(!empty($request['search'])){
-                                    $search = $request['search'] ;
-                                    $query->where('full_name', 'like', "%{$search}%");
-                                    $query->Orwhere('subject', 'like', "%{$search}%");
-                                }
-                            })
-                    ->rawColumns(['action'])
-                    ->make(true);
-        }
+        // abort_if(Gate::denies('supports_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        // if ($request->ajax()) {
+        //     $data = Support::latest();
+        //     return Datatables::of($data)
+        //             ->addIndexColumn()
+        //             ->editColumn('created_at', function($data)
+        //             {
+        //                 return isset($data->created_at) ? showdatetimeformat($data->created_at) : '';
+        //             })
+        //             ->addColumn('action', function ($query) {
+        //                   $btn = '';
+        //                   if(auth()->user()->can(['supports_edit']))
+        //                   {
+        //                     $btn = $btn.'<a href="'.url("supports/".encrypt($query->id).'/edit') .'" class="btn btn-info btn-sm" title="'.trans('panel.global.show').' '.trans('panel.support.title_singular').'">
+        //                                     <i class="material-icons">edit</i>
+        //                                 </a>';
+        //                   }
+        //                   if(auth()->user()->can(['supports_show']))
+        //                   {
+        //                     $btn = $btn.'<a href="'.url("supports/".encrypt($query->id)).'" class="btn btn-warning btn-sm" title="'.trans('panel.global.show').' '.trans('panel.support.title_singular').'">
+        //                                     <i class="material-icons">visibility</i>
+        //                                 </a>';
+        //                   }
+        //                   if(auth()->user()->can(['supports_delete']))
+        //                   {
+        //                     $btn = $btn.' <a href="" class="btn btn-danger btn-sm delete" value="'.$query->id.'" title="'.trans('panel.global.delete').' '.trans('panel.support.title_singular').'">
+        //                                 <i class="material-icons">clear</i>
+        //                               </a>';
+        //                   }
+        //                   return '<div class="btn-group btn-group-sm" role="group" aria-label="Small button group">
+        //                                 '.$btn.'
+        //                             </div>';
+        //             })
+        //             ->filter(function ($query) use ($request) {
+        //                         if($request['status'] == 'Open')
+        //                         {
+        //                             $query->whereNull('assigned_to');
+        //                         }
+        //                         if($request['status'] == 'in_progress')
+        //                         {
+        //                             $query->whereNotNull('assigned_to');
+        //                             $query->where('isanswered','=',0);
+        //                         }
+        //                         if($request['status'] == 'Answered')
+        //                         {
+        //                             $query->where('isanswered','=',1);
+        //                             $query->whereNull('closed_at');
+        //                         }
+        //                         if($request['status'] == 'Hold')
+        //                         {
+        //                             $query->whereNotNull('lock_at');
+        //                         }
+        //                         if($request['status'] == 'Closed')
+        //                         {
+        //                             $query->whereNotNull('closed_at');
+        //                         }
+        //                         if(!empty($request['search'])){
+        //                             $search = $request['search'] ;
+        //                             $query->where('full_name', 'like', "%{$search}%");
+        //                             $query->Orwhere('subject', 'like', "%{$search}%");
+        //                         }
+        //                     })
+        //             ->rawColumns(['action'])
+        //             ->make(true);
+        // }
         return view('supports.index');
     }
 
@@ -116,7 +116,7 @@ class SupportController extends Controller
      */
     public function create()
     {
-         abort_if(Gate::denies('supports_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        //  abort_if(Gate::denies('supports_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $users = User::select('id','name')->get();
         $priorities = Priority::select('id','priority_name')->orderBy('priority_name','asc')->get();
         return view('supports.create',compact('users','priorities'))->with('supports',$this->supports);

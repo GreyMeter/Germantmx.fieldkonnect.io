@@ -14,15 +14,14 @@
           <div class="card-icon">
             <i class="material-icons">perm_identity</i>
           </div>
-          <h4 class="card-title ">Soda {!! trans('panel.global.list') !!}
+          <h4 class="card-title ">Booking {!! trans('panel.global.list') !!}
             <span class="">
               <div class="btn-group header-frm-btn">
-
                 @if(auth()->user()->can(['order_download']))
                 <form method="GET" action="{{ URL::to('orders-download') }}">
                   <div class="d-flex flex-wrap flex-row">
                     <div class="p-2" style="width:190px;">
-                      <select class="select2" name="customer_id" id="customer_id" required>
+                      <select class="select2" name="customer_id" id="customer_id">
                         <option value="">Select Customer</option>
                         @foreach($customers as $customer)
                         <option value="{{$customer->id}}">{{$customer->name}}</option>
@@ -31,7 +30,7 @@
                     </div>
                     <div class="p-2"><input type="text" class="form-control datepicker" id="start_date" name="start_date" placeholder="Start Date" autocomplete="off" readonly></div>
                     <div class="p-2"><input type="text" class="form-control datepicker" id="end_date" name="end_date" placeholder="End Date" autocomplete="off" readonly></div>
-                    <!-- <div class="p-2"><button class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.download') !!} {!! trans('panel.order.title') !!}"><i class="material-icons">cloud_download</i></button></div> -->
+                    <div class="p-2"><button class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.download') !!} Bookings"><i class="material-icons">cloud_download</i></button></div>
                   </div>
                 </form>
                 @endif
@@ -86,6 +85,16 @@
             </span>
           </div>
           @endif
+          @if(session()->has('message_danger'))
+          <div class="alert alert-danger">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <i class="material-icons">close</i>
+            </button>
+            <span>
+              {!!session()->get('message_danger') !!}
+            </span>
+          </div>
+          @endif
           @if(count($errors) > 0)
           <div class="alert alert-danger">
             <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -109,7 +118,7 @@
               <thead class=" text-primary">
                 <th>{!! trans('panel.global.action') !!}</th>
                 <th>PO No.</th>
-                <th>Customer Name</th>
+                <th>Distributor/Dealer Name</th>
                 <!-- <th>Brand</th>
                 <th>Grade</th>
                 <th>Size</th> -->
@@ -177,7 +186,7 @@
             orderable: false,
             render: function(data, type, row) {
               if (data && row.discount_amt !== undefined) {
-                const discountedPrice = parseFloat(data) - parseFloat(row.discount_amt);
+                const discountedPrice = parseFloat(data) + parseFloat(row.discount_amt);
                 return '₹ ' + discountedPrice.toLocaleString('en-US', {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2
