@@ -457,10 +457,10 @@ class DashboardController extends Controller
                 if ($key === 'slider_image') {
                     return $item->map(fn($i) => ['id' => $i->id, 'value' => $i->value])->all();
                 }
-            
+
                 // Return as a string for single values, array for multiple
-                return $item->count() > 1 
-                    ? $item->map(fn($i) => ['id' => $i->id, 'value' => $i->value])->all()  
+                return $item->count() > 1
+                    ? $item->map(fn($i) => ['id' => $i->id, 'value' => $i->value])->all()
                     : $item->first()->value;
             })->toArray();
 
@@ -686,8 +686,8 @@ class DashboardController extends Controller
         $data['order_value'] = $order_value > 0 ? number_format(($order_value / 100000), 2, '.', '') : "";
         $data['order_qty'] = $order_qty > 0 ? $order_qty : "";
         $data['customer_visit'] = $customer_visit > 0 ? (string)$customer_visit : "";
-        $data['todayBeatSchedule'] = count($todayBeatSchedule) > 0 ? true:false;
-        $data['beatUser'] = count($beatUser) > 0 ? true:false;
+        $data['todayBeatSchedule'] = count($todayBeatSchedule) > 0 ? true : false;
+        $data['beatUser'] = count($beatUser) > 0 ? true : false;
 
         $branches = Branch::where('active', 'Y')->select('id', 'branch_name')->get();
         $divisions = Division::where('active', 'Y')->select('id', 'division_name')->get();
@@ -742,16 +742,22 @@ class DashboardController extends Controller
         return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data], 200);
     }
 
-    public function today_rate(Request $request){
+    public function today_rate(Request $request)
+    {
         $customer = $request->user();
         $notify = Customers::where('id', $customer->id)->first()->notify;
         $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('model_id', $customer->id)->first();
-        $data = Price::first()->base_price;
-        if($check_additional_price){
-            $data = number_format((floatval($data) + floatval($check_additional_price->price_adjustment)), 2, '.', '');
+        $customer_parity = $customer->customer_parity;
+        if ($customer_parity == 'South Parity') {
+            $price = Price::where('id', 2)->first()->base_price;
+        } else {
+            $price = Price::where('id', 1)->first()->base_price;
+        }
+        if ($check_additional_price) {
+            $data = number_format((floatval($price) + floatval($check_additional_price->price_adjustment)), 2, '.', '');
         }
 
-        return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'todayrate' => $data, 'notify' =>$notify], 200);
+        return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'todayrate' => $data, 'notify' => $notify], 200);
     }
 
     public function getCustomerNotification(Request $request)
@@ -759,7 +765,7 @@ class DashboardController extends Controller
         try {
             $customer = $request->user();
             $all_noti = Notification::where('customer_id', $customer->id)->orderBy('id', 'desc')->get();
-            Customers::where('id', $customer->id)->update(['notify'=>false]);
+            Customers::where('id', $customer->id)->update(['notify' => false]);
             return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $all_noti], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
@@ -789,18 +795,17 @@ class DashboardController extends Controller
                     if (($value->qty - $value->order_confirm->pluck('qty')->sum()) > 0) {
                         $days = isset($value->created_at)
                             ? \Carbon\Carbon::parse($value->created_at->toDateString())->diffInDays(now()->toDateString())
-                            : '';                        
+                            : '';
                     } else {
                         $lastCreatedAt = $value->order_confirm()
                             ->latest('created_at')
                             ->value('created_at');
                         $days = \Carbon\Carbon::parse($value->created_at->toDateString())->diffInDays(\Carbon\Carbon::parse($lastCreatedAt)->toDateString());
-                        
                     }
                 } else {
                     $days = isset($value->created_at)
                         ? \Carbon\Carbon::parse($value->created_at->toDateString())->diffInDays(now()->toDateString())
-                        : '';                        
+                        : '';
                 }
 
 

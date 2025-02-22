@@ -14,7 +14,7 @@
           <div class="card-icon">
             <i class="material-icons">perm_identity</i>
           </div>
-          <h4 class="card-title ">{!! trans('panel.order.title_singular') !!} {!! trans('panel.global.list') !!}
+          <h4 class="card-title ">Confirm {!! trans('panel.order.title_singular') !!} {!! trans('panel.global.list') !!}
             <span class="">
               <div class="btn-group header-frm-btn">
 

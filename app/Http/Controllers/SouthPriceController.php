@@ -44,9 +44,6 @@ class SouthPriceController extends Controller
      */
     public function create(Request $request)
     {
-        if($request->ip() != '111.118.252.250') {
-            return view('work_in_progress');
-        }
         abort_if(Gate::denies('price_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $this->price = Price::where('id', '2')->first() ?? new Price();
 

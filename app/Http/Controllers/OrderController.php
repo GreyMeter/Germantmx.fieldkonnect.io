@@ -658,14 +658,32 @@ class OrderController extends Controller
     public function confirm($id, Request $request)
     {
         $id = decrypt($id);
-        $orders = Order::find($id);
+        $orders = Order::with('customer')->find($id);
+        $firstOrder = Order::where('customer_id', $orders->customer->id)->where('id', '<', $id)->count() == 0;
+
+            if (!$firstOrder) {
+                // Check for older orders with pending quantity
+                $pendingOrders = Order::where('customer_id', $orders->customer->id)
+                    ->where('id', '<', $id) // Older orders
+                    ->get();
+
+                foreach ($pendingOrders as $pendingOrder) {
+                    $totalOrderedQty = $pendingOrder->qty;
+
+                    // Get total confirmed quantity for this order
+                    $confirmedQty = OrderConfirm::where('order_id', $pendingOrder->id)->sum('qty');
+
+                    // Calculate pending quantity
+                    $pendingQty = $totalOrderedQty - $confirmedQty;
+
+                    if ($pendingQty > 0) {
+                        return Redirect::to('orders')->with('message_danger', 'Order confirmation blocked. Older orders(' . $pendingOrder->po_no . ') have pending quantity.');
+                    }
+                }
+            }
         $tqty = 0;
         $totalOrderConfirm = OrderConfirm::where('order_id', $id)->distinct('confirm_po_no')->count('confirm_po_no');
         foreach ($request->qty as $k => $qty) {
-            $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->category_id[$k], 'model_name' => 'size'])->first())->price_adjustment;
-            $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'model_name' => 'grade'])->first())->price_adjustment;
-            $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'model_name' => 'brand'])->first())->price_adjustment;
-            $after_soda_price = ($orders->base_price + $orders->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size;
             $data['confirm_po_no'] = $orders->po_no . '-' . $totalOrderConfirm + 1;
             $data['order_id'] = $id;
             $data['created_by'] = Auth::user()->id;
