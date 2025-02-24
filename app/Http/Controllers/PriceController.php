@@ -48,7 +48,7 @@ class PriceController extends Controller
         $brands = Brand::where('active', '=', 'Y')->select('id', 'brand_name')->get();
         $grades = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name')->get();
         $zones = City::where('active', '=', 'Y')->select('id', 'city_name')->get();
-        $distributors = Customers::where('active', '=', 'Y')->where('customertype', '1')->select('id', 'name')->get();
+        $distributors = Customers::where(['active' => 'Y', 'customertype' => '1', 'customer_parity' => 'General Parity'])->select('id', 'name')->get();
         return view('price.create', compact('sizes', 'brands', 'grades', 'zones', 'distributors'))->with('price', $this->price);
     }
 

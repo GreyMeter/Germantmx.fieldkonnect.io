@@ -755,6 +755,8 @@ class DashboardController extends Controller
         }
         if ($check_additional_price) {
             $data = number_format((floatval($price) + floatval($check_additional_price->price_adjustment)), 2, '.', '');
+        }else{
+            $data = number_format((floatval($price)), 2, '.', '');
         }
 
         return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'todayrate' => $data, 'notify' => $notify], 200);
