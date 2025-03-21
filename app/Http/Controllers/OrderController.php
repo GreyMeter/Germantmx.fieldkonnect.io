@@ -147,9 +147,14 @@ class OrderController extends Controller
         abort_if(Gate::denies('order_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $id = decrypt($id);
         $orders = $this->orders->with('brands', 'sizes', 'grades', 'customer', 'createdbyname')->find($id);
+        $f_order = false;
+        if($orders->created_by == Auth::user()->id)
+        {
+            $f_order = true;
+        }
         $totalOrderConfirmQty = OrderConfirm::where('order_id', $id)->sum('qty');
 
-        return view('orders.show', compact('orders', 'totalOrderConfirmQty'));
+        return view('orders.show', compact('orders', 'totalOrderConfirmQty', 'f_order'));
     }
 
     public function confirm_orders_show($id, Request $request)

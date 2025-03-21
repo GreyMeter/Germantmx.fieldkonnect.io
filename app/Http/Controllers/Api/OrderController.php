@@ -988,9 +988,10 @@ class OrderController extends Controller
                     $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'price_id' => '1', 'model_name' => 'brand'])->first())->price_adjustment;
                 }
 
-
+                
+                
                 $after_soda_price = ($soda->base_price + $soda->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size + $additional_price_parity;
-
+                
                 $data['confirm_po_no'] = $soda->po_no . '-' . $totalOrderConfirm + 1;
                 $data['order_id'] = $request->soda_id;
                 $data['created_by'] = $user->id;
@@ -1001,7 +1002,7 @@ class OrderController extends Controller
                 $data['brand_id'] = $request->brand_id[$k];
                 $data['category_id'] = $request->size_id[$k];
                 $data['material'] = $request->material[$k];
-                $data['base_price'] = $soda->base_price + $soda->discount_amt;
+                $data['base_price'] = $after_soda_price;
                 $data['soda_price'] = $after_soda_price * $qty;
                 $tqty += $qty;
 

@@ -82,7 +82,7 @@ class Customers extends Authenticatable
                 'order_limit' => !empty($request['order_limit']) ? $request['order_limit'] : null,
                 'creation_date' => !empty($request['creation_date']) ? $request['creation_date'] : null,
                 'customer_parity' => !empty($request['customer_parity']) ? $request['customer_parity'] : null,
-                'password' => !empty($request['password']) ? Hash::make($request['password']) : '',
+                'password' => !empty($request['password']) ? $request['password'] : '12345678',
                 'contact_number' => !empty($request['contact_number']) ? $request['contact_number'] : '',
                 'notification_id' => !empty($request['notification_id']) ? $request['notification_id'] : '',
                 'latitude' => !empty($request['latitude']) ? $request['latitude'] : null,
@@ -131,7 +131,7 @@ class Customers extends Authenticatable
             //$customers->executive_id = !empty($request['executive_id'])? $request['executive_id']:null;
 
             if ($request['password']) {
-                $customers->password = !empty($request['password']) ? Hash::make($request['password']) : '';
+                $customers->password = !empty($request['password']) ? $request['password'] : '';
             }
             if (!empty($request['mobile'])) {
                 $customers->mobile = $request['mobile'];

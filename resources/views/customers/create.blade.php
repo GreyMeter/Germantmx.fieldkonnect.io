@@ -251,7 +251,7 @@
 
               <div class="col-md-6">
                 <div class="row">
-                  <label class="col-md-3 col-form-label">Employee
+                  <label class="col-md-3 col-form-label">Employee 
 
                     <?php
                     $userarray = array();

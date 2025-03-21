@@ -19,16 +19,22 @@
               <div class="col-12">
                 @if($orders['status'] == '0')
                 @if($orders->qty > $totalOrderConfirmQty)
+                @if($f_order == true)
                 <a href="{{ url('orders/' . encrypt($orders->id) . '/edit?cnf=true') }}" class="btn btn-success">Confirm Order</a>
-                @if($totalOrderConfirmQty <= 0)
-                <a class="btn btn-danger bg-danger" id="cancelButton" data-orderid="{!! encrypt($orders->id) !!}">Cancel Order</a>
+                @else
+                <button type="button" id="change_status" data-id="{!! $orders->id !!}" data-quantity="{!! $orders->qty !!}"  class="btn btn-success">Confirm Order</button>
                 @endif
                 @else
                 <button type="button" class="btn btn-success">This order is fully confirmed</button>
                 @endif
+                @elseif($orders['status'] == '1')
+                <button type="button" class="btn btn-success">Confirmed</button>
                 @elseif($orders['status'] == '4')
                 <button type="button" class="btn btn-danger bg-danger">This order is cancelled</button> <br>
                 <span class="badge badge-info">Remark : {{ $orders['cancel_remark'] }}</span>
+                @endif
+                @if($totalOrderConfirmQty != $orders->qty && $orders['status'] != '4')
+                <a class="btn btn-danger bg-danger" id="cancelButton" data-orderid="{!! encrypt($orders->id) !!}">Cancel Order</a>
                 @endif
                 <span class="pull-right">
                   <div class="btn-group">
@@ -248,6 +254,41 @@
       });
       $('#exampleModalCenter').modal('hide');
     })
+
+    $("#change_status").on('click', function() {
+      var id = $(this).data('id');
+      var quantity = $(this).data('quantity');
+      console.log(id, quantity);
+      Swal.fire({
+        title: "ARE YOU SURE YOU WANT TO CONFIRM THIS ORDER ?",
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+        denyButtonText: `No`
+      }).then((result) => {
+        console.log(result);
+        if (result.value) {
+          $.ajax({
+            url: "{{ url('changeBookingStatus') }}",
+            dataType: "json",
+            type: "POST",
+            data: {
+              _token: "{{csrf_token()}}",
+              id: id,
+              quantity: quantity
+            },
+            success: function(res) {
+              if (res.status === true) {
+                Swal.fire("Order Confirmed successfully!", res.msg, "success");
+                location.reload();
+              }else{
+                Swal.fire("Somthing went wrong", "", "error");
+              }
+            }
+          });
+        }
+      });
+    });
   </script>
   <!-- /.content -->
 </x-app-layout>

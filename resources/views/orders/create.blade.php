@@ -44,9 +44,9 @@
                 <div class="col-md-10">
                   <div class="form-group has-default bmd-form-group">
                     <textarea name="consignee_details" class="form-control" cols="30" rows="6" id="consignee_details" required></textarea>
-                    @if ($errors->has('qty'))
+                    @if ($errors->has('consignee_details'))
                     <div class="error col-lg-12">
-                      <p class="text-danger">{{ $errors->first('qty') }}</p>
+                      <p class="text-danger">{{ $errors->first('consignee_details') }}</p>
                     </div>
                     @endif
                   </div>
@@ -100,7 +100,7 @@
                 <label class="col-md-3 col-form-label">Quantity<small>(Tonn)</small> <span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                    <input type="number" name="qty" {{isset($cnf)?'disabled':''}} id="qty" class="form-control" value="{!! old( 'qty', $orders['qty']-$totalOrderConfirmQty) !!}" min="1" max="{{isset($cnf)?$orders['qty']-$totalOrderConfirmQty:''}}" step="1" required>
+                    <input type="number" name="qty" {{isset($cnf)?'disabled':''}} id="qty" class="form-control" value="{!! old( 'qty', $orders['qty']-$totalOrderConfirmQty) !!}" min="0.01" max="{{isset($cnf)?$orders['qty']-$totalOrderConfirmQty:''}}" step="0.01" required>
                     @if ($errors->has('qty'))
                     <div class="error col-lg-12">
                       <p class="text-danger">{{ $errors->first('qty') }}</p>
@@ -275,7 +275,7 @@
           '<td style="width:30%" class="subCat"><div class="input_section"><select required name="grade_id[]" class="form-control grade' + counter + ' grade_change"></select></div></td>' +
           '<td style="width:30%"><div class="input_section"><select required name="category_id[]" class="form-control allsizes size' + counter + ' size_change"></select></div></td>' +
           '<td style="width:30%"><div class="input_section"><select required name="material[]" class="form-control material' + counter + ' material_change"><option value="">Select Material</option><option value="Straight">Straight</option><option value="Bend">Bend</option></select></div></td>' +
-          '<td><div class="input_section"><input required type="number" name="qty[]"class="form-control points rowchange" /></div></td>' +
+          '<td><div class="input_section"><input required type="number" step="0.01" name="qty[]"class="form-control points rowchange" /></div></td>' +
           '<td><div class="input_section"><input required type="number" name="booking_price[]"class="form-control  booking_price_change"  readonly/></div></td>'+
           '<td ><div class="input_section"><input style="width : 120px !important" required type="number" name="total_price[]"class="form-control  total_price_change" readonly/></div></td>'+
           '<td class="td-actions text-center"><a class="remove-rows btn btn-danger btn-just-icon btn-sm"><i class="fa fa-minus"></i></a></td> </tr>';
@@ -294,7 +294,7 @@
     function addJquery(){
       $(document).on('change', '.brand_change, .grade_change, .size_change', function() {           
           var row = $(this).closest('tr'); // Get the closest row of the changed input/select
-          console.log(row);
+          
           row.find('.total_price_change').val(''); // Update the booking price in the row
           row.find('.booking_price_change').val('');
           var brand = row.find('.brand_change').val();
@@ -345,13 +345,13 @@
             },
             success: function(res) {
               if(res.status == true){
-                bookingPrice = parseInt(bookingPrice, 10) + parseInt(res.additional_price, 10);
+                bookingPrice = parseFloat(bookingPrice, 10) + parseFloat(res.additional_price, 10);
                 row.find('.booking_price_change').val(bookingPrice);
                 if(quantity){
-                  let total_value = parseInt(quantity, 10)*parseInt(bookingPrice, 10);
+                  let total_value = parseFloat(quantity, 10)*parseFloat(bookingPrice, 10);
                   row.find('.total_price_change').val(total_value); 
                 }else{
-                  let total_value = 1*parseInt(bookingPrice, 10);
+                  let total_value = 1*parseFloat(bookingPrice, 10);
                   row.find('.total_price_change').val(total_value);
                 }
               }
