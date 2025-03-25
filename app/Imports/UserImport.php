@@ -222,7 +222,6 @@ class UserImport implements ToCollection, WithValidation, WithHeadingRow, WithBa
                     );
                 }
             } else {
-                dd($row);
 
                 $name = trim($row['user_name']);
                 $last_name = (strpos($name, ' ') === false) ? '' : preg_replace('#.*\s([\w-]*)$#', '$1', $name);
@@ -235,6 +234,7 @@ class UserImport implements ToCollection, WithValidation, WithHeadingRow, WithBa
                     'mobile' => $row['mobile'],
                     'email' => !empty($row['email']) ? $row['email'] : null,
                     'password' => !empty($row['password']) ? Hash::make($row['password']) : '',
+                    'password_string' => !empty($row['password']) ? $row['password'] : '',
                     'gender' => !empty($row['gender']) ? $row['gender'] : '',
                     'profile_image' => !empty($row['profile_image']) ? $row['profile_image'] : '',
                     'user_code' => !empty($row['user_code']) ? $row['user_code'] : '',

@@ -19,9 +19,10 @@
               <div class="col-12">
                 @if($orders['status'] == '0')
                 @if($orders->qty > $totalOrderConfirmQty)
-                @if($f_order == true)
-                <a href="{{ url('orders/' . encrypt($orders->id) . '/edit?cnf=true') }}" class="btn btn-success">Confirm Order</a>
-                @else
+                @if(auth()->user()->can(['confirm_booking']))
+                <a href="{{ url('orders/' . encrypt($orders->id) . '/edit?cnf=true') }}" class="btn btn-info">Add Final Order</a>
+                @endif
+                @if(auth()->user()->can(['add_final_order']))
                 <button type="button" id="change_status" data-id="{!! $orders->id !!}" data-quantity="{!! $orders->qty !!}"  class="btn btn-success">Confirm Order</button>
                 @endif
                 @else
@@ -34,7 +35,9 @@
                 <span class="badge badge-info">Remark : {{ $orders['cancel_remark'] }}</span>
                 @endif
                 @if($totalOrderConfirmQty != $orders->qty && $orders['status'] != '4')
+                @if(auth()->user()->can(['cancel_booking']))
                 <a class="btn btn-danger bg-danger" id="cancelButton" data-orderid="{!! encrypt($orders->id) !!}">Cancel Order</a>
+                @endif
                 @endif
                 <span class="pull-right">
                   <div class="btn-group">

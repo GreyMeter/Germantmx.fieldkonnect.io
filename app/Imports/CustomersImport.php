@@ -79,8 +79,6 @@ class CustomersImport implements ToCollection, WithValidation, WithHeadingRow, W
           'email' => !empty($row['email']) ? $row['email'] : null,
           'creation_date' => !empty($row['created_date']) ? $row['created_date'] : null,
           'customertype' => !empty($row['customer_type_id']) ? $row['customer_type_id'] : null,
-
-
         ]);
 
 

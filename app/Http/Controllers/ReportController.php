@@ -64,6 +64,7 @@ use App\Exports\TopDealerExport;
 use App\Exports\UserIncentiveExport;
 use App\Imports\CutomerOutstantingImport;
 use Carbon\Carbon;
+use PhpParser\Node\Expr\Empty_;
 
 class ReportController extends Controller
 {
@@ -4018,8 +4019,15 @@ class ReportController extends Controller
 
         if ($request->ajax()) {
             // $data = CustomerOutstanting::with('customer');
+            $customerIds = EmployeeDetail::where('user_id', Auth::user()->id)->pluck('customer_id');
 
-            $data = Order::with('order_confirm', 'customer')->orderBy('created_at', 'desc')->get();
+            $data = Order::with('order_confirm', 'customer')->whereNot('status', '4');
+            
+            if(!Auth::user()->hasRole('superadmin')) {
+                $data->whereIn('customer_id', $customerIds);
+            }
+            
+            $data = $data->orderBy('created_at', 'desc')->get();
 
             // dd($data->get());
 

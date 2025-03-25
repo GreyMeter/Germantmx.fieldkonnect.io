@@ -127,7 +127,7 @@
                   </address>
                 </div>
                 <div class="col-sm-4 invoice-col">
-                  <h3 style="margin-bottom: 10px;font-weight: 500;">Soda Deatils:</h3>
+                  <h3 style="margin-bottom: 10px;font-weight: 500;">Booking Deatils:</h3>
                   <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
                     PO Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['po_no'] !!}</span> <br>
                     Order Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['confirm_po_no'] !!}</span> <br>
@@ -146,20 +146,54 @@
                   <!-- New Row for Driver Details -->
                   <div class="card p-3 mb-3 bg-light">
                     <h5 class="mb-3"><strong>Driver Details</strong></h5>
-                    <div class="row">
-                      <div class="col-md-4">
-                        <label>Driver Name</label>
-                        <p class="form-control-plaintext" style="color: black"><strong>{{ isset($dispatch_orders[0]->order_dispatch_details->driver_name) ? $dispatch_orders[0]->order_dispatch_details->driver_name : '' }}</strong></p>
-                      </div>
-                      <div class="col-md-4">
-                        <label>Driver Contact</label>
-                        <p class="form-control-plaintext" style="color: black"><strong>{{ isset($dispatch_orders[0]->order_dispatch_details->driver_contact_number) ? $dispatch_orders[0]->order_dispatch_details->driver_contact_number : '' }}</strong></p>
-                      </div>
-                      <div class="col-md-4">
-                        <label>Vehicle Number</label>
-                        <p class="form-control-plaintext" style="color: black"><strong>{{ isset($dispatch_orders[0]->order_dispatch_details->vehicle_number) ? $dispatch_orders[0]->order_dispatch_details->vehicle_number : '' }}</strong></p>
-                      </div>
+                    @if(session()->has('message_success'))
+                    <div class="alert alert-success">
+                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <i class="material-icons">close</i>
+                      </button>
+                      <span>
+                        {{ session()->get('message_success') }}
+                      </span>
                     </div>
+                    @endif
+                    <form id="updateOrderDispatch" action="{{route('order_dispatch_update', $dispatch_orders[0]->order_dispatch_details->id)}}" method="post" enctype="multipart/form-data">
+                      @csrf
+                      <div class="row">
+                        <div class="col-md-4">
+                          <label>Driver Name</label>
+                          <input type="text" name="driver_name" class="form-control" value="{{ isset($dispatch_orders[0]->order_dispatch_details->driver_name) ? $dispatch_orders[0]->order_dispatch_details->driver_name : '' }}" {{auth()->user()->can('order_dispatch_update') ? '' : 'readonly'}}>
+                        </div>
+                        <div class="col-md-4">
+                          <label>Driver Contact</label>
+                          <input type="text" name="driver_contact_number" class="form-control" value="{{ isset($dispatch_orders[0]->order_dispatch_details->driver_contact_number) ? $dispatch_orders[0]->order_dispatch_details->driver_contact_number : '' }}" {{auth()->user()->can('order_dispatch_update') ? '' : 'readonly'}}>
+                        </div>
+                        <div class="col-md-4">
+                          <label>Vehicle Number</label>
+                          <input type="text" name="vehicle_number" id="vehicle_number" class="form-control" value="{{ isset($dispatch_orders[0]->order_dispatch_details->vehicle_number) ? $dispatch_orders[0]->order_dispatch_details->vehicle_number : '' }}" {{auth()->user()->can('order_dispatch_update') ? '' : 'readonly'}}>
+                        </div>
+                        @if(auth()->user()->can('order_dispatch_update'))
+                        <div class="col-md-3 mt-3">
+                          <label>TC Image</label>
+                          <input type="file" accept="image/*" name="tc" id="tc" class="form-control">
+                        </div>
+                        <div class="col-md-3 mt-3">
+                          <label>Invoice Image</label>
+                          <input type="file" accept="image/*" name="invoice" id="invoice" class="form-control">
+                        </div>
+                        <div class="col-md-3 mt-3">
+                          <label>E-way Bill Image</label>
+                          <input type="file" accept="image/*" name="e_way_bill" id="e_way_bill" class="form-control">
+                        </div>
+                        <div class="col-md-3 mt-3">
+                          <label>Wevrage Slip Image</label>
+                          <input type="file" accept="image/*" name="wevrage_slip" id="wevrage_slip" class="form-control">
+                        </div>
+                        <div class="col-md-4">
+                          <input type="submit" class="btn btn-primary" value="Update">
+                        </div>
+                        @endif
+                      </div>
+                    </form>
                   </div>
                 </div>
                 <div class="col-12 table-responsive">
@@ -208,7 +242,7 @@
                     @foreach($dispatch_orders[0]->order_dispatch_details->media as $image)
                     <div class="col-md-3">
                       <div class="image-card">
-                      <h6 class="collection-name">{{ strtoupper(str_replace('_', '-', $image->collection_name)) }}</h6>
+                        <h6 class="collection-name">{{ strtoupper(str_replace('_', '-', $image->collection_name)) }}</h6>
                         <a href="{{ $image->getFullUrl() }}" target="_blank">
                           <img src="{{ $image->getFullUrl() }}" class="img-fluid img-thumbnail">
                         </a>
@@ -246,6 +280,67 @@
       </div>
       <!-- /.row -->
   </section>
+
+  <script>
+    $(document).ready(function() {
+      $.validator.addMethod("vehicleFormat", function(value, element) {
+        return value === "" || value === null || /^[A-Z]{2} \d{2} [A-Z]{2} \d{4}$/.test(value);
+      }, "Invalid format! Example: MP 12 XX 1234");
+
+
+      $('#updateOrderDispatch').validate({
+        rules: {
+          driver_name: {
+            minlength: 3
+          },
+          driver_contact: {
+            digits: true,
+            minlength: 10,
+            maxlength: 10
+          },
+          vehicle_number: {
+            vehicleFormat: true
+          }
+        },
+        errorClass: "error", // Use the correct error class
+        highlight: function(element) {
+          $(element).addClass('is-invalid'); // Add red border
+        },
+        unhighlight: function(element) {
+          $(element).removeClass('is-invalid'); // Remove red border
+        }
+      });
+      $('#vehicle_number').on('input', function() {
+        var inputVal = $(this).val().replace(/\s+/g, '').toUpperCase(); // Remove spaces and convert to uppercase
+        var formattedVal = '';
+
+        if (inputVal.length > 0) {
+          formattedVal = inputVal.substring(0, 2); // State Code
+        }
+        if (inputVal.length > 2) {
+          formattedVal += ' ' + inputVal.substring(2, 4); // District Code
+        }
+        if (inputVal.length > 4) {
+          formattedVal += ' ' + inputVal.substring(4, 6); // Two Alphabets
+        }
+        if (inputVal.length > 6) {
+          formattedVal += ' ' + inputVal.substring(6, 10); // Four Digits
+        }
+
+        $(this).val(formattedVal); // Set formatted value
+
+        // Validation: MP 12 AB 1234
+        var vehiclePattern = /^[A-Z]{2} \d{2} [A-Z]{2} \d{4}$/;
+        if (!vehiclePattern.test(formattedVal)) {
+          $('#vehicle_error').removeClass('d-none'); // Show error message
+          $(this).addClass('is-invalid'); // Add red border
+        } else {
+          $('#vehicle_error').addClass('d-none'); // Hide error message
+          $(this).removeClass('is-invalid'); // Remove red border
+        }
+      });
+    });
+  </script>
 
   <!-- /.content -->
 </x-app-layout>

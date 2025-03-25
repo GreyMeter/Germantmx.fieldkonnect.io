@@ -27,6 +27,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Models\Sales;
 use App\Models\AdditionalPrice;
+use App\Models\EmployeeDetail;
 use App\Models\OrderDispatch;
 use App\Models\Settings;
 use App\Models\UnitMeasure;
@@ -61,8 +62,9 @@ class OrderController extends Controller
             $customer_id = $request->customer_id ?? '';
             $user_ids = getUsersReportingToAuth($user->id);
             $pageSize = $request->input('pageSize');
+            $customer_ids = EmployeeDetail::where('user_id', $user->id)->pluck('customer_id');
 
-            $data = Order::with('customer:id,name')->whereIn('created_by', $user_ids)
+            $data = Order::with('customer:id,name')->orWhereIn('customer_id', $customer_ids)
                 ->select('id', 'po_no', 'qty', 'base_price', 'discount_amt', 'created_at', 'customer_id')
                 ->selectRaw('base_price + discount_amt as base_price')
                 ->orderBy('id', 'desc');
@@ -613,7 +615,7 @@ class OrderController extends Controller
 
             $customer_parity = $customer->customer_parity;
 
-            $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('model_id', $request['customer_id'])->first();
+            $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('model_id', $customer->id)->first();
             if ($customer_parity == 'South Parity') {
                 $price = Price::where('id', 2)->first()->base_price;
             } else {
@@ -623,7 +625,7 @@ class OrderController extends Controller
                 $price = number_format((floatval($price) + floatval($check_additional_price->price_adjustment)), 2, '.', '');
             }
 
-            $data['order_limit_remain'] = (int)($customer->order_limit ?? 500) - $today_order_qty;
+            $data['order_limit_remain'] = (int)($customer->order_limit ?? 0) - $today_order_qty;
             $data['po_no'] = generatePoNumber();
             $data['base_price'] = $price;
 
@@ -701,11 +703,14 @@ class OrderController extends Controller
             if ($order_limit_remain < $request->qty) {
                 return response()->json(['status' => 'error', 'message' =>  'The quantity is greater than today\'s limit.'], $this->badrequest);
             }
-
+            $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('model_id', $customer->id)->first();
             if ($customer_parity == 'South Parity') {
                 $price = Price::where('id', 2)->first()->base_price;
             } else {
                 $price = Price::where('id', 1)->first()->base_price;
+            }
+            if ($check_additional_price) {
+                $price = number_format((floatval($price) + floatval($check_additional_price->price_adjustment)), 2, '.', '');
             }
 
             $request['base_price'] = $price;
@@ -816,7 +821,8 @@ class OrderController extends Controller
             if (!$firstOrder) {
                 // Check for older orders with pending quantity
                 $pendingOrders = Order::where('customer_id', $soda->customer->id)
-                    ->where('id', '<', $request->soda_id) // Older orders
+                    ->where('id', '<', $request->soda_id)
+                    ->whereNot('status', '4')
                     ->get();
 
                 foreach ($pendingOrders as $pendingOrder) {
@@ -949,7 +955,8 @@ class OrderController extends Controller
             if (!$firstOrder) {
                 // Check for older orders with pending quantity
                 $pendingOrders = Order::where('customer_id', $soda->customer->id)
-                    ->where('id', '<', $request->soda_id) // Older orders
+                    ->where('id', '<', $request->soda_id)
+                    ->whereNot('status', '4')
                     ->get();
 
                 foreach ($pendingOrders as $pendingOrder) {
@@ -1039,7 +1046,8 @@ class OrderController extends Controller
     {
         try {
             $user = $request->user();
-            $sodas = Order::where('created_by', $user->id)->pluck('id');
+            $customer_ids = EmployeeDetail::where('user_id', $user->id)->pluck('customer_id');
+            $sodas = Order::where('created_by', $user->id)->orWhereIn('customer_id', $customer_ids)->pluck('id');
             $data = OrderConfirm::whereIn('order_id', $sodas)->with('order.customer', 'createdbyname')->selectRaw('*, SUM(qty) as total_qty')
                 ->groupBy('confirm_po_no')->get();
 
@@ -1066,7 +1074,8 @@ class OrderController extends Controller
     {
         try {
             $user = $request->user();
-            $sodas = Order::where('created_by', $user->id)->pluck('id');
+            $customer_ids = EmployeeDetail::where('user_id', $user->id)->pluck('customer_id');
+            $sodas = Order::where('created_by', $user->id)->orWhereIn('customer_id', $customer_ids)->pluck('id');
             $data = OrderDispatch::whereIn('order_id', $sodas)->with('order.customer', 'createdbyname')->selectRaw('*, SUM(qty) as total_qty')->groupBy('dispatch_po_no')->orderBy('id', 'desc')->get();
 
             return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);

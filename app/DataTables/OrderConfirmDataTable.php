@@ -2,6 +2,7 @@
 
 namespace App\DataTables;
 
+use App\Models\EmployeeDetail;
 use App\Models\OrderConfirm;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Html\Button;
@@ -73,6 +74,13 @@ class OrderConfirmDataTable extends DataTable
 
         $query = $model->with('order.customer', 'createdbyname')->selectRaw('*, SUM(qty) as total_qty')
             ->groupBy('confirm_po_no');
+
+        if (!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin')) {
+            $customerIds = EmployeeDetail::where('user_id', Auth::user()->id)->pluck('customer_id');
+            $query->whereHas('order', function ($query) use ($customerIds) {
+                $query->whereIn('customer_id', $customerIds);
+            });
+        }
 
 
         $query->newQuery();

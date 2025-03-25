@@ -2,6 +2,7 @@
 
 namespace App\DataTables;
 
+use App\Models\EmployeeDetail;
 use App\Models\Order;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Html\Button;
@@ -69,6 +70,12 @@ class OrderDataTable extends DataTable
         $userids = getUsersReportingToAuth();
 
         $query = $model->with('brands', 'sizes', 'grades', 'customer', 'createdbyname');
+
+        if(!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin'))
+        {
+            $customerIds = EmployeeDetail::where('user_id', Auth::user()->id)->pluck('customer_id');
+            $query->whereIn('customer_id', $customerIds);
+        }
         
         $query->newQuery();
 
