@@ -147,9 +147,14 @@ class OrderController extends Controller
         abort_if(Gate::denies('order_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $id = decrypt($id);
         $orders = $this->orders->with('brands', 'sizes', 'grades', 'customer', 'createdbyname')->find($id);
+        $f_order = false;
+        if($orders->created_by == Auth::user()->id)
+        {
+            $f_order = true;
+        }
         $totalOrderConfirmQty = OrderConfirm::where('order_id', $id)->sum('qty');
 
-        return view('orders.show', compact('orders', 'totalOrderConfirmQty'));
+        return view('orders.show', compact('orders', 'totalOrderConfirmQty', 'f_order'));
     }
 
     public function confirm_orders_show($id, Request $request)
@@ -664,7 +669,8 @@ class OrderController extends Controller
             if (!$firstOrder) {
                 // Check for older orders with pending quantity
                 $pendingOrders = Order::where('customer_id', $orders->customer->id)
-                    ->where('id', '<', $id) // Older orders
+                    ->where('id', '<', $id)
+                    ->whereNot('status', '4')
                     ->get();
 
                 foreach ($pendingOrders as $pendingOrder) {
@@ -845,5 +851,48 @@ class OrderController extends Controller
         $orders = OrderDispatch::find($id);
         $dispatch_orders = OrderDispatch::where(['dispatch_po_no' => $orders->dispatch_po_no])->get();
         return view('orders.order_dispatch_show', compact('dispatch_orders', 'orders'));
+    }
+
+    public function orders_dispatch_update(OrderDispactchDetails $id, Request $request)
+    {
+        try{
+            if ($request->hasFile('tc')) {
+                $file = $request->file('tc');
+
+                $customname = time() . '.' . $file->getClientOriginalExtension();
+                $id->addMedia($file)
+                    ->usingFileName($customname)
+                    ->toMediaCollection('tc', 'public');
+            }
+            if ($request->hasFile('invoice')) {
+                $file = $request->file('invoice');
+
+                $customname = time() . '.' . $file->getClientOriginalExtension();
+                $id->addMedia($file)
+                    ->usingFileName($customname)
+                    ->toMediaCollection('invoice', 'public');
+            }
+            if ($request->hasFile('e_way_bill')) {
+                $file = $request->file('e_way_bill');
+
+                $customname = time() . '.' . $file->getClientOriginalExtension();
+                $id->addMedia($file)
+                    ->usingFileName($customname)
+                    ->toMediaCollection('e_way_bill', 'public');
+            }
+            if ($request->hasFile('wevrage_slip')) {
+                $file = $request->file('wevrage_slip');
+
+                $customname = time() . '.' . $file->getClientOriginalExtension();
+                $id->addMedia($file)
+                    ->usingFileName($customname)
+                    ->toMediaCollection('wevrage_slip', 'public');
+            }
+            $id->update($request->all());
+            return Redirect::back()->with('message_success', 'Driver Details Updated Successfully.');
+
+        }catch(\Exception $e){
+            return Redirect::back()->with('message_error', 'Something went wrong.');
+        }
     }
 }

@@ -41,7 +41,12 @@ class PriceController extends Controller
      */
     public function create(Request $request)
     {
-        abort_if(Gate::denies('price_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('general_prices_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if(Gate::denies('general_price_create')){
+            $editable = false;
+        }else{
+            $editable = true;
+        }
         $this->price = Price::where('id', '1')->first() ?? new Price();
 
         $sizes = Category::where('active', '=', 'Y')->select('id', 'category_name')->get();
@@ -49,7 +54,7 @@ class PriceController extends Controller
         $grades = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name')->get();
         $zones = City::where('active', '=', 'Y')->select('id', 'city_name')->get();
         $distributors = Customers::where(['active' => 'Y', 'customertype' => '1', 'customer_parity' => 'General Parity'])->select('id', 'name')->get();
-        return view('price.create', compact('sizes', 'brands', 'grades', 'zones', 'distributors'))->with('price', $this->price);
+        return view('price.create', compact('sizes', 'brands', 'grades', 'zones', 'distributors', 'editable'))->with('price', $this->price);
     }
 
     /**

@@ -976,7 +976,7 @@
               </div>
             </li>
             @endif
-            @if(auth()->user()->can('prices_access'))
+            @if(auth()->user()->can('general_prices_access'))
             <li class="single-menu nav-link {{ request()->is('prices*') ? 'active' : '' }}">
               <a class="hoveradd" href="{{ url('prices/create') }}">
                 <i class="material-icons icon">payments</i>
@@ -987,7 +987,7 @@
               </a>
             </li>
             @endif
-            @if(auth()->user()->can('prices_access'))
+            @if(auth()->user()->can('south_prices_access'))
             <li class="single-menu nav-link {{ request()->is('south_prices*') ? 'active' : '' }}">
               <a class="hoveradd" href="{{ url('south_prices/create') }}">
                 <i class="material-icons icon">payments</i>

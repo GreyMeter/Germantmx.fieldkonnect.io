@@ -1472,4 +1472,15 @@ class AjaxController extends Controller
         }
         return response()->json(['status' => true, 'additional_price' => $additional_price]);
     }
+
+    public function changeBookingStatus(Request $request)
+    {
+        $update = Order::where('id', $request->id)->update(['status' => '1']);
+
+        if ($update) {
+            return response()->json(['status' => true, 'msg' => 'Order Status Change Successfully !!']);
+        }else{
+            return response()->json(['status' => false]);
+        }
+    }
 }

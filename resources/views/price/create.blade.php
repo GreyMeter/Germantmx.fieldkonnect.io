@@ -77,7 +77,7 @@
                 <label class="col-md-3 col-form-label">Base Brand<span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                    <select class="form-control select2" multiple id="base_brand" name="brand_id[]" required>
+                    <select {{!$editable ? 'disabled' : ''}} class="form-control select2" multiple id="base_brand" name="brand_id[]" required>
                       <option value="">Select Base Brand</option>
                       @foreach($brands as $brand)
                       <option value="{{ $brand->id }}" {{ ($price->exists && in_array($brand->id, explode(',',$price->brand_id))) ? 'selected' : '' }}>{{ $brand->brand_name }}</option>
@@ -93,7 +93,7 @@
                 <label class="col-md-3 col-form-label">Base Grade<span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                    <select class="form-control select2" multiple id="base_grade" name="grade_id[]" required>
+                    <select {{!$editable ? 'disabled' : ''}} class="form-control select2" multiple id="base_grade" name="grade_id[]" required>
                       <option value="">Select Base Grade</option>
                       @foreach($grades as $grade)
                       <option value="{{ $grade->id }}" {{ ($price->exists && in_array($grade->id, explode(',',$price->grade_id))) ? 'selected' : '' }}>{{ $grade->unit_name }}</option>
@@ -124,7 +124,7 @@
                 <label class="col-md-3 col-form-label">Base Size<span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                    <select class="form-control select2" id="base_size" name="size_id" required>
+                    <select {{!$editable ? 'disabled' : ''}} class="form-control select2" id="base_size" name="size_id" required>
                       <option value="">Select Base Size</option>
                       @foreach($sizes as $size)
                       <option value="{{ $size->id }}" {{ old('size_id', $price->exists ? $price->size_id : '') == $size->id ? 'selected' : '' }}>{{ $size->category_name }}</option>
@@ -139,7 +139,7 @@
                 <label class="col-md-3 col-form-label">Base Price<span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                    <input type="number" class="form-control" value="{{old('base_price', $price->base_price)}}" name="base_price" placeholder="Enter Base Price" required>
+                    <input {{!$editable ? 'disabled' : ''}} type="number" class="form-control" value="{{old('base_price', $price->base_price)}}" name="base_price" placeholder="Enter Base Price" required>
                   </div>
                 </div>
               </div>
@@ -174,7 +174,7 @@
                   <tr id="size_{{$category->id}}">
                     <td>{{$category->category_name}} MM</td>
                     <input type="hidden" name="size[id][]" value="{{$category->id}}">
-                    <td class="brand_msg"><input type="number" class="form-control" name="size[price][]" value="{{($price->exists && count($add_size)>0) ? ($add_size[$category->id]??'0.00'):'0.00'}}"></td>
+                    <td class="brand_msg"><input {{!$editable ? 'disabled' : ''}} type="number" class="form-control" name="size[price][]" value="{{($price->exists && count($add_size)>0) ? ($add_size[$category->id]??'0.00'):'0.00'}}"></td>
                   </tr>
                   @endforeach
                 </tbody>
@@ -194,7 +194,7 @@
                   <tr id="grade_{{$grade->id}}">
                     <td>{{$grade->unit_name}}</td>
                     <input type="hidden" name="grade[id][]" value="{{$grade->id}}">
-                    <td class="brand_msg"><input type="number" class="form-control" name="grade[price][]" value="{{($price->exists && count($add_grade)>0) ? ($add_grade[$grade->id]??'0.00'):'0.00'}}"></td>
+                    <td class="brand_msg"><input {{!$editable ? 'disabled' : ''}} type="number" class="form-control" name="grade[price][]" value="{{($price->exists && count($add_grade)>0) ? ($add_grade[$grade->id]??'0.00'):'0.00'}}"></td>
                   </tr>
                   @endforeach
                 </tbody>
@@ -214,7 +214,7 @@
                   <tr id="grade_{{$grade->id}}">
                     <td>{{$grade->unit_name}}</td>
                     <input type="hidden" name="grade_jindal[id][]" value="{{$grade->id}}">
-                    <td class="brand_msg"><input type="number" class="form-control" name="grade_jindal[price][]" value="{{($price->exists && count($add_grade_jindal)>0) ? ($add_grade_jindal[$grade->id]??'0.00'):'0.00'}}"></td>
+                    <td class="brand_msg"><input {{!$editable ? 'disabled' : ''}} type="number" class="form-control" name="grade_jindal[price][]" value="{{($price->exists && count($add_grade_jindal)>0) ? ($add_grade_jindal[$grade->id]??'0.00'):'0.00'}}"></td>
                   </tr>
                   @endforeach
                 </tbody>
@@ -234,7 +234,7 @@
                   <tr id="brand_{{$brand->id}}" class="show-before">
                     <td>{{$brand->brand_name}}</td>
                     <input type="hidden" name="brand[id][]" value="{{$brand->id}}">
-                    <td class="brand_msg"><input type="number" class="form-control" name="brand[price][]" value="{{($price->exists && count($add_brand)>0) ? ($add_brand[$brand->id]??'0.00'):'0.00'}}"></td>
+                    <td class="brand_msg"><input {{!$editable ? 'disabled' : ''}} type="number" class="form-control" name="brand[price][]" value="{{($price->exists && count($add_brand)>0) ? ($add_brand[$brand->id]??'0.00'):'0.00'}}"></td>
                   </tr>
                   @endforeach
                 </tbody>
@@ -254,7 +254,7 @@
                   <tr id="distributor_{{$distributor->id}}" class="show-before">
                     <td>{{$distributor->name}}</td>
                     <input type="hidden" name="distributor[id][]" value="{{$distributor->id}}">
-                    <td class="distributor_msg"><input type="number" class="form-control" name="distributor[price][]" value="{{($price->exists && count($add_distributor)>0) ? ($add_distributor[$distributor->id]??'0.00'):'0.00'}}"></td>
+                    <td class="distributor_msg"><input {{!$editable ? 'disabled' : ''}} type="number" class="form-control" name="distributor[price][]" value="{{($price->exists && count($add_distributor)>0) ? ($add_distributor[$distributor->id]??'0.00'):'0.00'}}"></td>
                   </tr>
                   @endforeach
                 </tbody>
@@ -274,7 +274,7 @@
                   <tr id="general_parity_{{$category->id}}">
                     <td>{{$category->category_name}} MM</td>
                     <input type="hidden" name="general_parity[id][]" value="{{$category->id}}">
-                    <td class="brand_msg"><input type="number" class="form-control" name="general_parity[price][]" value="{{($price->exists && count($add_general_parity)>0) ? ($add_general_parity[$category->id]??'0.00'):'0.00'}}"></td>
+                    <td class="brand_msg"><input {{!$editable ? 'disabled' : ''}} type="number" class="form-control" name="general_parity[price][]" value="{{($price->exists && count($add_general_parity)>0) ? ($add_general_parity[$category->id]??'0.00'):'0.00'}}"></td>
                   </tr>
                   @endforeach
                 </tbody>
@@ -294,7 +294,7 @@
                   <tr id="south_parity_{{$category->id}}">
                     <td>{{$category->category_name}} MM</td>
                     <input type="hidden" name="south_parity[id][]" value="{{$category->id}}">
-                    <td class="brand_msg"><input type="number" class="form-control" name="south_parity[price][]" value="{{($price->exists && count($add_south_parity)>0) ? ($add_south_parity[$category->id]??'0.00'):'0.00'}}"></td>
+                    <td class="brand_msg"><input {{!$editable ? 'disabled' : ''}} type="number" class="form-control" name="south_parity[price][]" value="{{($price->exists && count($add_south_parity)>0) ? ($add_south_parity[$category->id]??'0.00'):'0.00'}}"></td>
                   </tr>
                   @endforeach
                 </tbody>
@@ -305,7 +305,9 @@
 
           <div class="row mt-4">
             <div class="col-md-12">
+              @if($editable)
               <button type="submit" class="btn btn-primary">{{$price->exists ? 'Update Price':'Save Price'}}</button>
+              @endif
             </div>
           </div>
         </div>

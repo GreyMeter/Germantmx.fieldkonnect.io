@@ -111,7 +111,7 @@
               </form>
               @endif
               @if(auth()->user()->can(['customer_template']))
-              <a href="{{ URL::to('customers-template') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.template') !!} {!! trans('panel.customers.title_singular') !!}"><i class="material-icons">text_snippet</i></a>
+              {{--<a href="{{ URL::to('customers-template') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.template') !!} {!! trans('panel.customers.title_singular') !!}"><i class="material-icons">text_snippet</i></a>--}}
               @endif
               @if(auth()->user()->can(['customer_create']))
               <a href="{{ route('customers.create') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.add') !!} {!! trans('panel.customers.title_singular') !!}"><i class="material-icons">add_circle</i></a>

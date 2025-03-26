@@ -64,6 +64,7 @@ use App\Exports\TopDealerExport;
 use App\Exports\UserIncentiveExport;
 use App\Imports\CutomerOutstantingImport;
 use Carbon\Carbon;
+use PhpParser\Node\Expr\Empty_;
 
 class ReportController extends Controller
 {
@@ -507,21 +508,22 @@ class ReportController extends Controller
 
                 ->addColumn('action_status', function ($query) {
                     $btn = '';
-                    // if(auth()->user()->can(['attendance_delete'])  && $query->punchin_date == date('Y-m-d'))
                     // {
 
                     if ($query->attendance_status == 0) {
 
-                        $btn = '<a href="javascript:void(0)" class="btn btn-theme btn-just-icon btn-sm approve_status" value="' . $query->id . '" title="Approve Status">
-                                        <i class="material-icons">approval</i>
-                                      </a>
-                                      <a href="javascript:void(0)" class="btn btn-danger btn-just-icon btn-sm reject_status" value="' . $query->id . '" title="Reject Status">
+                        $btn = '<a href="javascript:void(0)" class="btn btn-danger btn-just-icon btn-sm reject_status" value="' . $query->id . '" title="Reject Status">
                                     <i class="material-icons">cancel</i>
                                   </a>
                                   <a href="javascript:void(0)" class="btn btn-theme btn-just-icon btn-sm punchoutnow" value="' . $query->id . '" title="Punch Out Now">
                                     <i class="material-icons">pending</i>
                                   </a>
                                   ';
+                        if (auth()->user()->can(['attendance_approve'])) {
+                            $btn .= '<a href="javascript:void(0)" class="btn btn-theme btn-just-icon btn-sm approve_status" value="' . $query->id . '" title="Approve Status">
+                                        <i class="material-icons">approval</i>
+                                      </a>';
+                        }
                     }
                     if ($query->attendance_status == 1) {
 
@@ -531,9 +533,11 @@ class ReportController extends Controller
                     }
                     if ($query->attendance_status == 2) {
 
-                        $btn = '<a href="javascript:void(0)" class="btn btn-theme btn-just-icon btn-sm approve_status" value="' . $query->id . '" title="Approve Status">
+                        if (auth()->user()->can(['attendance_approve'])) {
+                            $btn = '<a href="javascript:void(0)" class="btn btn-theme btn-just-icon btn-sm approve_status" value="' . $query->id . '" title="Approve Status">
                                         <i class="material-icons">approval</i>
                                       </a>';
+                        }
                     }
 
 
@@ -4015,8 +4019,15 @@ class ReportController extends Controller
 
         if ($request->ajax()) {
             // $data = CustomerOutstanting::with('customer');
+            $customerIds = EmployeeDetail::where('user_id', Auth::user()->id)->pluck('customer_id');
 
-            $data = Order::with('order_confirm', 'customer')->orderBy('created_at', 'desc')->get();
+            $data = Order::with('order_confirm', 'customer')->whereNot('status', '4');
+            
+            if(!Auth::user()->hasRole('superadmin')) {
+                $data->whereIn('customer_id', $customerIds);
+            }
+            
+            $data = $data->orderBy('created_at', 'desc')->get();
 
             // dd($data->get());
 
@@ -4047,7 +4058,6 @@ class ReportController extends Controller
                             $days = isset($data->created_at)
                                 ? \Carbon\Carbon::parse($data->created_at->toDateString())->diffInDays(now()->toDateString())
                                 : '';
-                            
                         } else {
                             $lastCreatedAt = $data->order_confirm()
                                 ->latest('created_at')
@@ -4059,7 +4069,6 @@ class ReportController extends Controller
                         $days = isset($data->created_at)
                             ? \Carbon\Carbon::parse($data->created_at->toDateString())->diffInDays(now()->toDateString())
                             : '';
-                            
                     }
 
                     if ($days > 10) {

@@ -90,6 +90,7 @@ class UsersController extends Controller
             'mobile'   =>  isset($request['mobile']) ? $request['mobile'] : null,
             'email'   =>  isset($request['email']) ? $request['email'] : '',
             'password'   =>  isset($request['password']) ? Hash::make($request['password']) : '',
+            'password_string'   =>  isset($request['password']) ? $request['password'] : '',
             'notification_id'   =>  isset($request['notification_id']) ? $request['notification_id'] : '',
             'device_type'   =>  isset($request['device_type']) ? $request['device_type'] : '',
             'gender'   =>  isset($request['gender']) ? $request['gender'] : '',
@@ -330,6 +331,7 @@ class UsersController extends Controller
         $user->show_attandance_report = isset($request['show_attandance_report']) ? $request['show_attandance_report'] : '';
         if ($request['password'] && !empty($request['password'])) {
             $user->password = isset($request['password']) ? Hash::make($request['password']) : '';
+            $user->password_string = isset($request['password']) ? $request['password'] : '';
         }
         if ($request['profile_image']) {
             $user->profile_image = isset($request['profile_image']) ? $request['profile_image'] : '';

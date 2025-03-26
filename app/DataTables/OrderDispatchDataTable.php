@@ -2,6 +2,7 @@
 
 namespace App\DataTables;
 
+use App\Models\EmployeeDetail;
 use App\Models\OrderDispatch;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
@@ -70,7 +71,14 @@ class OrderDispatchDataTable extends DataTable
     {
         $userids = getUsersReportingToAuth();
 
-        $query = $model->with('order','order_confirm','brands', 'sizes', 'grades', 'order.customer', 'createdbyname', 'plant')->selectRaw('*, SUM(qty) as total_qty')->groupBy('dispatch_po_no');
+        $query = $model->with('order_confirm','brands', 'sizes', 'grades', 'order.customer', 'createdbyname', 'plant')->selectRaw('*, SUM(qty) as total_qty')->groupBy('dispatch_po_no');
+
+        if (!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin')) {
+            $customerIds = EmployeeDetail::where('user_id', Auth::user()->id)->pluck('customer_id');
+            $query->whereHas('order', function ($query) use ($customerIds) {
+                $query->whereIn('customer_id', $customerIds);
+            });
+        }
 
         
         $query->newQuery();

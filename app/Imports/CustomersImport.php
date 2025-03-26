@@ -56,10 +56,12 @@ class CustomersImport implements ToCollection, WithValidation, WithHeadingRow, W
         $row['mobile'] = '91' . preg_replace('/\s+/', '', $row['mobile']);
       }
 
-      if (is_numeric($row['creation_date'])) {
-        $excelDate = $row['creation_date'] - 25569; // Adjust for Excel's epoch
+      if (isset($row['created_date']) && is_numeric($row['created_date'])) {
+        $excelDate = $row['created_date'] - 25569; // Adjust for Excel's epoch
         $unixTimestamp = strtotime('+' . $excelDate . ' days', strtotime('1970-01-01'));
-        $row['creation_date'] = !empty($row['creation_date']) ? Carbon::createFromTimestamp($unixTimestamp)->toDateString() : '';
+        $row['created_date'] = !empty($row['created_date']) ? Carbon::createFromTimestamp($unixTimestamp)->toDateString() : '';
+      }else{
+        $row['created_date'] = Carbon::now()->toDateString();
       }
 
 
@@ -75,10 +77,8 @@ class CustomersImport implements ToCollection, WithValidation, WithHeadingRow, W
           'customer_parity' => !empty($row['customer_parity'])? $row['customer_parity'] :null,
           'customer_code' => !empty($row['customer_code']) ? $row['customer_code'] : null,
           'email' => !empty($row['email']) ? $row['email'] : null,
-          'creation_date' => !empty($row['creation_date']) ? $row['creation_date'] : null,
+          'creation_date' => !empty($row['created_date']) ? $row['created_date'] : null,
           'customertype' => !empty($row['customer_type_id']) ? $row['customer_type_id'] : null,
-
-
         ]);
 
 
@@ -348,7 +348,7 @@ class CustomersImport implements ToCollection, WithValidation, WithHeadingRow, W
   public function rules(): array
   {
     return [
-      //'name' => 'required|string|regex:/[a-zA-Z0-9\s]+/',
+      // 'mobile' => 'required|regex:/^91\d{10}$/|unique:customers,mobile',
     ];
   }
 

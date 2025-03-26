@@ -112,7 +112,7 @@ class CustomerController extends Controller
                         'last_name' => !empty($request['last_name']) ? ucfirst($request['last_name']) : '',
                         'mobile' => $request['mobile'],
                         'email' => !empty($request['email']) ? $request['email'] : null,
-                        'password' => !empty($request['password']) ? Hash::make($request['password']) : '',
+                        'password' => !empty($request['password']) ? $request['password'] : '12345678',
                         'notification_id' => !empty($request['notification_id']) ? $request['notification_id'] : '',
                         'latitude' => !empty($request['latitude']) ? $request['latitude'] : null,
                         'longitude' => !empty($request['longitude']) ? $request['longitude'] : null,
@@ -495,6 +495,8 @@ class CustomerController extends Controller
                 ->orderBy('name', 'asc');
             //->latest();
 
+            dd($query->toSql(), $query->getBindings());
+
 
             $db_data = (!empty($pageSize)) ? $query->paginate($pageSize) : $query->paginate(10000);
             // dd($db_data);
@@ -581,6 +583,10 @@ class CustomerController extends Controller
             $userids = getUsersReportingToAuth($user->id);
             $pageSize = $request->input('pageSize');
             $query = $this->customers->with('customeraddress:customer_id,address1,address2', 'customerdetails:customer_id,grade,visit_status', 'customertypes')->select('id', 'name', 'first_name', 'last_name', 'mobile', 'email', 'profile_image', 'customer_code', 'latitude', 'longitude')->whereIn('created_by', $userids)->latest();
+            if(auth()->user()->hasRole('Marketing Executive')){
+                $customer_ids = EmployeeDetail::where('user_id', auth()->user()->id)->pluck('customer_id')->toArray();
+                $query->orWhereIn('id', $customer_ids);
+            }
             $db_data = (!empty($pageSize)) ? $query->paginate($pageSize) : $query->get();
             $data = collect([]);
             if ($db_data->isNotEmpty()) {
