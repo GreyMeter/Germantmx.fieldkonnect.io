@@ -131,7 +131,7 @@ class Customers extends Authenticatable
             //$customers->executive_id = !empty($request['executive_id'])? $request['executive_id']:null;
 
             if ($request['password']) {
-                $customers->password = !empty($request['password']) ? $request['password'] : '';
+                $customers->password = !empty($request['password']) ? $request['password'] : '12345678';
             }
             if (!empty($request['mobile'])) {
                 $customers->mobile = $request['mobile'];

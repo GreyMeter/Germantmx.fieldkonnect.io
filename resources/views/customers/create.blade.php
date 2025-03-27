@@ -251,7 +251,7 @@
 
               <div class="col-md-6">
                 <div class="row">
-                  <label class="col-md-3 col-form-label">Employee 
+                  <label class="col-md-3 col-form-label">Employee
 
                     <?php
                     $userarray = array();
@@ -374,35 +374,26 @@
                 </div>
               </div>
 
-              <!--             <div class="col-md-6" id="parentcustomer" style="display:none;">
+              <div class="col-md-6">
                 <div class="row">
-                  <label class="col-md-3 col-form-label">{!! trans('panel.global.parentcustomer') !!}</label>
-
+                  <label class="col-md-3 col-form-label">{{ trans('panel.user.fields.password') }}<span class="text-danger"> *</span></label>
                   <div class="col-md-9">
                     <div class="form-group has-default bmd-form-group">
-                      <select class="form-control select2 customer_parent" name="parent_id"  style="width: 100%;">
-                         <option value="">Select {!! trans('panel.global.parentcustomer') !!}</option>
-                          @if(@isset($parentcustomers ))
-                            @foreach($parentcustomers as $parentcustomer)
-                            <option value="{!! $parentcustomer['id'] !!}" {{ old( 'parent_id' , (!empty($customers->parent_id))?($customers->parent_id):('') ) == $parentcustomer['id'] ? 'selected' : '' }}>{!! $parentcustomer['first_name'] !!}{!! $parentcustomer['last_name'] !!}</option>
-                            @endforeach
-                          @endif
-
-                      </select>
+                      <input class="form-control {{ $errors->has('password') ? 'is-invalid' : '' }}" type="password" name="password" id="password" value="{{ $customers->password, old('password') }}" minlength="6" maxlength="200" required>
+                      <span class="position-absolute" style="right: 10px; top: 40%; transform: translateY(-50%); cursor: pointer;" onclick="togglePassword()">
+                        <i style="font-size: 22px;color: #666565;" id="toggleIcon" class="fa fa-eye"></i>
+                      </span>
+                      @if ($errors->has('password'))
+                      <label class="error">{{ $errors->first('password') }}</label>
+                      @endif
                     </div>
-                    @if ($errors->has('parent_id'))
-                     <div class="error col-lg-12">
-                        <p class="text-danger">{{ $errors->first('parent_id') }}</p>
-                     </div>
-                    @endif
                   </div>
                 </div>
-              </div> -->
+              </div>
 
               <div class="col-md-6" id="parentcustomer" style="display:none;">
                 <div class="row">
                   <label class="col-md-3 col-form-label">{!! trans('panel.global.parentcustomer') !!}</label>
-
                   <?php
                   $parentarray = array();
                   ?>
@@ -1048,6 +1039,20 @@
       }).trigger('change');
 
     });
+
+    function togglePassword() {
+      var passwordInput = document.getElementById("password");
+      var icon = document.getElementById("toggleIcon");
+      if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+      } else {
+        passwordInput.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+      }
+    }
   </script>
 
 </x-app-layout>

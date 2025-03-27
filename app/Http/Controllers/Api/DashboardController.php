@@ -33,6 +33,7 @@ use App\Models\SalesTarget;
 use App\Models\Customers;
 use App\Models\DealerAppointment;
 use App\Models\Division;
+use App\Models\EmployeeDetail;
 use App\Models\Expenses;
 use App\Models\LoyaltyAppSetting;
 use App\Models\ParentDetail;
@@ -755,7 +756,7 @@ class DashboardController extends Controller
         }
         if ($check_additional_price) {
             $data = number_format((floatval($price) + floatval($check_additional_price->price_adjustment)), 2, '.', '');
-        }else{
+        } else {
             $data = number_format((floatval($price)), 2, '.', '');
         }
 
@@ -821,5 +822,27 @@ class DashboardController extends Controller
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
         }
+    }
+
+    public function today_rate_user(Request $request)
+    {
+        $user = $request->user();
+        $customer_id = EmployeeDetail::where('user_id', $user->id)->first()->customer_id;
+        if ($customer_id) {
+            $customer = Customers::where('id', $customer_id)->first();
+
+            $customer_parity = $customer->customer_parity;
+            if ($customer_parity == 'South Parity') {
+                $price = Price::where('id', 2)->first()->base_price;
+            } else {
+                $price = Price::where('id', 1)->first()->base_price;
+            }
+
+            $data = number_format((floatval($price)), 2, '.', '');
+        } else {
+            $price = Price::where('id', 1)->first()->base_price;
+            $data = number_format((floatval($price)), 2, '.', '');
+        }
+        return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'todayrate' => $data], 200);
     }
 }

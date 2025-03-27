@@ -137,9 +137,12 @@
                   <th class="text-center grade"> Grade</th>
                   <th class="text-center size"> Size </th>
                   <th class="text-center material"> Material </th>
+                  <th class="text-center"> Loading-Add </th>
                   <th class="text-center"> QTY <small>(MT)</small> </th>
-                  <th class="text-center material"> Booking Price </th>
-                  <th class="text-center material"> Total Price </th>
+                  <th class="text-center"> Additional Rate </th>
+                  <th class="text-center"> Remarks </th>
+                  <th class="text-center"> Booking Price </th>
+                  <th class="text-center"> Total Price </th>
                   <th class="text-center"> </th>
                 </tr>
               </thead>
@@ -263,7 +266,6 @@
   <script type="text/javascript">
     var counter = 0;
     $(document).ready(function() {
-      calcualteSodaPrice();
       var $table = $('table.kvcodes-dynamic-rows-example');
       $('a.add-rows').click(function(event) {
         event.preventDefault();
@@ -275,7 +277,10 @@
           '<td style="width:30%" class="subCat"><div class="input_section"><select required name="grade_id[]" class="form-control grade' + counter + ' grade_change"></select></div></td>' +
           '<td style="width:30%"><div class="input_section"><select required name="category_id[]" class="form-control allsizes size' + counter + ' size_change"></select></div></td>' +
           '<td style="width:30%"><div class="input_section"><select required name="material[]" class="form-control material' + counter + ' material_change"><option value="">Select Material</option><option value="Straight">Straight</option><option value="Bend">Bend</option></select></div></td>' +
+          '<td style="width:30%"><div class="input_section"><select required name="loading_add[]" class="form-control loading_add' + counter + ' loading_add_change"><option value="">Select Loading</option><option value="Up">Up</option><option value="Down">Down</option></select></div></td>' +
           '<td><div class="input_section"><input required type="number" step="0.01" name="qty[]"class="form-control points rowchange" /></div></td>' +
+          '<td><div class="input_section"><input type="number" step="0.01" name="additional_rate[]"class="form-control additional_rate rowchange" /></div></td>' +
+          '<td><div class="input_section"><textarea type="text" name="remark[]"class="form-control remark rowchange"></textarea></div></td>' +
           '<td><div class="input_section"><input required type="number" name="booking_price[]"class="form-control  booking_price_change"  readonly/></div></td>'+
           '<td ><div class="input_section"><input style="width : 120px !important" required type="number" name="total_price[]"class="form-control  total_price_change" readonly/></div></td>'+
           '<td class="td-actions text-center"><a class="remove-rows btn btn-danger btn-just-icon btn-sm"><i class="fa fa-minus"></i></a></td> </tr>';
@@ -302,19 +307,20 @@
           var size = row.find('.size_change').val();
           var material = row.find('.material_change').val();
           var quantity = row.find('.points').val();
+          var additionalRate = row.find('.additional_rate').val();
 
           if(brand && grade && size ){
-              getPrices(brand , grade , size , material , quantity , row);
+              getPrices(brand , grade , size , material , quantity , row, additionalRate);
           }else{
             row.find('.total_price_change').text(''); // Update the booking price in the row
             row.find('.booking_price_change').text('');
           }
       });
 
-      $('.points').on('input' , function(){
+
+      $('.points, .additional_rate').on('input' , function(){
           var row = $(this).closest('tr'); // Get the closest row of the changed input/select
-          console.log(row);
-          
+         
           row.find('.total_price_change').val(''); // Update the booking price in the row
           row.find('.booking_price_change').val('');
           var brand = row.find('.brand_change').val();
@@ -322,15 +328,16 @@
           var size = row.find('.size_change').val();
           var material = row.find('.material_change').val();
           var quantity = row.find('.points').val();
+          var additionalRate = row.find('.additional_rate').val();
           if(brand && grade && size){
-            getPrices(brand , grade , size , material , quantity , row);       
+            getPrices(brand , grade , size , material , quantity , row, additionalRate);       
           }      
       });
     }
 
-    function getPrices(brand='' , grade='' , size='' , material='' , quantity=1 , row){
-        var bookingPrice = $('#base_price').val();  // Example booking price
-        var totalPrice = '';    // Example total price
+    function getPrices(brand='' , grade='' , size='' , material='' , quantity=1 , row, additionalRate){
+        var bookingPrice = $('#base_price').val();
+        var totalPrice = '';
         var additional_charge = ''
         var customer_id = $('#order_customer_id').val();
         if (brand && grade && size) {
@@ -348,10 +355,18 @@
                 bookingPrice = parseFloat(bookingPrice, 10) + parseFloat(res.additional_price, 10);
                 row.find('.booking_price_change').val(bookingPrice);
                 if(quantity){
-                  let total_value = parseFloat(quantity, 10)*parseFloat(bookingPrice, 10);
+                  if(additionalRate && additionalRate > 0){
+                    var total_value = parseFloat(quantity, 10)*parseFloat(bookingPrice, 10)+(parseFloat(additionalRate, 10)*parseFloat(quantity, 10));
+                  }else{
+                    var total_value = parseFloat(quantity, 10)*parseFloat(bookingPrice, 10);
+                  }
                   row.find('.total_price_change').val(total_value); 
                 }else{
-                  let total_value = 1*parseFloat(bookingPrice, 10);
+                  if(additionalRate && additionalRate > 0){
+                    var total_value = 1*parseFloat(bookingPrice, 10)+(parseFloat(additionalRate, 10));
+                  }else{
+                    var total_value = 1*parseFloat(bookingPrice, 10);
+                  }
                   row.find('.total_price_change').val(total_value);
                 }
               }

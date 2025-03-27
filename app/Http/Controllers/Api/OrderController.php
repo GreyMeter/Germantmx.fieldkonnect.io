@@ -64,15 +64,19 @@ class OrderController extends Controller
             $pageSize = $request->input('pageSize');
             $customer_ids = EmployeeDetail::where('user_id', $user->id)->pluck('customer_id');
 
-            $data = Order::with('customer:id,name')->orWhereIn('customer_id', $customer_ids)
-                ->select('id', 'po_no', 'qty', 'base_price', 'discount_amt', 'created_at', 'customer_id')
+            $data = Order::with('customer:id,name');
+            if (!$user->hasRole('superadmin')) {
+                $data->WhereIn('customer_id', $customer_ids);
+            }
+
+            $data = $data->select('id', 'po_no', 'qty', 'base_price', 'discount_amt', 'created_at', 'customer_id')
                 ->selectRaw('base_price + discount_amt as base_price')
                 ->orderBy('id', 'desc');
             $data = (!empty($pageSize)) ? $data->paginate($pageSize) : $data->get();
             if ($data && count($data) > 0) {
                 return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data], $this->successStatus);
             }
-            return response(['status' => 'error', 'message' => 'No Record Found.', 'data' => $data, 'users' => $users, 'all_status' => $all_status], 200);
+            return response(['status' => 'error', 'message' => 'No Record Found.'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
         }
@@ -995,10 +999,10 @@ class OrderController extends Controller
                     $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'price_id' => '1', 'model_name' => 'brand'])->first())->price_adjustment;
                 }
 
-                
-                
+
+
                 $after_soda_price = ($soda->base_price + $soda->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size + $additional_price_parity;
-                
+
                 $data['confirm_po_no'] = $soda->po_no . '-' . $totalOrderConfirm + 1;
                 $data['order_id'] = $request->soda_id;
                 $data['created_by'] = $user->id;
@@ -1047,7 +1051,11 @@ class OrderController extends Controller
         try {
             $user = $request->user();
             $customer_ids = EmployeeDetail::where('user_id', $user->id)->pluck('customer_id');
-            $sodas = Order::where('created_by', $user->id)->orWhereIn('customer_id', $customer_ids)->pluck('id');
+            if (!$user->hasRole('superadmin')) {
+                $sodas = Order::WhereIn('customer_id', $customer_ids)->pluck('id');
+            } else {
+                $sodas = Order::pluck('id');
+            }
             $data = OrderConfirm::whereIn('order_id', $sodas)->with('order.customer', 'createdbyname')->selectRaw('*, SUM(qty) as total_qty')
                 ->groupBy('confirm_po_no')->get();
 

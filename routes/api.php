@@ -153,6 +153,7 @@ Route::group(['middleware' => ['auth:users']], function () {
     Route::any('pendingCounts', [DashboardController::class, 'pendingCounts']);
     Route::any('getUserDashboardData', [DashboardController::class, 'getUserDashboardData']);
     Route::any('getSarthiPoints', [DashboardController::class, 'getSarthiPoints']);
+    Route::any('todayRate', [DashboardController::class, 'today_rate_user']);
 
     Route::any('getProfile', [LoginController::class, 'getProfile']);
     Route::post('updateProfile', [LoginController::class, 'updateProfile']);
