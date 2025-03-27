@@ -422,6 +422,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('orders', OrderController::class);
     Route::any('orders-confirm/{id}', [OrderController::class, 'confirm'])->name('orders.confirm');
     Route::any('orders_confirm', [OrderController::class, 'confirm_orders'])->name('orders.confirm.list');
+    Route::any('orders_confirm/update', [OrderController::class, 'confirm_orders_update'])->name('confirm_order.update');
     Route::any('orders_confirm/{id}', [OrderController::class, 'confirm_orders_show'])->name('orders.confirm.show');
     Route::any('orders_confirm/{id}/edit', [OrderController::class, 'confirm_orders_edit'])->name('orders.confirm.edit');
     Route::any('orders_dispatch/{id}', [OrderController::class, 'dispatch_order'])->name('orders.dispatch');

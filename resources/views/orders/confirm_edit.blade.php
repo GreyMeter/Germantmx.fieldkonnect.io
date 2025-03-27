@@ -32,7 +32,7 @@
 
             <div class="row">
               <div class="col-12">
-                <h3 class="card-title pb-3">{!! trans('panel.order.title_singular') !!} Detail</h3>
+                <h3 class="card-title pb-3">{!! trans('panel.order.title_singular') !!} Edit</h3>
               </div>
               <!-- /.col -->
 
@@ -112,7 +112,7 @@
 
               <!-- Table row -->
               {!! Form::model($orders,[
-              'route' => ['orders.dispatch_multi', encrypt($orders->confirm_po_no) ],
+              'route' => ['confirm_order.update'],
               'method' => 'POST',
               'id' => 'createProductFormMulti',
               'files' => true
@@ -175,16 +175,30 @@
                     <tbody>
                       @if($orders->exists)
                       @foreach ($order_chain as $order)
+                      <input type="hidden" name="base_price" id="base_price" value="{{$order->order->base_price+$order->order->discount_amt}}">
+                      <input type="hidden" name="order_customer_id" id="order_customer_id" value="{!! $order->order->customer_id !!}">
                       <tr>
+                        <input type="hidden" name="order_ids[]" value="{{$order->id}}">
+                        <input type="hidden" name="brand_change" class="brand_change" value="{{$order->brands->id}}">
+                        <input type="hidden" name="grade_change" class="grade_change" value="{{$order->grades->id}}">
                         <td>{{$order->brands ? $order->brands->brand_name : '-'}}</td>
                         <td>{{$order->grades ? $order->grades->unit_name : '-'}}</td>
-                        <td>{{$order->sizes ? $order->sizes->category_name : '-'}}</td>
+                        <td>
+                          <select required name="category_id[]" class="form-control allsizes size_change">
+                            <option value="">Select Size</option>
+                            @if(@isset($sizes))
+                            @foreach($sizes as $key => $size)
+                            <option value="{{ $size['id'] }}" {{ $order->category_id == $size['id'] ? 'selected' : '' }}>
+                              {{ $size['category_name'] }}
+                            </option>
+                            @endforeach
+                            @endif
+                          </select>
+                        </td>
                         <td>{{$order->material}}</td>
                         <td>{{$order->loading_add}}</td>
                         <td>{{$order->qty}}</td>
-                        <td>
-                          <input type="number" class="form-control dispatch_qty" value="{{ getOrderQuantity($order->id) }}" name="dispatch_qty[]" step="1">
-                        </td>
+                        <td><input type="number" class="form-control dispatch_qty" value="{{ getOrderQuantity($order->id) }}" name="dispatch_qty[]" step="1" readonly></td>
                         <td>
                           <input type="number" class="form-control additional_rate" value="{{$order->additional_rate}}" name="additional_rate[]" step="1" readonly>
                           <span class="badge bg-info" style="font-size: 10px;font-weight: 800;padding: 3px;">{{$order->remark}}</span>
@@ -216,9 +230,7 @@
                 <div class="col-12">
                   @if($orders['status'] == '0')
                   @if(!getOrderQuantityByPo($orders->confirm_po_no))
-                  <button type="submit" class="btn btn-success">Dispatch Order</button>
-                  {{-- <a href="{{ url('orders_confirm/' . encrypt($orders->id) . '/edit?cnf=true') }}" class="btn btn-success">Dispatch Order</a> --}}
-                  <!-- <a class="btn btn-danger bg-danger">Cancle Order</a> -->
+                  <button type="submit" class="btn btn-success">Update Order</button>
                   @else
                   <button type="button" class="btn btn-success">This order has fully dispatched</button>
                   @endif
@@ -299,7 +311,6 @@
       function calculateTotal(row) {
         var qty = parseFloat(row.find('.dispatch_qty').val()) || 0;
         var additionalRate = parseFloat(row.find('.additional_rate').val()) || 0;
-      
         var basePrice = parseFloat(row.find('.dispatch_base_price').val()) || 0;
         var total = ((qty * basePrice)+(qty * additionalRate)).toFixed(2);
         row.find('.dispatch_soda_price').val(total);
@@ -380,6 +391,69 @@
         }
       });
     });
+
+    $(document).on('change', '.size_change', function() {
+      var row = $(this).closest('tr');
+
+      row.find('.dispatch_soda_price').val('');
+      row.find('.dispatch_base_price').val('');
+      var brand = row.find('.brand_change').val();
+      var grade = row.find('.grade_change').val();
+      var size = row.find('.size_change').val();
+      var material = row.find('.material_change').val();
+      var quantity = row.find('.dispatch_qty').val();
+      var additionalRate = row.find('.additional_rate').val();
+
+      if (brand && grade && size) {
+        getPrices(brand, grade, size, material, quantity, row, additionalRate);
+      } else {
+        row.find('.dispatch_soda_price').text(''); // Update the booking price in the row
+        row.find('.dispatch_base_price').text('');
+      }
+    });
+
+    function getPrices(brand = '', grade = '', size = '', material = '', quantity = 1, row, additionalRate) {
+      var bookingPrice = $('#base_price').val(); // Example booking price
+      var totalPrice = ''; // Example total price
+      var additional_charge = ''
+      var customer_id = $('#order_customer_id').val();
+      if (brand && grade && size) {
+        // Simulate price calculations (replace with your actual logic)
+        $.ajax({
+          url: "{{ url('getPricesOfOrder') }}",
+          data: {
+            "brand": brand,
+            "grade": grade,
+            "size": size,
+            "customer_id": customer_id,
+          },
+          success: function(res) {
+            if (res.status == true) {
+              console.log(bookingPrice, 'bookingPrice');
+              bookingPrice = (parseFloat(bookingPrice, 10) + parseFloat(res.additional_price, 10)).toFixed(2);
+              row.find('.dispatch_base_price').val(bookingPrice);
+
+              if (quantity) {
+                if (additionalRate && additionalRate > 0) {
+                  var total_value = parseFloat(quantity, 10) * parseFloat(bookingPrice, 10) + (parseFloat(additionalRate, 10) * parseFloat(quantity, 10));
+                } else {
+                  var total_value = parseFloat(quantity, 10) * parseFloat(bookingPrice, 10);
+                }
+                row.find('.dispatch_soda_price').val(total_value.toFixed(2));
+              } else {
+                if (additionalRate && additionalRate > 0) {
+                  var total_value = 1 * parseFloat(bookingPrice, 10) + (parseFloat(additionalRate, 10));
+                } else {
+                  var total_value = 1 * parseFloat(bookingPrice, 10);
+                }
+                row.find('.dispatch_soda_price').val(total_value.toFixed(2));
+              }
+            }
+
+          }
+        });
+      }
+    }
   </script>
   <!-- /.content -->
 </x-app-layout>

@@ -40,12 +40,12 @@ class OrderConfirmDataTable extends DataTable
                                     <i class="material-icons">visibility</i>
                                 </a>';
                 }
-                if (auth()->user()->can(['order_delete'])) {
-                    $btn = $btn . ' <a href="" class="btn btn-danger btn-just-icon btn-sm delete" value="' . $query->id . '" title="' . trans('panel.global.delete') . ' ' . trans('panel.order.title_singular') . '">
-                                <i class="material-icons">clear</i>
-                              </a>';
+                if (auth()->user()->can(['final_order_edit'])) {
+                    $btn = $btn . '<a href="' . url("orders_confirm/" . encrypt($query->id)) . '/edit" class="btn btn-theme btn-just-icon btn-sm ml-2" title="' . trans('panel.global.edit') . ' ' . trans('panel.order.title_singular') . '">
+                                    <i class="material-icons">edit</i>
+                                </a>';
                 }
-                if (auth()->user()->can(['order_active'])) {
+                if (auth()->user()->can(['order_activeee'])) {
                     $active = ($query->active == 'Y') ? 'checked="" value="' . $query->active . '"' : 'value="' . $query->active . '"';
                     $activebtn = '<div class="togglebutton">
                                 <label>

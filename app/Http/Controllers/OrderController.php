@@ -192,18 +192,14 @@ class OrderController extends Controller
 
     public function confirm_orders_edit($id, Request $request)
     {
-        abort_if(Gate::denies('order_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('final_order_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $id = decrypt($id);
-        $orders = OrderConfirm::find($id);
         $totalOrderDispatchQty = OrderDispatch::where('order_confirm_id', $id)->sum('qty');
-        $categories = Category::where('active', '=', 'Y')->select('id', 'category_name')->get();
-        $customers = Customers::where('active', '=', 'Y')->select('id', 'name', 'order_limit')->get();
-        $brands = Brand::where('active', '=', 'Y')->select('id', 'brand_name')->get();
-        $units = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name')->get();
-        $base_price = $orders->base_price;
-        $cnf = $request->cnf ?? false;
+        $orders = OrderConfirm::with('order', 'brands', 'sizes', 'grades', 'order.customer', 'createdbyname')->find($id);
+        $order_chain =  OrderConfirm::with('order', 'brands', 'sizes', 'grades', 'order.customer', 'createdbyname')->where(['confirm_po_no' => $orders->confirm_po_no])->get();
+        $sizes = Category::where('active', 'Y')->get();
         $plants = Plant::where('active', 'Y')->latest()->get();
-        return view('orders.confirm_despatch', compact('categories', 'customers', 'brands', 'units', 'base_price', 'cnf', 'totalOrderDispatchQty', 'plants'))->with('orders', $orders);
+        return view('orders.confirm_edit', compact('orders', 'totalOrderDispatchQty', 'order_chain', 'plants', 'sizes'));
     }
 
     /**
@@ -700,6 +696,9 @@ class OrderController extends Controller
             $data['brand_id'] = $request->brand_id[$k];
             $data['category_id'] = $request->category_id[$k];
             $data['material'] = $request->material[$k];
+            $data['loading_add'] = $request->loading_add[$k];
+            $data['additional_rate'] = $request->additional_rate[$k] ?? 0.00;
+            $data['remark'] = $request->remark[$k];
             $data['base_price'] = $request->booking_price[$k];
             $data['soda_price'] = $request->total_price[$k];
             $tqty += $qty;
@@ -892,6 +891,18 @@ class OrderController extends Controller
             return Redirect::back()->with('message_success', 'Driver Details Updated Successfully.');
 
         }catch(\Exception $e){
+            return Redirect::back()->with('message_error', 'Something went wrong.');
+        }
+    }
+
+    public function confirm_orders_update(Request $request)
+    {
+        try {
+            foreach ($request->order_ids as $key => $value) {
+                OrderConfirm::where('id', $value)->update(['category_id' => $request->category_id[$key], 'base_price' => $request->dispatch_base_price[$key], 'soda_price' => $request->dispatch_soda_price[$key]]);
+            }
+            return Redirect::to('orders_confirm')->with('message_success', 'Order Confirm Update Successfully.');
+        } catch (\Exception $e) {
             return Redirect::back()->with('message_error', 'Something went wrong.');
         }
     }
