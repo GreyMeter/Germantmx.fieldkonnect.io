@@ -154,6 +154,8 @@ Route::group(['middleware' => ['auth:users']], function () {
     Route::any('getUserDashboardData', [DashboardController::class, 'getUserDashboardData']);
     Route::any('getSarthiPoints', [DashboardController::class, 'getSarthiPoints']);
     Route::any('todayRate', [DashboardController::class, 'today_rate_user']);
+    Route::any('getUserNotification', [DashboardController::class, 'getUserNotification']);
+    Route::any('getOutstandingUser', [DashboardController::class, 'getOutstandingUser']);
 
     Route::any('getProfile', [LoginController::class, 'getProfile']);
     Route::post('updateProfile', [LoginController::class, 'updateProfile']);
@@ -179,6 +181,7 @@ Route::group(['middleware' => ['auth:users']], function () {
     Route::any('getdispatchList', [OrderController::class, 'userdispatchList']);
     Route::any('getDispatchOrder', [OrderController::class, 'getDispatchOrder']);
     Route::post('cancelOrder', [OrderController::class, 'cancelOrder']);
+    Route::post('updateBooking', [OrderController::class, 'updateBooking']);
 
     //Leave
     Route::any('addLeaves', [LeaveController::class, 'addLeaves']);

@@ -233,8 +233,8 @@ class OrderController extends Controller
             $request['po_no'] = generatePoNumber();
             $soda = Order::create($request->all());
 
-            $data['type'] = 'Soda Created';
-            $data['data'] = 'New soda created successfully with PO Number is ' . $request['po_no'] . '.';
+            $data['type'] = 'Booking Created';
+            $data['data'] = 'New booking created successfully with PO Number is ' . $request['po_no'] . '.';
             $data['customer_id'] = $request['customer_id'];
             addNotification($data);
 
@@ -723,8 +723,8 @@ class OrderController extends Controller
             $request['po_no'] = generatePoNumber();
             $soda = Order::create($request->all());
 
-            $data['type'] = 'Soda Created';
-            $data['data'] = 'New soda created successfully with PO Number is ' . $request['po_no'] . '.';
+            $data['type'] = 'Booking Created';
+            $data['data'] = 'New booking created successfully with PO Number is ' . $request['po_no'] . '.';
             $data['customer_id'] = $request['customer_id'];
             addNotification($data);
 
@@ -1150,6 +1150,25 @@ class OrderController extends Controller
             $orders->cancel_remark = $request->remark;
             $orders->save();
             return response()->json(['status' => 'success', 'message' => 'Booking cancle successfully !!']);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Booking not found !!']);
+        }
+    }
+
+    public function updateBooking(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'soda_id' => 'required',
+            'qty' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
+        }
+        $orders = Order::find($request->soda_id);
+        if ($orders) {
+            $orders->qty = $request->qty;
+            $orders->save();
+            return response()->json(['status' => 'success', 'message' => 'Booking Updated successfully !!']);
         } else {
             return response()->json(['status' => 'error', 'message' => 'Booking not found !!']);
         }

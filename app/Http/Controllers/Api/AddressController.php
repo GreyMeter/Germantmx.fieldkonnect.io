@@ -95,9 +95,13 @@ class AddressController extends Controller
         try {
             $pageSize = $request->input('pageSize');
             $district_id = $request->input('district_id');
-            $query = City::where(function ($query) use ($district_id) {
+            $search = $request->input('search');
+            $query = City::where(function ($query) use ($district_id, $search) {
                 if (!empty($district_id)) {
                     $query->where('district_id', '=', $district_id);
+                }
+                if (!empty($search)) {
+                    $query->where('city_name', 'LIKE', '%'.$search.'%');
                 }
             })->select('id', 'city_name');
 

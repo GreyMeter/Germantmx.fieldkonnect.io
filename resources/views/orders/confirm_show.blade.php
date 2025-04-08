@@ -183,10 +183,10 @@
                         <td>{{$order->loading_add}}</td>
                         <td>{{$order->qty}}</td>
                         <td>
-                          <input type="number" class="form-control dispatch_qty" value="{{ getOrderQuantity($order->id) }}" name="dispatch_qty[]" step="1">
+                          <input type="number" class="form-control dispatch_qty" value="{{ getOrderQuantity($order->id) }}" name="dispatch_qty[]" step="0.01">
                         </td>
                         <td>
-                          <input type="number" class="form-control additional_rate" value="{{$order->additional_rate}}" name="additional_rate[]" step="1" readonly>
+                          <input type="number" class="form-control additional_rate" value="{{$order->additional_rate}}" name="additional_rate[]" step="0.01">
                           <span class="badge bg-info" style="font-size: 10px;font-weight: 800;padding: 3px;">{{$order->remark}}</span>
                         </td>
                         <td>
@@ -343,7 +343,7 @@
       });
 
       // Trigger calculation when quantity or base price changes
-      $(document).on('input', '.dispatch_qty', function() {
+      $(document).on('input', '.dispatch_qty, .additional_rate', function() {
         var row = $(this).closest('tr');
         calculateTotal(row);
       });
