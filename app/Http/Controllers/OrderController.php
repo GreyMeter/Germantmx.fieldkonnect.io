@@ -192,7 +192,7 @@ class OrderController extends Controller
 
     public function confirm_orders_edit($id, Request $request)
     {
-        abort_if(Gate::denies('final_order_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('final_order_revised_size'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $id = decrypt($id);
         $totalOrderDispatchQty = OrderDispatch::where('order_confirm_id', $id)->sum('qty');
         $orders = OrderConfirm::with('order', 'brands', 'sizes', 'grades', 'order.customer', 'createdbyname')->find($id);
@@ -718,7 +718,6 @@ class OrderController extends Controller
     {
         $id = decrypt($id);
         $orders = OrderConfirm::find($id);
-        dd($request->all());
         $stockA = manageStock($request->all());
 
         if (!$stockA) {
@@ -753,11 +752,14 @@ class OrderController extends Controller
         foreach ($request->dispatch_qty as $key => $qty) {
             if ($qty > 0) {
                 $check_stock = checkStock($orders[$key], $qty, $request->plant_id[$key]);
+                echo $check_stock;
+                echo '<br>';
             }
         }
         if (!$check_stock) {
             return Redirect::back()->with('message_error', 'Please Check your available stock');
         }
+
         if (count($request->dispatch_qty) > 0) {
             if (!getOrderQuantityByPo($id)) {
                 $totalOrderDispacth = OrderDispatch::where('order_confirm_id', $orders[0]->id)->count('id');
@@ -778,10 +780,10 @@ class OrderController extends Controller
                                 'brand_id'         => $orders[$key]->brand_id,
                                 'category_id'      => $orders[$key]->category_id,
                                 'plant_id'         => $request->plant_id[$key],
-                                'base_price'       => $orders[$key]->base_price,
-                                'soda_price'       => $orders[$key]->base_price * $qty,
-                                'rate'             => 0,
-                                'final_rate'       => $orders[$key]->base_price * $qty
+                                'base_price'       => $request->dispatch_base_price[$key],
+                                'soda_price'       => $request->dispatch_soda_price[$key],
+                                'rate'             => $request->additional_rate[$key],
+                                'final_rate'       => $request->dispatch_soda_price[$key]
                             ]);
                             $Ndata['type'] = 'Order Disapatch';
                             $Ndata['data'] = $request['qty'] . ' Quantity dispatch of order Number ' . $id . ' .';
@@ -848,7 +850,7 @@ class OrderController extends Controller
     {
         $id = decrypt($id);
         $orders = OrderDispatch::find($id);
-        $dispatch_orders = OrderDispatch::where(['dispatch_po_no' => $orders->dispatch_po_no])->get();
+        $dispatch_orders = OrderDispatch::with('order_confirm')->where(['dispatch_po_no' => $orders->dispatch_po_no])->get();
         return view('orders.order_dispatch_show', compact('dispatch_orders', 'orders'));
     }
 

@@ -336,6 +336,7 @@
     }
 
     function getPrices(brand='' , grade='' , size='' , material='' , quantity=1 , row, additionalRate){
+    console.log(brand , grade , size , material , quantity , row, additionalRate);
         var bookingPrice = $('#base_price').val();
         var totalPrice = '';
         var additional_charge = ''
@@ -355,14 +356,14 @@
                 bookingPrice = parseFloat(bookingPrice, 10) + parseFloat(res.additional_price, 10);
                 row.find('.booking_price_change').val(bookingPrice);
                 if(quantity){
-                  if(additionalRate && additionalRate > 0){
+                  if(additionalRate){
                     var total_value = parseFloat(quantity, 10)*parseFloat(bookingPrice, 10)+(parseFloat(additionalRate, 10)*parseFloat(quantity, 10));
                   }else{
                     var total_value = parseFloat(quantity, 10)*parseFloat(bookingPrice, 10);
                   }
                   row.find('.total_price_change').val(total_value); 
                 }else{
-                  if(additionalRate && additionalRate > 0){
+                  if(additionalRate){
                     var total_value = 1*parseFloat(bookingPrice, 10)+(parseFloat(additionalRate, 10));
                   }else{
                     var total_value = 1*parseFloat(bookingPrice, 10);

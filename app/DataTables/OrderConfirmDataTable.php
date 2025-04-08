@@ -40,9 +40,9 @@ class OrderConfirmDataTable extends DataTable
                                     <i class="material-icons">visibility</i>
                                 </a>';
                 }
-                if (auth()->user()->can(['final_order_edit'])) {
-                    $btn = $btn . '<a href="' . url("orders_confirm/" . encrypt($query->id)) . '/edit" class="btn btn-theme btn-just-icon btn-sm ml-2" title="' . trans('panel.global.edit') . ' ' . trans('panel.order.title_singular') . '">
-                                    <i class="material-icons">edit</i>
+                if (auth()->user()->can(['final_order_revised_size'])) {
+                    $btn = $btn . '<a href="' . url("orders_confirm/" . encrypt($query->id)) . '/edit" class="btn btn-theme btn-just-icon btn-sm ml-2" title="Revised Size">
+                                    <i class="material-icons">straighten</i>
                                 </a>';
                 }
                 if (auth()->user()->can(['order_activeee'])) {

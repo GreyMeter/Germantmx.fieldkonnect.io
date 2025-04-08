@@ -206,6 +206,7 @@
                         <th>Material</th>
                         <th>Total Quantity<small>(Tonn)</small></th>
                         <th>Base Price<small>(1MT)</small></th>
+                        <th>Additional Rate</th>
                         <th>Total</th>
                         <th>Plants</th>
                       </tr>
@@ -221,6 +222,10 @@
                         <td>{{$order->qty}}</td>
                         <td>
                           {{$order->base_price ?? ''}}
+                        </td>
+                        <td>
+                          {{$order->rate ?? ''}} <br>
+                          <span class="badge bg-info" style="font-size: 10px;font-weight: 800;padding: 3px;">{{$order->order_confirm->remark}}</span>
                         </td>
                         <td>
                           {{$order->soda_price ?? ''}}

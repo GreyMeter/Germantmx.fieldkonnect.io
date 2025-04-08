@@ -775,6 +775,19 @@ class DashboardController extends Controller
         }
     }
 
+    public function getUserNotification(Request $request)
+    {
+        try {
+            $user = $request->user();
+            $customer_ids = EmployeeDetail::where('user_id', $user->id)->pluck('customer_id');
+            $all_noti = Notification::whereIn('customer_id', $customer_ids)->orderBy('id', 'desc')->limit(50)->get();
+            // Customers::where('id', $customer->id)->update(['notify' => false]);
+            return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $all_noti], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        }
+    }
+
     private function translateText($text, $targetLang)
     {
         $url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=" . $targetLang . "&dt=t&q=" . urlencode($text);
@@ -785,6 +798,47 @@ class DashboardController extends Controller
         return $result[0][0][0] ?? $text; // Return translated text
     }
 
+    public function getOutstandingUser(Request $request)
+    {
+        try {
+            $user = $request->user();
+
+            $customer_ids = EmployeeDetail::where('user_id', $user->id)->pluck('customer_id');
+
+            $db_data = Order::with('order_confirm', 'customer')->whereIn('customer_id', $customer_ids)->orderBy('created_at', 'desc')->get();
+            $data = [];
+            foreach ($db_data as $key => $value) {
+
+                if (count($value->order_confirm) > 0) {
+                    if (($value->qty - $value->order_confirm->pluck('qty')->sum()) > 0) {
+                        $days = isset($value->created_at)
+                            ? \Carbon\Carbon::parse($value->created_at->toDateString())->diffInDays(now()->toDateString())
+                            : '';
+                    } else {
+                        $lastCreatedAt = $value->order_confirm()
+                            ->latest('created_at')
+                            ->value('created_at');
+                        $days = \Carbon\Carbon::parse($value->created_at->toDateString())->diffInDays(\Carbon\Carbon::parse($lastCreatedAt)->toDateString());
+                    }
+                } else {
+                    $days = isset($value->created_at)
+                        ? \Carbon\Carbon::parse($value->created_at->toDateString())->diffInDays(now()->toDateString())
+                        : '';
+                }
+
+
+                $data[$key]['date'] = date('d M Y', strtotime($value->created_at));
+                $data[$key]['part_name'] = $value->customer->name;
+                $data[$key]['po_no'] = $value->po_no;
+                $data[$key]['pending_qty'] = $value->qty - $value->order_confirm->pluck('qty')->sum();
+                $data[$key]['days'] = $days;
+            }
+
+            return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        }
+    }
     public function getOutstanding(Request $request)
     {
         try {
@@ -827,7 +881,7 @@ class DashboardController extends Controller
     public function today_rate_user(Request $request)
     {
         $user = $request->user();
-        $customer_id = EmployeeDetail::where('user_id', $user->id)->first()->customer_id;
+        $customer_id = optional(EmployeeDetail::where('user_id', $user->id)->first())->customer_id;
         if ($customer_id) {
             $customer = Customers::where('id', $customer_id)->first();
 
