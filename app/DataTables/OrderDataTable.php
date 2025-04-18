@@ -4,6 +4,7 @@ namespace App\DataTables;
 
 use App\Models\EmployeeDetail;
 use App\Models\Order;
+use App\Models\OrderConfirm;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
@@ -21,6 +22,18 @@ class OrderDataTable extends DataTable
         return datatables()
             ->eloquent($query)
             ->addIndexColumn()
+            ->editColumn('status', function ($data) {
+                $totalOrderConfirmQty = OrderConfirm::where('order_id', $data->id)->sum('qty');
+                if ($data->status == 4) {
+                    return '<span class="badge badge-danger">Cancelled</span>';
+                } else if ($totalOrderConfirmQty > 0 && $data->qty == $totalOrderConfirmQty) {
+                    return '<span class="badge badge-success">Completed</span>';
+                } else if ($totalOrderConfirmQty > 0 && $data->qty > $totalOrderConfirmQty) {
+                    return '<span class="badge badge-warning">Partially Completed</span>';
+                } else if ($totalOrderConfirmQty == 0) {
+                    return '<span class="badge badge-danger">Pending</span>';
+                }
+            })
             ->editColumn('created_at', function ($data) {
                 return isset($data->created_at) ? showdatetimeformat($data->created_at) : '';
             })
@@ -55,7 +68,7 @@ class OrderDataTable extends DataTable
                                 ' . $btn . '
                             </div>' . $activebtn;
             })
-            ->rawColumns(['action', 'created_at']);
+            ->rawColumns(['action', 'status', 'created_at']);
     }
 
     /**
@@ -69,29 +82,30 @@ class OrderDataTable extends DataTable
     {
         $userids = getUsersReportingToAuth();
 
-        $query = $model->with('brands', 'sizes', 'grades', 'customer', 'createdbyname');
+        $query = $model->with('customer', 'createdbyname');
 
-        if(!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin'))
-        {
+        if (!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin')) {
             $customerIds = EmployeeDetail::where('user_id', Auth::user()->id)->pluck('customer_id');
             $query->whereIn('customer_id', $customerIds);
         }
-        
+
         $query->newQuery();
 
-        if ($request->customer_id && !empty($request->customer_id) ) {
+        if ($request->customer_id && !empty($request->customer_id)) {
             $query->where('customer_id', $request->customer_id);
         }
 
         if ($request->start_date && !empty($request->start_date)) {
-            $query->whereDate('created_at','>=', $request->start_date);
+            $query->whereDate('created_at', '>=', $request->start_date);
         }
 
         if ($request->end_date && !empty($request->end_date)) {
-            $query->whereDate('created_at','<=', $request->end_date);
+            $query->whereDate('created_at', '<=', $request->end_date);
         }
 
-        return $query->latest();
+        return $query
+            ->orderByRaw("CASE WHEN status = 4 THEN 1 ELSE 0 END")
+            ->latest();
     }
 
 

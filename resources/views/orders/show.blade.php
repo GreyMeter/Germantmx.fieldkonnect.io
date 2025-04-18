@@ -17,31 +17,43 @@
               </div>
               <!-- /.col -->
               <div class="col-12">
-                @if($orders['status'] == '0')
-                @if($orders->qty > $totalOrderConfirmQty)
-                @if(auth()->user()->can(['add_final_order']))
+                @php
+                $isPending = $orders['status'] == '0';
+                $isConfirmed = $orders['status'] == '1';
+                $isCancelled = $orders['status'] == '4';
+                $isPartiallyConfirmed = $orders->qty > $totalOrderConfirmQty;
+                @endphp
+
+                @if($isPending || $isConfirmed)
+                @if($isPartiallyConfirmed)
+                @can('add_final_order')
                 <a href="{{ url('orders/' . encrypt($orders->id) . '/edit?cnf=true') }}" class="btn btn-info">Add Final Order</a>
-                @endif
-                @if(auth()->user()->can(['confirm_booking']))
-                <button type="button" id="change_status" data-id="{!! $orders->id !!}" data-quantity="{!! $orders->qty !!}"  class="btn btn-success">Confirm Order</button>
+                @endcan
+                @if($isPending)
+                @can('confirm_booking')
+                <button type="button" id="change_status" data-id="{{ $orders->id }}" data-quantity="{{ $orders->qty }}" class="btn btn-success">Confirm Order</button>
+                @endcan
                 @endif
                 @else
                 <button type="button" class="btn btn-success">This order is fully confirmed</button>
                 @endif
-                @elseif($orders['status'] == '1')
-                <button type="button" class="btn btn-success">Confirmed</button>
-                @if(auth()->user()->can(['add_final_order']))
-                <a href="{{ url('orders/' . encrypt($orders->id) . '/edit?cnf=true') }}" class="btn btn-info">Add Final Order</a>
                 @endif
-                @elseif($orders['status'] == '4')
-                <button type="button" class="btn btn-danger bg-danger">This order is cancelled</button> <br>
+
+                @if($isConfirmed && $isPartiallyConfirmed)
+                <button type="button" class="btn btn-success">Confirmed</button>
+                @endif
+
+                @if($isCancelled)
+                <button type="button" class="btn btn-danger bg-danger">This order is cancelled</button><br>
                 <span class="badge badge-info">Remark : {{ $orders['cancel_remark'] }}</span>
                 @endif
-                @if($totalOrderConfirmQty != $orders->qty && $orders['status'] != '4')
-                @if(auth()->user()->can(['cancel_booking']))
-                <a class="btn btn-danger bg-danger" id="cancelButton" data-orderid="{!! encrypt($orders->id) !!}">Cancel Order</a>
+
+                @if($isPartiallyConfirmed && !$isCancelled)
+                @can('cancel_booking')
+                <a class="btn btn-danger bg-danger" id="cancelButton" data-orderid="{{ encrypt($orders->id) }}">Cancel Order</a>
+                @endcan
                 @endif
-                @endif
+
                 <span class="pull-right">
                   <div class="btn-group">
                     @if(auth()->user()->can(['order_access']))
@@ -287,7 +299,7 @@
               if (res.status === true) {
                 Swal.fire("Order Confirmed successfully!", res.msg, "success");
                 location.reload();
-              }else{
+              } else {
                 Swal.fire("Somthing went wrong", "", "error");
               }
             }
