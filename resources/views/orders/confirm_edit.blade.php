@@ -103,7 +103,8 @@
                   <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
                     PO Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['po_no'] !!}</span> <br>
                     Order Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['confirm_po_no'] !!}</span> <br>
-                    Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!} <br><br>
+                    Base Price # <span style="font-weight: 800; font-size:16px;"> {!! $orders->order->base_price !!}</span> <br><br>
+                    Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!} <br>
                     Created By: {!! $orders['createdbyname']?$orders['createdbyname']['name']:'Self' !!}
                   </address>
                 </div>
@@ -119,7 +120,7 @@
               ]) !!}
 
               <div class="row">
-                <div class="col-12">
+                {{--<div class="col-12">
                   <!-- New Row for Driver Details -->
                   <div class="card p-3 mb-3 bg-light">
                     <h5 class="mb-3"><strong>Driver Details</strong></h5>
@@ -154,7 +155,7 @@
                       </div>
                     </div>
                   </div>
-                </div>
+                </div>--}}
                 <div class="col-12 table-responsive">
                   <table class="table table-striped">
                     <thead>
@@ -165,11 +166,11 @@
                         <th>Material</th>
                         <th class="text-center"> Loading-Add </th>
                         <th>Total Quantity<small>(Tonn)</small></th>
-                        <th>Remaining Quantity<small>(Tonn)</small></th>
+                        <!-- <th>Remaining Quantity<small>(Tonn)</small></th> -->
                         <th class="text-center"> Additional Rate </th>
                         <th>Base Price<small>(1MT)</small></th>
                         <th>Total</th>
-                        <th>Plants</th>
+                        <!-- <th>Plants</th> -->
                       </tr>
                     </thead>
                     <tbody>
@@ -179,10 +180,30 @@
                       <input type="hidden" name="order_customer_id" id="order_customer_id" value="{!! $order->order->customer_id !!}">
                       <tr>
                         <input type="hidden" name="order_ids[]" value="{{$order->id}}">
-                        <input type="hidden" name="brand_change" class="brand_change" value="{{$order->brands->id}}">
-                        <input type="hidden" name="grade_change" class="grade_change" value="{{$order->grades->id}}">
-                        <td>{{$order->brands ? $order->brands->brand_name : '-'}}</td>
-                        <td>{{$order->grades ? $order->grades->unit_name : '-'}}</td>
+                        <td>
+                          <select required name="brand_id[]" class="form-control brand' + counter + ' brand_change">
+                            <option value="">Select Brand</option>
+                            @if(@isset($brands))
+                            @foreach($brands as $key => $brand)
+                            <option value="{{ $brand['id'] }}" {{ $order->brand_id == $brand['id'] ? 'selected' : '' }}>
+                              {{ $brand['brand_name'] }}
+                            </option>
+                            @endforeach
+                            @endif
+                          </select>
+                        </td>
+                        <td>
+                          <select required name="grade_id[]" class="form-control grade_change">
+                            <option value="">Select Grade</option>
+                            @if(@isset($units))
+                            @foreach($units as $key => $grade)
+                            <option value="{{ $grade['id'] }}" {{ $order->grades->id == $grade['id'] ? 'selected' : '' }}>
+                              {{ $grade['unit_name'] }}
+                            </option>
+                            @endforeach
+                            @endif
+                          </select>
+                        </td>
                         <td>
                           <select required name="category_id[]" class="form-control allsizes size_change">
                             <option value="">Select Size</option>
@@ -195,12 +216,22 @@
                             @endif
                           </select>
                         </td>
-                        <td>{{$order->material}}</td>
-                        <td>{{$order->loading_add}}</td>
-                        <td>{{$order->qty}}</td>
-                        <td><input type="number" class="form-control dispatch_qty" value="{{ getOrderQuantity($order->id) }}" name="dispatch_qty[]" step="1" readonly></td>
                         <td>
-                          <input type="number" class="form-control additional_rate" value="{{$order->additional_rate}}" name="additional_rate[]" step="1" readonly>
+                          <select required name="material[]" class="form-control material' + counter + ' material_change">
+                            <option value="">Select Material</option>
+                            <option {{$order->material == 'Straight' ? 'selected' : ''}} value="Straight">Straight</option>
+                            <option {{$order->material == 'Bend' ? 'selected' : ''}} value="Bend">Bend</option>
+                          </select>
+                        </td>
+                        <td><select required name="loading_add[]" class="form-control loading_add' + counter + ' loading_add_change">
+                            <option value="">Select Loading</option>
+                            <option {{$order->loading_add == 'Up' ? 'selected' : ''}} value="Up">Up</option>
+                            <option {{$order->loading_add == 'Down' ? 'selected' : ''}} value="Down">Down</option>
+                          </select></td>
+                        <td><input required type="number" step="0.01" name="qty[]" value="{{ $order->qty }}" class="form-control points rowchange" /></td>
+                        <input type="hidden" class="form-control dispatch_qty" value="{{ getOrderQuantity($order->id) }}" name="dispatch_qty[]" step="1">
+                        <td>
+                        <input type="number" step="0.01" name="additional_rate[]" value="{{ $order->additional_rate }}" class="form-control additional_rate rowchange" />
                           <span class="badge bg-info" style="font-size: 10px;font-weight: 800;padding: 3px;">{{$order->remark}}</span>
                         </td>
                         <td>
@@ -209,7 +240,7 @@
                         <td>
                           <input type="text" class="form-control dispatch_soda_price" name="dispatch_soda_price[]" readonly>
                         </td>
-                        <td>
+                        {{--<td>
                           <select class="form-control" name="plant_id[]" style="width: 100%;" {{isset($cnf) ? 'required' : ''}} required>
                             <option value="">Select Plant</option>
                             @if(@isset($plants))
@@ -220,7 +251,7 @@
                             @endforeach
                             @endif
                           </select>
-                        </td>
+                        </td>--}}
                       </tr>
                       @endforeach
                       @endif
@@ -312,7 +343,7 @@
         var qty = parseFloat(row.find('.dispatch_qty').val()) || 0;
         var additionalRate = parseFloat(row.find('.additional_rate').val()) || 0;
         var basePrice = parseFloat(row.find('.dispatch_base_price').val()) || 0;
-        var total = ((qty * basePrice)+(qty * additionalRate)).toFixed(2);
+        var total = ((qty * basePrice) + (qty * additionalRate)).toFixed(2);
         row.find('.dispatch_soda_price').val(total);
       }
 
@@ -392,7 +423,7 @@
       });
     });
 
-    $(document).on('change', '.size_change', function() {
+    $(document).on('change', '.brand_change, .grade_change, .size_change', function() {
       var row = $(this).closest('tr');
 
       row.find('.dispatch_soda_price').val('');
@@ -411,6 +442,22 @@
         row.find('.dispatch_base_price').text('');
       }
     });
+
+    $('.points, .additional_rate').on('input' , function(){
+          var row = $(this).closest('tr'); // Get the closest row of the changed input/select
+         
+          row.find('.total_price_change').val(''); // Update the booking price in the row
+          row.find('.booking_price_change').val('');
+          var brand = row.find('.brand_change').val();
+          var grade = row.find('.grade_change').val();
+          var size = row.find('.size_change').val();
+          var material = row.find('.material_change').val();
+          var quantity = row.find('.points').val();
+          var additionalRate = row.find('.additional_rate').val();
+          if(brand && grade && size){
+            getPrices(brand , grade , size , material , quantity , row, additionalRate);       
+          }      
+      });
 
     function getPrices(brand = '', grade = '', size = '', material = '', quantity = 1, row, additionalRate) {
       var bookingPrice = $('#base_price').val(); // Example booking price

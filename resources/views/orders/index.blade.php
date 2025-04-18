@@ -124,8 +124,8 @@
                 <th>Size</th> -->
                 <th>Quantity<small>(Tonn)</small></th>
                 <th>Base Price<small>(1MT)</small></th>
-                <!-- <th>Soda Price </th>
-                <th>{!! trans('panel.global.created_by') !!}</th> -->
+                <th>Status </th>
+                <!-- <th>{!! trans('panel.global.created_by') !!}</th> -->
                 <th>{!! trans('panel.global.created_at') !!}</th>
               </thead>
               <tbody>
@@ -194,6 +194,12 @@
               }
               return '';
             }
+          },
+          {
+            data: 'status',
+            name: 'status',
+            "defaultContent": '',
+            orderable: false
           },
           {
             data: 'created_at',

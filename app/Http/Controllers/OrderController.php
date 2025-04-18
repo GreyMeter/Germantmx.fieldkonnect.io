@@ -198,8 +198,11 @@ class OrderController extends Controller
         $orders = OrderConfirm::with('order', 'brands', 'sizes', 'grades', 'order.customer', 'createdbyname')->find($id);
         $order_chain =  OrderConfirm::with('order', 'brands', 'sizes', 'grades', 'order.customer', 'createdbyname')->where(['confirm_po_no' => $orders->confirm_po_no])->get();
         $sizes = Category::where('active', 'Y')->get();
+        $categories = Category::where('active', '=', 'Y')->select('id', 'category_name')->get();
+        $brands = Brand::where('active', '=', 'Y')->select('id', 'brand_name')->get();
+        $units = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name')->get();
         $plants = Plant::where('active', 'Y')->latest()->get();
-        return view('orders.confirm_edit', compact('orders', 'totalOrderDispatchQty', 'order_chain', 'plants', 'sizes'));
+        return view('orders.confirm_edit', compact('orders', 'totalOrderDispatchQty', 'order_chain', 'plants', 'sizes', 'categories', 'brands', 'units'));
     }
 
     /**
@@ -901,9 +904,19 @@ class OrderController extends Controller
     {
         try {
             foreach ($request->order_ids as $key => $value) {
-                OrderConfirm::where('id', $value)->update(['category_id' => $request->category_id[$key], 'base_price' => $request->dispatch_base_price[$key], 'soda_price' => $request->dispatch_soda_price[$key]]);
+                OrderConfirm::where('id', $value)->update([
+                    'category_id' => $request->category_id[$key],
+                    'brand_id' => $request->brand_id[$key],
+                    'qty' => $request->qty[$key],
+                    'category_id' => $request->category_id[$key],
+                    'additional_rate' => $request->additional_rate[$key],
+                    'material' => $request->material[$key],
+                    'loading_add' => $request->loading_add[$key],
+                    'base_price' => $request->dispatch_base_price[$key],
+                    'soda_price' => $request->dispatch_soda_price[$key]
+                ]);
             }
-            return Redirect::to('orders_confirm')->with('message_success', 'Order Confirm Update Successfully.');
+            return Redirect::to('orders_confirm')->with('message_success', 'Final Order Update Successfully.');
         } catch (\Exception $e) {
             return Redirect::back()->with('message_error', 'Something went wrong.');
         }
