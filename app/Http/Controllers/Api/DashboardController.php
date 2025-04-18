@@ -747,12 +747,13 @@ class DashboardController extends Controller
     {
         $customer = $request->user();
         $notify = Customers::where('id', $customer->id)->first()->notify;
-        $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('model_id', $customer->id)->first();
         $customer_parity = $customer->customer_parity;
         if ($customer_parity == 'South Parity') {
             $price = Price::where('id', 2)->first()->base_price;
+            $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', 2)->where('model_id', $customer->id)->first();
         } else {
             $price = Price::where('id', 1)->first()->base_price;
+            $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', 1)->where('model_id', $customer->id)->first();
         }
         if ($check_additional_price) {
             $data = number_format((floatval($price) + floatval($check_additional_price->price_adjustment)), 2, '.', '');
@@ -884,10 +885,10 @@ class DashboardController extends Controller
         $customer_id = optional(EmployeeDetail::where('user_id', $user->id)->first())->customer_id;
         if ($customer_id) {
             $customer = Customers::where('id', $customer_id)->first();
-
-            $customer_parity = $customer->customer_parity;
-            if ($customer_parity == 'South Parity') {
+            $customer_parity = $customer?->customer_parity;
+            if ($customer && $customer_parity == 'South Parity') {
                 $price = Price::where('id', 2)->first()->base_price;
+                
             } else {
                 $price = Price::where('id', 1)->first()->base_price;
             }

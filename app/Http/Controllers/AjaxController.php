@@ -1380,15 +1380,14 @@ class AjaxController extends Controller
 
         if ($customer_parity == 'South Parity') {
             $base_price = optional(Price::select('base_price')->where('id', 2)->first())->base_price;
+            $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', 2)->where('model_id', $request->customer_id)->first();
         } else {
             $base_price = optional(Price::select('base_price')->where('id', 1)->first())->base_price;
+            $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', 1)->where('model_id', $request->customer_id)->first();
         }
 
 
-
-        $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('model_id', $request->customer_id)->first();
-
-        $final_price = $base_price + $check_additional_price->price_adjustment ?? 0;
+        $final_price = $base_price + $check_additional_price?->price_adjustment ?? 0;
 
         return response()->json(['status' => 'success', 'today_order_qty' => $today_order_qty, 'final_price' => $final_price]);
     }
