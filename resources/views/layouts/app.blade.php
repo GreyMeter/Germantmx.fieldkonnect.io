@@ -950,17 +950,25 @@
                     <a class="hoveradd2" href="{{ url('categories') }}">
                       <i class="material-icons icon">category</i>
                       <span>Size</span>
-                      <div class="d-none mobile_hide">{!! trans('panel.sidemenu.categories') !!}
-
-                      </div>
+                      <div class="d-none mobile_hide">{!! trans('panel.sidemenu.categories') !!}</div>
                     </a>
                   </li>
                   @endif
                   @if(auth()->user()->can('stock_access'))
-                  <li class="nav-link-btn {{ request()->is('stock*') ? 'active' : '' }}" data-placement="top" title="Stock">
-                    <a class="" href="{{ url('stock') }}">
+                  <li class="nav-link-btn {{ request()->is('stock*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('stock') }}">
                       <i class="material-icons icon">donut_small</i>
                       <span>Stock</span>
+                      <div class="d-none mobile_hide">Stock</div>
+                    </a>
+                  </li>
+                  @endif
+                  @if(auth()->user()->can('random_stock_access'))
+                  <li class="nav-link-btn {{ request()->is('random_stock*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('random_stock') }}">
+                      <i class="material-icons icon">shuffle_on</i>
+                      <span>Random Stock</span>
+                      <div class="d-none mobile_hide">Random Stock</div>
                     </a>
                   </li>
                   @endif

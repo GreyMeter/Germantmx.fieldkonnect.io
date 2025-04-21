@@ -412,11 +412,20 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('prices', PriceController::class);
     Route::resource('south_prices', SouthPriceController::class);
 
-    // Customer Outstanting
+    // Product Stock
     Route::any('stock', [ProductController::class, 'stock'])->name('stock');
     Route::any('stock_template', [ProductController::class, 'stock_template'])->name('stock.template');
     Route::post('stock/upload', [ProductController::class, 'stock_upload'])->name('stock.upload');
     Route::any('stock/download', [ProductController::class, 'stock_download'])->name('stock.download');
+
+    // Random Stock
+    Route::any('random_stock', function () {
+        return view('work_in_progress');
+    });
+    Route::any('random_stockdd', [ProductController::class, 'random_stock'])->name('random_stock');
+    Route::any('random_stock_template', [ProductController::class, 'random_stock_template'])->name('random_stock.template');
+    Route::post('random_stock/upload', [ProductController::class, 'random_stock_upload'])->name('random_stock.upload');
+    Route::any('random_stock/download', [ProductController::class, 'random_stock_download'])->name('random_stock.download');
 
     //Orders
     Route::resource('orders', OrderController::class);
