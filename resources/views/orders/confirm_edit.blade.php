@@ -103,7 +103,7 @@
                   <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
                     PO Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['po_no'] !!}</span> <br>
                     Order Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['confirm_po_no'] !!}</span> <br>
-                    Base Price # <span style="font-weight: 800; font-size:16px;"> {!! $orders->order->base_price !!}</span> <br><br>
+                    Base Price # <span style="font-weight: 800; font-size:16px;"> {!! $orders->order->base_price+$orders->order->discount_amt !!}</span> <br><br>
                     Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!} <br>
                     Created By: {!! $orders['createdbyname']?$orders['createdbyname']['name']:'Self' !!}
                   </address>
