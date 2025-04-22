@@ -32,7 +32,7 @@
           {!! Form::model($orders,[
           'route' => $orders->exists ? ($cnf?['orders.confirm', encrypt($orders->id) ]:['orders.update', encrypt($orders->id) ]) : 'orders.store',
           'method' => $orders->exists ? 'PUT' : 'POST',
-          'id' => 'createProductForm',
+          'id' => $orders->exists ?($cnf?'confirmForm':'updateForm') : 'orderForm',
           'files'=>true
           ]) !!}
 
@@ -100,7 +100,7 @@
                 <label class="col-md-3 col-form-label">Quantity<small>(Tonn)</small> <span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                    <input type="number" name="qty" {{isset($cnf)?'disabled':''}} id="qty" class="form-control" value="{!! old( 'qty', $orders['qty']-$totalOrderConfirmQty) !!}" min="0.01" max="{{isset($cnf)?$orders['qty']-$totalOrderConfirmQty:''}}" step="0.01" required>
+                    <input type="number" name="qty" {{isset($cnf)?'disabled':''}} id="qty" class="form-control" value="{!! $orders['qty']-$totalOrderConfirmQty !!}" min="0.01" max="{{isset($cnf)?$orders['qty']-$totalOrderConfirmQty:''}}" step="0.01" required>
                     @if ($errors->has('qty'))
                     <div class="error col-lg-12">
                       <p class="text-danger">{{ $errors->first('qty') }}</p>
@@ -135,11 +135,13 @@
                   <th class="text-center"> # </th>
                   <th class="text-center brand"> Brand </th>
                   <th class="text-center grade"> Grade</th>
+                  <th class="text-center random_cut_th"> Random Cut</th>
                   <th class="text-center size"> Size </th>
                   <th class="text-center material"> Material </th>
                   <th class="text-center"> Loading-Add </th>
                   <th class="text-center"> QTY <small>(MT)</small> </th>
                   <th class="text-center"> Additional Rate </th>
+                  <th class="text-center"> Special Cut </th>
                   <th class="text-center"> Remarks </th>
                   <th class="text-center"> Booking Price </th>
                   <th class="text-center"> Total Price </th>
@@ -274,15 +276,17 @@
         var newRow =
           '<tr> <td>' + counter + '</td>' +
           '<td class="group" style="width:30%"><div class="input_section"><select required name="brand_id[]" class="form-control brand' + counter + ' brand_change"></select></div></td>' +
-          '<td style="width:30%" class="subCat"><div class="input_section"><select required name="grade_id[]" class="form-control grade' + counter + ' grade_change"></select></div></td>' +
+          '<td style="width:30%" class="subCat"><div class="input_section"><select name="grade_id[]" class="form-control grade' + counter + ' grade_change"></select></div></td>' +
+          '<td style="width:30%" class="subCat"><div class="input_section"><select name="random_cut[]" class="form-control random_cut' + counter + ' random_cut_change"><option value="">Slecte Random Cut</option><option value="10-25">10-25</option><option value="25-35">23-35</option></select></div></td>' +
           '<td style="width:30%"><div class="input_section"><select required name="category_id[]" class="form-control allsizes size' + counter + ' size_change"></select></div></td>' +
           '<td style="width:30%"><div class="input_section"><select required name="material[]" class="form-control material' + counter + ' material_change"><option value="">Select Material</option><option value="Straight">Straight</option><option value="Bend">Bend</option></select></div></td>' +
           '<td style="width:30%"><div class="input_section"><select required name="loading_add[]" class="form-control loading_add' + counter + ' loading_add_change"><option value="">Select Loading</option><option value="Up">Up</option><option value="Down">Down</option></select></div></td>' +
           '<td><div class="input_section"><input required type="number" step="0.01" name="qty[]"class="form-control points rowchange" /></div></td>' +
           '<td><div class="input_section"><input type="number" step="0.01" name="additional_rate[]"class="form-control additional_rate rowchange" /></div></td>' +
+          '<td><div class="input_section"><input type="number" step="0.01" name="special_cut[]"class="form-control special_cut rowchange" /></div></td>' +
           '<td><div class="input_section"><textarea type="text" name="remark[]"class="form-control remark rowchange"></textarea></div></td>' +
-          '<td><div class="input_section"><input required type="number" name="booking_price[]"class="form-control  booking_price_change"  readonly/></div></td>'+
-          '<td ><div class="input_section"><input style="width : 120px !important" required type="number" name="total_price[]"class="form-control  total_price_change" readonly/></div></td>'+
+          '<td><div class="input_section"><input required type="number" name="booking_price[]"class="form-control  booking_price_change"  readonly/></div></td>' +
+          '<td ><div class="input_section"><input style="width : 120px !important" required type="number" name="total_price[]"class="form-control  total_price_change" readonly/></div></td>' +
           '<td class="td-actions text-center"><a class="remove-rows btn btn-danger btn-just-icon btn-sm"><i class="fa fa-minus"></i></a></td> </tr>';
         $table.append(newRow);
         addJquery();
@@ -292,90 +296,85 @@
       });
     })
     $(document).on('click', '.remove-rows', function() {
-        $(this).closest('tr').remove(); // Remove the row
-        counter--;
+      $(this).closest('tr').remove(); // Remove the row
+      counter--;
     });
 
-    function addJquery(){
-      $(document).on('change', '.brand_change, .grade_change, .size_change', function() {           
-          var row = $(this).closest('tr'); // Get the closest row of the changed input/select
-          
-          row.find('.total_price_change').val(''); // Update the booking price in the row
-          row.find('.booking_price_change').val('');
-          var brand = row.find('.brand_change').val();
-          var grade = row.find('.grade_change').val();
-          var size = row.find('.size_change').val();
-          var material = row.find('.material_change').val();
-          var quantity = row.find('.points').val();
-          var additionalRate = row.find('.additional_rate').val();
+    function addJquery() {
+      $(document).on('change', '.brand_change, .grade_change, .size_change', function() {
+        var row = $(this).closest('tr'); // Get the closest row of the changed input/select
 
-          if(brand && grade && size ){
-              getPrices(brand , grade , size , material , quantity , row, additionalRate);
-          }else{
-            row.find('.total_price_change').text(''); // Update the booking price in the row
-            row.find('.booking_price_change').text('');
-          }
+        row.find('.total_price_change').val(''); // Update the booking price in the row
+        row.find('.booking_price_change').val('');
+        var brand = row.find('.brand_change').val();
+        var grade = row.find('.grade_change').val();
+        var size = row.find('.size_change').val();
+        var material = row.find('.material_change').val();
+        var quantity = row.find('.points').val();
+        var additionalRate = row.find('.additional_rate').val();
+        var specialCut = row.find('.special_cut').val();
+
+        if (brand && size) {
+          getPrices(brand, grade, size, material, quantity, row, additionalRate, specialCut);
+        } else {
+          row.find('.total_price_change').text(''); // Update the booking price in the row
+          row.find('.booking_price_change').text('');
+        }
       });
 
 
-      $('.points, .additional_rate').on('input' , function(){
-          var row = $(this).closest('tr'); // Get the closest row of the changed input/select
-         
-          row.find('.total_price_change').val(''); // Update the booking price in the row
-          row.find('.booking_price_change').val('');
-          var brand = row.find('.brand_change').val();
-          var grade = row.find('.grade_change').val();
-          var size = row.find('.size_change').val();
-          var material = row.find('.material_change').val();
-          var quantity = row.find('.points').val();
-          var additionalRate = row.find('.additional_rate').val();
-          if(brand && grade && size){
-            getPrices(brand , grade , size , material , quantity , row, additionalRate);       
-          }      
+      $('.points, .additional_rate, .special_cut').on('input', function() {
+        var row = $(this).closest('tr'); // Get the closest row of the changed input/select
+
+        row.find('.total_price_change').val(''); // Update the booking price in the row
+        row.find('.booking_price_change').val('');
+        var brand = row.find('.brand_change').val();
+        var grade = row.find('.grade_change').val();
+        var size = row.find('.size_change').val();
+        var material = row.find('.material_change').val();
+        var quantity = row.find('.points').val();
+        var additionalRate = row.find('.additional_rate').val();
+        var specialCut = row.find('.special_cut').val();
+        if (brand && size) {
+          getPrices(brand, grade, size, material, quantity, row, additionalRate, specialCut);
+        }
       });
     }
 
-    function getPrices(brand='' , grade='' , size='' , material='' , quantity=1 , row, additionalRate){
-    console.log(brand , grade , size , material , quantity , row, additionalRate);
-        var bookingPrice = $('#base_price').val();
-        var totalPrice = '';
-        var additional_charge = ''
-        var customer_id = $('#order_customer_id').val();
-        if (brand && grade && size) {
-          // Simulate price calculations (replace with your actual logic)
-          $.ajax({
-            url: "{{ url('getPricesOfOrder') }}",
-            data: {
-              "brand": brand,
-              "grade": grade,
-              "size": size,
-              "customer_id": customer_id,
-            },
-            success: function(res) {
-              if(res.status == true){
-                bookingPrice = parseFloat(bookingPrice, 10) + parseFloat(res.additional_price, 10);
-                row.find('.booking_price_change').val(bookingPrice);
-                if(quantity){
-                  if(additionalRate){
-                    var total_value = parseFloat(quantity, 10)*parseFloat(bookingPrice, 10)+(parseFloat(additionalRate, 10)*parseFloat(quantity, 10));
-                  }else{
-                    var total_value = parseFloat(quantity, 10)*parseFloat(bookingPrice, 10);
-                  }
-                  row.find('.total_price_change').val(total_value); 
-                }else{
-                  if(additionalRate){
-                    var total_value = 1*parseFloat(bookingPrice, 10)+(parseFloat(additionalRate, 10));
-                  }else{
-                    var total_value = 1*parseFloat(bookingPrice, 10);
-                  }
-                  row.find('.total_price_change').val(total_value);
-                }
-              }
+    function getPrices(brand = '', grade = '', size = '', material = '', quantity = 1, row, additionalRate = 0, specialCut = 0) {
+      var bookingPrice = $('#base_price').val();
+      var totalPrice = '';
+      var additional_charge = ''
+      var customer_id = $('#order_customer_id').val();
+      if (brand && size) {
+        // Simulate price calculations (replace with your actual logic)
+        $.ajax({
+          url: "{{ url('getPricesOfOrder') }}",
+          data: {
+            "brand": brand,
+            "grade": grade,
+            "size": size,
+            "customer_id": customer_id,
+          },
+          success: function(res) {
+            if (res.status == true) {
+              bookingPrice = parseFloat(bookingPrice, 10) + parseFloat(res.additional_price, 10);
+              row.find('.booking_price_change').val(bookingPrice);
+
+              var qty = parseFloat(quantity || 1, 10); // default to 1 if quantity is not set
+              var baseTotal = qty * bookingPrice;
+              var additionalTotal = additionalRate ? parseFloat(additionalRate, 10) * qty : 0;
+              var cutTotal = specialCut ? parseFloat(specialCut, 10) * qty : 0;
+
+              var total_value = baseTotal + additionalTotal + cutTotal;
+
+              row.find('.total_price_change').val(total_value);
             }
-          });
-       } 
+          }
+        });
+      }
     }
- 
+
 
     $('#customer_id').on('select2:select', function(e) {
       var customerId = $(this).val();
@@ -396,7 +395,7 @@
             },
             success: function(res) {
               orderLimit = orderLimit - res.today_order_qty;
-              if(res.final_price != null){
+              if (res.final_price != null) {
                 $("#base_price").val(res.final_price);
 
               }
@@ -521,19 +520,40 @@
     }
 
     $(document).on('keyup', '.points', function() {
-        let totalQty = 0;
-        let remainQty = {{$orders?$orders['qty']-$totalOrderConfirmQty:0}};
-        $('.points').each(function() {
-            let qtyValue = parseFloat($(this).val()) || 0;
-            totalQty += qtyValue;
-        });
-        if(totalQty > remainQty){
-          $("#smt-btn").prop("disabled", true);
-          $("#all-qty-errors").html("* Quantity can not be greater then total soda quantity.");
-        }else{
-          $("#smt-btn").prop("disabled", false);
-          $("#all-qty-errors").html("");
+      let totalQty = 0;
+      let remainQty = {{$orders ? $orders['qty'] - $totalOrderConfirmQty : 0}};
+      $('.points').each(function() {
+        let qtyValue = parseFloat($(this).val()) || 0;
+        totalQty += qtyValue;
+      });
+      if (totalQty > remainQty) {
+        $("#smt-btn").prop("disabled", true);
+        $("#all-qty-errors").html("* Quantity can not be greater then total soda quantity.");
+      } else {
+        $("#smt-btn").prop("disabled", false);
+        $("#all-qty-errors").html("");
+      }
+    });
+
+    $('#confirmForm').on('submit', function(e) {
+      let isValid = true;
+      let errorMessage = '';
+
+      $('table.kvcodes-dynamic-rows-example tbody tr').each(function(index) {
+        const grade = $(this).find('select[name="grade_id[]"]').val();
+        const randomCut = $(this).find('select[name="random_cut[]"]').val();
+
+        if (!grade && !randomCut) {
+          isValid = false;
+          errorMessage = `In row ${index + 1}, either Grade or Random Cut must be selected.`;
+          return false; // Stop the loop on first error
         }
+      });
+
+      if (!isValid) {
+        e.preventDefault();
+        $('#all-qty-errors').html(errorMessage);
+      }
     });
   </script>
 </x-app-layout>

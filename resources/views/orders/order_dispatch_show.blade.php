@@ -202,11 +202,13 @@
                       <tr>
                         <th>Brand</th>
                         <th>Grade</th>
+                        <th>Random Cut</th>
                         <th>Size</th>
                         <th>Material</th>
                         <th>Total Quantity<small>(Tonn)</small></th>
                         <th>Base Price<small>(1MT)</small></th>
                         <th>Additional Rate</th>
+                        <th>Special Cut</th>
                         <th>Total</th>
                         <th>Plants</th>
                       </tr>
@@ -217,6 +219,7 @@
                       <tr>
                         <td>{{$order->brands ? $order->brands->brand_name : '-'}}</td>
                         <td>{{$order->grades ? $order->grades->unit_name : '-'}}</td>
+                        <td>{{$order->order_confirm ? $order->order_confirm->random_cut : '-'}}</td>
                         <td>{{$order->sizes ? $order->sizes->category_name : '-'}}</td>
                         <td>{{$order->order_confirm->material ?? ''}}</td>
                         <td>{{$order->qty}}</td>
@@ -226,6 +229,9 @@
                         <td>
                           {{$order->rate ?? ''}} <br>
                           <span class="badge bg-info" style="font-size: 10px;font-weight: 800;padding: 3px;">{{$order->order_confirm->remark}}</span>
+                        </td>
+                        <td>
+                          {{$order->order_confirm->special_cut ?? ''}}
                         </td>
                         <td>
                           {{$order->soda_price ?? ''}}
