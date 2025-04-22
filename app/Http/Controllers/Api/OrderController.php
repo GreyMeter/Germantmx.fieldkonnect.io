@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Exports\OrderEmailExport;
+use App\Http\Controllers\AjaxController;
 use App\Http\Controllers\Controller;
 use App\Mail\OrderMailWithAttachment;
 use Illuminate\Http\Request;
@@ -780,17 +781,17 @@ class OrderController extends Controller
                         }
                     },
                 ],
-                'grade_id' => [
-                    'required',
-                    'array',
-                    function ($attribute, $value, $fail) {
-                        if (empty($value)) {
-                            $fail($attribute . ' cannot be an empty array.');
-                        } elseif (!isset($value[0]) || $value[0] === null) {
-                            $fail($attribute . ' must have a non-null value at index 0.');
-                        }
-                    },
-                ],
+                // 'grade_id' => [
+                //     'required',
+                //     'array',
+                //     function ($attribute, $value, $fail) {
+                //         if (empty($value)) {
+                //             $fail($attribute . ' cannot be an empty array.');
+                //         } elseif (!isset($value[0]) || $value[0] === null) {
+                //             $fail($attribute . ' must have a non-null value at index 0.');
+                //         }
+                //     },
+                // ],
                 'brand_id' => [
                     'required',
                     'array',
@@ -856,16 +857,28 @@ class OrderController extends Controller
                 if ($soda->customer->customer_parity == 'South Parity') {
                     $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '2', 'model_name' => 'size'])->first())->price_adjustment;
                     $additional_price_parity = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '2', 'model_name' => $soda->customer->customer_parity])->first())->price_adjustment;
-                    $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'price_id' => '2', 'model_name' => 'grade'])->first())->price_adjustment;
+                    if ($request->brand_id[$k] == '2') {
+                        $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'price_id' => '2', 'model_name' => 'grade'])->first())->price_adjustment;
+                    } else if ($request->brand_id[$k] == '1') {
+                        $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'price_id' => '2', 'model_name' => 'grade_jindal'])->first())->price_adjustment;
+                    }
                     $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'price_id' => '2', 'model_name' => 'brand'])->first())->price_adjustment;
+                    $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', '2')->where('model_id', $soda->customer->id)->first();
                 } else {
                     $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '1', 'model_name' => 'size'])->first())->price_adjustment;
                     $additional_price_parity = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '1', 'model_name' => $soda->customer->customer_parity])->first())->price_adjustment;
-                    $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'price_id' => '1', 'model_name' => 'grade'])->first())->price_adjustment;
+                    if ($request->brand_id[$k] == '2') {
+                        $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'price_id' => '1', 'model_name' => 'grade'])->first())->price_adjustment;
+                    } else if ($request->brand_id[$k] == '1') {
+                        $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'price_id' => '1', 'model_name' => 'grade_jindal'])->first())->price_adjustment;
+                    }
                     $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'price_id' => '1', 'model_name' => 'brand'])->first())->price_adjustment;
+                    $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', '1')->where('model_id', $soda->customer->id)->first();
                 }
 
                 $after_soda_price = ($soda->base_price + $soda->discount_amt) + $additional_price_brand + $additional_price_grade + $additional_price_size + $additional_price_parity;
+
+                $after_soda_price = $after_soda_price + $check_additional_price?->price_adjustment ?? 0;
 
                 $data['confirm_po_no'] = $soda->po_no . '-' . $totalOrderConfirm + 1;
                 $data['order_id'] = $request->soda_id;
@@ -875,6 +888,10 @@ class OrderController extends Controller
                 $data['qty'] = $qty;
                 $data['unit_id'] = $request->grade_id[$k];
                 $data['brand_id'] = $request->brand_id[$k];
+                $data['additional_rate'] = $request->additional_rate[$k] ?? 0.00;
+                $data['random_cut'] = $request->random_cut[$k] ?? NULL;
+                $data['special_cut'] = $request->special_cut[$k] ?? 0.00;
+                $data['remark'] = $request->remark[$k] ?? NULL;
                 $data['category_id'] = $request->size_id[$k];
                 $data['material'] = $request->material[$k];
                 $data['base_price'] = $after_soda_price;

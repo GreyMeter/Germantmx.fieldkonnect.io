@@ -115,8 +115,7 @@
               {!! Form::model($orders,[
               'route' => ['confirm_order.update'],
               'method' => 'POST',
-              'id' => 'createProductFormMulti',
-              'files' => true
+              'id' => 'UpdateOrderForm',
               ]) !!}
 
               <div class="row">
@@ -157,17 +156,20 @@
                   </div>
                 </div>--}}
                 <div class="col-12 table-responsive">
+                <span class="badge badge-danger" id="all-qty-errors"></span>
                   <table class="table table-striped">
                     <thead>
                       <tr>
                         <th>Brand</th>
                         <th>Grade</th>
+                        <th>Random Cut</th>
                         <th>Size</th>
                         <th>Material</th>
                         <th class="text-center"> Loading-Add </th>
                         <th>Total Quantity<small>(Tonn)</small></th>
                         <!-- <th>Remaining Quantity<small>(Tonn)</small></th> -->
                         <th class="text-center"> Additional Rate </th>
+                        <th class="text-center"> Special Cut </th>
                         <th>Base Price<small>(1MT)</small></th>
                         <th>Total</th>
                         <!-- <th>Plants</th> -->
@@ -193,15 +195,22 @@
                           </select>
                         </td>
                         <td>
-                          <select required name="grade_id[]" class="form-control grade_change">
+                          <select name="grade_id[]" class="form-control grade_change">
                             <option value="">Select Grade</option>
                             @if(@isset($units))
                             @foreach($units as $key => $grade)
-                            <option value="{{ $grade['id'] }}" {{ $order->grades->id == $grade['id'] ? 'selected' : '' }}>
+                            <option value="{{ $grade['id'] }}" {{ $order->unit_id == $grade['id'] ? 'selected' : '' }}>
                               {{ $grade['unit_name'] }}
                             </option>
                             @endforeach
                             @endif
+                          </select>
+                        </td>
+                        <td>
+                          <select name="random_cut[]" class="form-control random_cut' + counter + ' random_cut_change">
+                            <option value="">Slecte Random Cut</option>
+                            <option {{ $order->random_cut == '10-25' ? 'selected' : '' }} value="10-25">10-25</option>
+                            <option {{ $order->random_cut == '25-35' ? 'selected' : '' }} value="25-35">25-35</option>
                           </select>
                         </td>
                         <td>
@@ -231,8 +240,11 @@
                         <td><input required type="number" step="0.01" name="qty[]" value="{{ $order->qty }}" class="form-control points rowchange" /></td>
                         <input type="hidden" class="form-control dispatch_qty" value="{{ getOrderQuantity($order->id) }}" name="dispatch_qty[]" step="1">
                         <td>
-                        <input type="number" step="0.01" name="additional_rate[]" value="{{ $order->additional_rate }}" class="form-control additional_rate rowchange" />
+                          <input type="number" step="0.01" name="additional_rate[]" value="{{ $order->additional_rate }}" class="form-control additional_rate rowchange" />
                           <span class="badge bg-info" style="font-size: 10px;font-weight: 800;padding: 3px;">{{$order->remark}}</span>
+                        </td>
+                        <td>
+                          <input type="number" step="0.01" name="special_cut[]" value="{{ $order->special_cut }}" class="form-control special_cut rowchange" />
                         </td>
                         <td>
                           <input type="text" class="form-control dispatch_base_price" value="{{$order->base_price}}" name="dispatch_base_price[]" readonly>
@@ -242,15 +254,15 @@
                         </td>
                         {{--<td>
                           <select class="form-control" name="plant_id[]" style="width: 100%;" {{isset($cnf) ? 'required' : ''}} required>
-                            <option value="">Select Plant</option>
-                            @if(@isset($plants))
-                            @foreach($plants as $key => $plant)
-                            <option value="{{ $plant['id'] }}" {{ $key+1 == 1 ? 'selected' : '' }}>
-                              {{ $plant['plant_name'] }}
-                            </option>
-                            @endforeach
-                            @endif
-                          </select>
+                        <option value="">Select Plant</option>
+                        @if(@isset($plants))
+                        @foreach($plants as $key => $plant)
+                        <option value="{{ $plant['id'] }}" {{ $key+1 == 1 ? 'selected' : '' }}>
+                          {{ $plant['plant_name'] }}
+                        </option>
+                        @endforeach
+                        @endif
+                        </select>
                         </td>--}}
                       </tr>
                       @endforeach
@@ -342,8 +354,9 @@
       function calculateTotal(row) {
         var qty = parseFloat(row.find('.dispatch_qty').val()) || 0;
         var additionalRate = parseFloat(row.find('.additional_rate').val()) || 0;
+        var specialCut = parseFloat(row.find('.special_cut').val()) || 0;
         var basePrice = parseFloat(row.find('.dispatch_base_price').val()) || 0;
-        var total = ((qty * basePrice) + (qty * additionalRate)).toFixed(2);
+        var total = ((qty * basePrice) + (qty * additionalRate) + (qty * specialCut)).toFixed(2);
         row.find('.dispatch_soda_price').val(total);
       }
 
@@ -424,47 +437,50 @@
     });
 
     $(document).on('change', '.brand_change, .grade_change, .size_change', function() {
-      var row = $(this).closest('tr');
+        var row = $(this).closest('tr'); // Get the closest row of the changed input/select
 
-      row.find('.dispatch_soda_price').val('');
-      row.find('.dispatch_base_price').val('');
-      var brand = row.find('.brand_change').val();
-      var grade = row.find('.grade_change').val();
-      var size = row.find('.size_change').val();
-      var material = row.find('.material_change').val();
-      var quantity = row.find('.dispatch_qty').val();
-      var additionalRate = row.find('.additional_rate').val();
+        row.find('.dispatch_soda_price').val(''); // Update the booking price in the row
+        row.find('.dispatch_base_price').val('');
+        var brand = row.find('.brand_change').val();
+        var grade = row.find('.grade_change').val();
+        var size = row.find('.size_change').val();
+        var material = row.find('.material_change').val();
+        var quantity = row.find('.points').val();
+        var additionalRate = row.find('.additional_rate').val();
+        var specialCut = row.find('.special_cut').val();
 
-      if (brand && grade && size) {
-        getPrices(brand, grade, size, material, quantity, row, additionalRate);
-      } else {
-        row.find('.dispatch_soda_price').text(''); // Update the booking price in the row
-        row.find('.dispatch_base_price').text('');
-      }
-    });
-
-    $('.points, .additional_rate').on('input' , function(){
-          var row = $(this).closest('tr'); // Get the closest row of the changed input/select
-         
-          row.find('.total_price_change').val(''); // Update the booking price in the row
-          row.find('.booking_price_change').val('');
-          var brand = row.find('.brand_change').val();
-          var grade = row.find('.grade_change').val();
-          var size = row.find('.size_change').val();
-          var material = row.find('.material_change').val();
-          var quantity = row.find('.points').val();
-          var additionalRate = row.find('.additional_rate').val();
-          if(brand && grade && size){
-            getPrices(brand , grade , size , material , quantity , row, additionalRate);       
-          }      
+        if (brand && size) {
+          getPrices(brand, grade, size, material, quantity, row, additionalRate, specialCut);
+        } else {
+          row.find('.dispatch_soda_price').text(''); // Update the booking price in the row
+          row.find('.dispatch_base_price').text('');
+        }
       });
 
-    function getPrices(brand = '', grade = '', size = '', material = '', quantity = 1, row, additionalRate) {
+
+      $('.points, .additional_rate, .special_cut').on('input', function() {
+        var row = $(this).closest('tr'); // Get the closest row of the changed input/select
+
+        row.find('.dispatch_soda_price').val(''); // Update the booking price in the row
+        row.find('.dispatch_base_price').val('');
+        var brand = row.find('.brand_change').val();
+        var grade = row.find('.grade_change').val();
+        var size = row.find('.size_change').val();
+        var material = row.find('.material_change').val();
+        var quantity = row.find('.points').val();
+        var additionalRate = row.find('.additional_rate').val();
+        var specialCut = row.find('.special_cut').val();
+        if (brand && size) {
+          getPrices(brand, grade, size, material, quantity, row, additionalRate, specialCut);
+        }
+      });
+
+    function getPrices(brand = '', grade = '', size = '', material = '', quantity = 1, row, additionalRate = 0, specialCut = 0) {
       var bookingPrice = $('#base_price').val(); // Example booking price
       var totalPrice = ''; // Example total price
       var additional_charge = ''
       var customer_id = $('#order_customer_id').val();
-      if (brand && grade && size) {
+      if (brand && size) {
         // Simulate price calculations (replace with your actual logic)
         $.ajax({
           url: "{{ url('getPricesOfOrder') }}",
@@ -476,31 +492,43 @@
           },
           success: function(res) {
             if (res.status == true) {
-              console.log(bookingPrice, 'bookingPrice');
-              bookingPrice = (parseFloat(bookingPrice, 10) + parseFloat(res.additional_price, 10)).toFixed(2);
+              bookingPrice = parseFloat(bookingPrice, 10) + parseFloat(res.additional_price, 10);
               row.find('.dispatch_base_price').val(bookingPrice);
 
-              if (quantity) {
-                if (additionalRate && additionalRate > 0) {
-                  var total_value = parseFloat(quantity, 10) * parseFloat(bookingPrice, 10) + (parseFloat(additionalRate, 10) * parseFloat(quantity, 10));
-                } else {
-                  var total_value = parseFloat(quantity, 10) * parseFloat(bookingPrice, 10);
-                }
-                row.find('.dispatch_soda_price').val(total_value.toFixed(2));
-              } else {
-                if (additionalRate && additionalRate > 0) {
-                  var total_value = 1 * parseFloat(bookingPrice, 10) + (parseFloat(additionalRate, 10));
-                } else {
-                  var total_value = 1 * parseFloat(bookingPrice, 10);
-                }
-                row.find('.dispatch_soda_price').val(total_value.toFixed(2));
-              }
+              var qty = parseFloat(quantity || 1, 10); // default to 1 if quantity is not set
+              var baseTotal = qty * bookingPrice;
+              var additionalTotal = additionalRate ? parseFloat(additionalRate, 10) * qty : 0;
+              var cutTotal = specialCut ? parseFloat(specialCut, 10) * qty : 0;
+
+              var total_value = baseTotal + additionalTotal + cutTotal;
+
+              row.find('.dispatch_soda_price').val(total_value);
             }
 
           }
         });
       }
     }
+
+    $('#UpdateOrderForm').on('submit', function(e) {
+      let isValid = true;
+      let errorMessage = '';
+
+      $('table.table tbody tr').each(function(index) {
+        const grade = $(this).find('select[name="grade_id[]"]').val();
+        const randomCut = $(this).find('select[name="random_cut[]"]').val();
+        if (!grade && !randomCut) {
+          isValid = false;
+          errorMessage = `In row ${index + 1}, either Grade or Random Cut must be selected.`;
+          return false; // Stop the loop on first error
+        }
+      });
+
+      if (!isValid) {
+        e.preventDefault();
+        $('#all-qty-errors').html(errorMessage);
+      }
+    });
   </script>
   <!-- /.content -->
 </x-app-layout>

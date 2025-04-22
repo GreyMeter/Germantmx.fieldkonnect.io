@@ -7,15 +7,14 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\EveryNight;
 use App\Console\Commands\AutoPunchOut;
 use App\Console\Commands\AddressUpdate;
-use App\Console\Commands\MoveStorageToS3;
 use App\Models\User;
 
 class Kernel extends ConsoleKernel
 {
 
-    protected $commands = [
-        \App\Console\Commands\MoveStorageToS3::class,
-    ];
+    // protected $commands = [
+    //     \App\Console\Commands\MoveStorageToS3::class,
+    // ];
 
     /**
      * Define the application's command schedule.

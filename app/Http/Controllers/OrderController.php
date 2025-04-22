@@ -148,8 +148,7 @@ class OrderController extends Controller
         $id = decrypt($id);
         $orders = $this->orders->with('brands', 'sizes', 'grades', 'customer', 'createdbyname')->find($id);
         $f_order = false;
-        if($orders->created_by == Auth::user()->id)
-        {
+        if ($orders->created_by == Auth::user()->id) {
             $f_order = true;
         }
         $totalOrderConfirmQty = OrderConfirm::where('order_id', $id)->sum('qty');
@@ -665,27 +664,27 @@ class OrderController extends Controller
         $orders = Order::with('customer')->find($id);
         $firstOrder = Order::where('customer_id', $orders->customer->id)->where('id', '<', $id)->count() == 0;
 
-            if (!$firstOrder) {
-                // Check for older orders with pending quantity
-                $pendingOrders = Order::where('customer_id', $orders->customer->id)
-                    ->where('id', '<', $id)
-                    ->whereNot('status', '4')
-                    ->get();
+        if (!$firstOrder) {
+            // Check for older orders with pending quantity
+            $pendingOrders = Order::where('customer_id', $orders->customer->id)
+                ->where('id', '<', $id)
+                ->whereNot('status', '4')
+                ->get();
 
-                foreach ($pendingOrders as $pendingOrder) {
-                    $totalOrderedQty = $pendingOrder->qty;
+            foreach ($pendingOrders as $pendingOrder) {
+                $totalOrderedQty = $pendingOrder->qty;
 
-                    // Get total confirmed quantity for this order
-                    $confirmedQty = OrderConfirm::where('order_id', $pendingOrder->id)->sum('qty');
+                // Get total confirmed quantity for this order
+                $confirmedQty = OrderConfirm::where('order_id', $pendingOrder->id)->sum('qty');
 
-                    // Calculate pending quantity
-                    $pendingQty = $totalOrderedQty - $confirmedQty;
+                // Calculate pending quantity
+                $pendingQty = $totalOrderedQty - $confirmedQty;
 
-                    if ($pendingQty > 0) {
-                        return Redirect::to('orders')->with('message_danger', 'Order confirmation blocked. Older orders(' . $pendingOrder->po_no . ') have pending quantity.');
-                    }
+                if ($pendingQty > 0) {
+                    return Redirect::to('orders')->with('message_danger', 'Order confirmation blocked. Older orders(' . $pendingOrder->po_no . ') have pending quantity.');
                 }
             }
+        }
         $tqty = 0;
         $totalOrderConfirm = OrderConfirm::where('order_id', $id)->distinct('confirm_po_no')->count('confirm_po_no');
         foreach ($request->qty as $k => $qty) {
@@ -701,6 +700,8 @@ class OrderController extends Controller
             $data['material'] = $request->material[$k];
             $data['loading_add'] = $request->loading_add[$k];
             $data['additional_rate'] = $request->additional_rate[$k] ?? 0.00;
+            $data['random_cut'] = $request->random_cut[$k] ?? NULL;
+            $data['special_cut'] = $request->special_cut[$k] ?? 0.00;
             $data['remark'] = $request->remark[$k];
             $data['base_price'] = $request->booking_price[$k];
             $data['soda_price'] = $request->total_price[$k];
@@ -751,16 +752,18 @@ class OrderController extends Controller
     {
         $id = decrypt($id);
         $orders = OrderConfirm::where(['confirm_po_no' => $id])->get();
+        $disorder = OrderDispatch::where('order_id', $orders[0]->order_id)->get();
+        if((collect($request->dispatch_qty)->sum()+$disorder->sum('qty')) > $orders->sum('qty')){
+            return Redirect::back()->with('message_error', 'Please Check your remaining quantity');
+        }
         $check_stock = true;
         foreach ($request->dispatch_qty as $key => $qty) {
             if ($qty > 0) {
                 $check_stock = checkStock($orders[$key], $qty, $request->plant_id[$key]);
-                echo $check_stock;
-                echo '<br>';
             }
-        }
-        if (!$check_stock) {
-            return Redirect::back()->with('message_error', 'Please Check your available stock');
+            if (!$check_stock) {
+                return Redirect::back()->with('message_error', 'Please Check your available stock');
+            }
         }
 
         if (count($request->dispatch_qty) > 0) {
@@ -859,7 +862,7 @@ class OrderController extends Controller
 
     public function orders_dispatch_update(OrderDispactchDetails $id, Request $request)
     {
-        try{
+        try {
             if ($request->hasFile('tc')) {
                 $file = $request->file('tc');
 
@@ -894,8 +897,7 @@ class OrderController extends Controller
             }
             $id->update($request->all());
             return Redirect::back()->with('message_success', 'Driver Details Updated Successfully.');
-
-        }catch(\Exception $e){
+        } catch (\Exception $e) {
             return Redirect::back()->with('message_error', 'Something went wrong.');
         }
     }
@@ -907,9 +909,12 @@ class OrderController extends Controller
                 OrderConfirm::where('id', $value)->update([
                     'category_id' => $request->category_id[$key],
                     'brand_id' => $request->brand_id[$key],
+                    'unit_id' => $request->grade_id[$key] ?? null,
                     'qty' => $request->qty[$key],
                     'category_id' => $request->category_id[$key],
-                    'additional_rate' => $request->additional_rate[$key],
+                    'additional_rate' => $request->additional_rate[$key] ?? 0.00,
+                    'random_cut' => $request->random_cut[$key] ?? NULL,
+                    'special_cut' => $request->special_cut[$key] ?? 0.00,
                     'material' => $request->material[$key],
                     'loading_add' => $request->loading_add[$key],
                     'base_price' => $request->dispatch_base_price[$key],

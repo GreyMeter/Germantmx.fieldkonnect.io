@@ -161,12 +161,14 @@
                       <tr>
                         <th>Brand</th>
                         <th>Grade</th>
+                        <th>Random Cut</th>
                         <th>Size</th>
                         <th>Material</th>
                         <th class="text-center"> Loading-Add </th>
                         <th>Total Quantity<small>(Tonn)</small></th>
                         <th>Remaining Quantity<small>(Tonn)</small></th>
                         <th class="text-center"> Additional Rate </th>
+                        <th class="text-center"> Special Cut </th>
                         <th>Base Price<small>(1MT)</small></th>
                         <th>Total</th>
                         <th>Plants</th>
@@ -178,6 +180,7 @@
                       <tr>
                         <td>{{$order->brands ? $order->brands->brand_name : '-'}}</td>
                         <td>{{$order->grades ? $order->grades->unit_name : '-'}}</td>
+                        <td>{{$order->random_cut ? $order->random_cut : '-'}}</td>
                         <td>{{$order->sizes ? $order->sizes->category_name : '-'}}</td>
                         <td>{{$order->material}}</td>
                         <td>{{$order->loading_add}}</td>
@@ -187,6 +190,10 @@
                         </td>
                         <td>
                           <input type="number" class="form-control additional_rate" value="{{$order->additional_rate}}" name="additional_rate[]" step="0.01">
+                          <span class="badge bg-info" style="font-size: 10px;font-weight: 800;padding: 3px;">{{$order->remark}}</span>
+                        </td>
+                        <td>
+                          <input type="number" class="form-control special_cut" value="{{$order->special_cut}}" name="special_cut[]" step="0.01">
                           <span class="badge bg-info" style="font-size: 10px;font-weight: 800;padding: 3px;">{{$order->remark}}</span>
                         </td>
                         <td>
@@ -299,9 +306,10 @@
       function calculateTotal(row) {
         var qty = parseFloat(row.find('.dispatch_qty').val()) || 0;
         var additionalRate = parseFloat(row.find('.additional_rate').val()) || 0;
+        var specialCut = parseFloat(row.find('.special_cut').val()) || 0;
       
         var basePrice = parseFloat(row.find('.dispatch_base_price').val()) || 0;
-        var total = ((qty * basePrice)+(qty * additionalRate)).toFixed(2);
+        var total = ((qty * basePrice)+(qty * additionalRate) + (qty * specialCut)).toFixed(2);
         row.find('.dispatch_soda_price').val(total);
       }
 
@@ -343,7 +351,7 @@
       });
 
       // Trigger calculation when quantity or base price changes
-      $(document).on('input', '.dispatch_qty, .additional_rate', function() {
+      $(document).on('input', '.dispatch_qty, .additional_rate, .special_cut', function() {
         var row = $(this).closest('tr');
         calculateTotal(row);
       });

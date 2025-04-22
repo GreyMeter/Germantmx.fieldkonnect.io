@@ -419,10 +419,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::any('stock/download', [ProductController::class, 'stock_download'])->name('stock.download');
 
     // Random Stock
-    Route::any('random_stock', function () {
-        return view('work_in_progress');
-    });
-    Route::any('random_stockdd', [ProductController::class, 'random_stock'])->name('random_stock');
+    Route::any('random_stock', [ProductController::class, 'random_stock'])->name('random_stock');
     Route::any('random_stock_template', [ProductController::class, 'random_stock_template'])->name('random_stock.template');
     Route::post('random_stock/upload', [ProductController::class, 'random_stock_upload'])->name('random_stock.upload');
     Route::any('random_stock/download', [ProductController::class, 'random_stock_download'])->name('random_stock.download');
