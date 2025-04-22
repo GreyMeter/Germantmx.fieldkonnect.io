@@ -354,9 +354,9 @@
       function calculateTotal(row) {
         var qty = parseFloat(row.find('.dispatch_qty').val()) || 0;
         var additionalRate = parseFloat(row.find('.additional_rate').val()) || 0;
-        var specialCut = parseFloat(row.find('.special_cut').val()) || 0;
+        // var specialCut = parseFloat(row.find('.special_cut').val()) || 0;
         var basePrice = parseFloat(row.find('.dispatch_base_price').val()) || 0;
-        var total = ((qty * basePrice) + (qty * additionalRate) + (qty * specialCut)).toFixed(2);
+        var total = ((qty * basePrice) + (qty * additionalRate)).toFixed(2);
         row.find('.dispatch_soda_price').val(total);
       }
 
@@ -447,10 +447,10 @@
         var material = row.find('.material_change').val();
         var quantity = row.find('.points').val();
         var additionalRate = row.find('.additional_rate').val();
-        var specialCut = row.find('.special_cut').val();
+        // var specialCut = row.find('.special_cut').val();
 
         if (brand && size) {
-          getPrices(brand, grade, size, material, quantity, row, additionalRate, specialCut);
+          getPrices(brand, grade, size, material, quantity, row, additionalRate);
         } else {
           row.find('.dispatch_soda_price').text(''); // Update the booking price in the row
           row.find('.dispatch_base_price').text('');
@@ -469,13 +469,13 @@
         var material = row.find('.material_change').val();
         var quantity = row.find('.points').val();
         var additionalRate = row.find('.additional_rate').val();
-        var specialCut = row.find('.special_cut').val();
+        // var specialCut = row.find('.special_cut').val();
         if (brand && size) {
-          getPrices(brand, grade, size, material, quantity, row, additionalRate, specialCut);
+          getPrices(brand, grade, size, material, quantity, row, additionalRate);
         }
       });
 
-    function getPrices(brand = '', grade = '', size = '', material = '', quantity = 1, row, additionalRate = 0, specialCut = 0) {
+    function getPrices(brand = '', grade = '', size = '', material = '', quantity = 1, row, additionalRate = 0) {
       var bookingPrice = $('#base_price').val(); // Example booking price
       var totalPrice = ''; // Example total price
       var additional_charge = ''
@@ -498,9 +498,9 @@
               var qty = parseFloat(quantity || 1, 10); // default to 1 if quantity is not set
               var baseTotal = qty * bookingPrice;
               var additionalTotal = additionalRate ? parseFloat(additionalRate, 10) * qty : 0;
-              var cutTotal = specialCut ? parseFloat(specialCut, 10) * qty : 0;
+              // var cutTotal = specialCut ? parseFloat(specialCut, 10) * qty : 0;
 
-              var total_value = baseTotal + additionalTotal + cutTotal;
+              var total_value = baseTotal + additionalTotal;
 
               row.find('.dispatch_soda_price').val(total_value);
             }
@@ -517,9 +517,9 @@
       $('table.table tbody tr').each(function(index) {
         const grade = $(this).find('select[name="grade_id[]"]').val();
         const randomCut = $(this).find('select[name="random_cut[]"]').val();
-        if (!grade && !randomCut) {
+        if ((!grade && !randomCut) || (grade && randomCut)) {
           isValid = false;
-          errorMessage = `In row ${index + 1}, either Grade or Random Cut must be selected.`;
+          errorMessage = `In row ${index + 1}, select either Grade or Random Cut, not both or none.`;
           return false; // Stop the loop on first error
         }
       });

@@ -194,7 +194,6 @@
                         </td>
                         <td>
                           <input type="number" class="form-control special_cut" value="{{$order->special_cut}}" name="special_cut[]" step="0.01">
-                          <span class="badge bg-info" style="font-size: 10px;font-weight: 800;padding: 3px;">{{$order->remark}}</span>
                         </td>
                         <td>
                           <input type="text" class="form-control dispatch_base_price" value="{{$order->base_price}}" name="dispatch_base_price[]" readonly>
@@ -306,10 +305,10 @@
       function calculateTotal(row) {
         var qty = parseFloat(row.find('.dispatch_qty').val()) || 0;
         var additionalRate = parseFloat(row.find('.additional_rate').val()) || 0;
-        var specialCut = parseFloat(row.find('.special_cut').val()) || 0;
+        // var specialCut = parseFloat(row.find('.special_cut').val()) || 0;
       
         var basePrice = parseFloat(row.find('.dispatch_base_price').val()) || 0;
-        var total = ((qty * basePrice)+(qty * additionalRate) + (qty * specialCut)).toFixed(2);
+        var total = ((qty * basePrice)+(qty * additionalRate)).toFixed(2);
         row.find('.dispatch_soda_price').val(total);
       }
 
@@ -351,7 +350,7 @@
       });
 
       // Trigger calculation when quantity or base price changes
-      $(document).on('input', '.dispatch_qty, .additional_rate, .special_cut', function() {
+      $(document).on('input', '.dispatch_qty, .additional_rate', function() {
         var row = $(this).closest('tr');
         calculateTotal(row);
       });
