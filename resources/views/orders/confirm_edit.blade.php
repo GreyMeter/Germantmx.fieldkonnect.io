@@ -244,7 +244,7 @@
                           <span class="badge bg-info" style="font-size: 10px;font-weight: 800;padding: 3px;">{{$order->remark}}</span>
                         </td>
                         <td>
-                          <input type="number" step="0.01" name="special_cut[]" value="{{ $order->special_cut }}" class="form-control special_cut rowchange" />
+                          <input type="text" name="special_cut[]" value="{{ $order->special_cut }}" class="form-control special_cut rowchange" />
                         </td>
                         <td>
                           <input type="text" class="form-control dispatch_base_price" value="{{$order->base_price}}" name="dispatch_base_price[]" readonly>
@@ -458,7 +458,7 @@
       });
 
 
-      $('.points, .additional_rate, .special_cut').on('input', function() {
+      $('.points, .additional_rate').on('input', function() {
         var row = $(this).closest('tr'); // Get the closest row of the changed input/select
 
         row.find('.dispatch_soda_price').val(''); // Update the booking price in the row
@@ -493,7 +493,7 @@
           success: function(res) {
             if (res.status == true) {
               bookingPrice = parseFloat(bookingPrice, 10) + parseFloat(res.additional_price, 10);
-              row.find('.dispatch_base_price').val(bookingPrice);
+              row.find('.dispatch_base_price').val(bookingPrice.toFixed(2));
 
               var qty = parseFloat(quantity || 1, 10); // default to 1 if quantity is not set
               var baseTotal = qty * bookingPrice;
@@ -502,7 +502,7 @@
 
               var total_value = baseTotal + additionalTotal;
 
-              row.find('.dispatch_soda_price').val(total_value);
+              row.find('.dispatch_soda_price').val(total_value.toFixed(2));
             }
 
           }

@@ -30,7 +30,7 @@ use App\Http\Controllers\Api\ReportingActivityController;
 use App\Http\Controllers\Api\TourPlanController;
 use App\Http\Controllers\Api\TransactionHistoryController;
 use App\Http\Controllers\Api\ReportController;
-
+use App\Models\Order;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,6 +79,9 @@ Route::any('getSize', [OrderController::class, 'get_size']);
 Route::any('getMaterial', [OrderController::class, 'get_material']);
 
 Route::any('emailExists', [CustomController::class, 'emailExists']);
+
+Route::any('getPriceCalculation', [OrderController::class, 'getPriceCalculation']);
+Route::post('updateFinalOrder', [OrderController::class, 'updateFinalOrder']);
 /*================= Customer Routes ============================*/
 Route::group(['middleware' => ['auth:customers']], function () {
     // Route::any('customer/getProfile', [LoginController::class, 'getCustomerProfile']);

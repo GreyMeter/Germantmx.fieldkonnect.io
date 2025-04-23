@@ -1267,4 +1267,101 @@ class OrderController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Order not found !!']);
         }
     }
+
+    public function getPriceCalculation(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'brand' => 'required',
+            // 'grade' => 'required',
+            'size' => 'required',
+            'customer_id' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
+        }
+        $brand = $request->brand ?? '';
+        $grade = $request->grade ?? '';
+        $size = $request->size ?? '';
+
+        $parity = Customers::where('id', $request->customer_id)->value('customer_parity');
+
+        $additional_price = 0;
+        if (isset($brand) && isset($grade) && isset($size) && isset($parity)) {
+            if ($parity == 'South Parity') {
+                $brand_price = AdditionalPrice::where(['model_name' => 'brand', 'price_id' => '2', 'model_id' => $brand])->first();
+                if ($brand == '2') {
+                    $grade_price  = AdditionalPrice::where(['model_name' => 'grade', 'price_id' => '2', 'model_id' => $grade])->first();
+                } else if ($brand == '1') {
+                    $grade_price  = AdditionalPrice::where(['model_name' => 'grade_jindal', 'price_id' => '2', 'model_id' => $grade])->first();
+                }
+                $size_price  = AdditionalPrice::where(['model_name' => 'size', 'price_id' => '2', 'model_id' => $size])->first();
+                $parity_price  = AdditionalPrice::where(['model_name' => $parity, 'price_id' => '2', 'model_id' => $size])->first();
+                $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', '2')->where('model_id', $request->customer_id)->first();
+            } else {
+                $brand_price = AdditionalPrice::where(['model_name' => 'brand', 'price_id' => '1', 'model_id' => $brand])->first();
+                if ($brand == '2') {
+                    $grade_price  = AdditionalPrice::where(['model_name' => 'grade', 'price_id' => '1', 'model_id' => $grade])->first();
+                } else if ($brand == '1') {
+                    $grade_price  = AdditionalPrice::where(['model_name' => 'grade_jindal', 'price_id' => '1', 'model_id' => $grade])->first();
+                }
+                $size_price  = AdditionalPrice::where(['model_name' => 'size', 'price_id' => '1', 'model_id' => $size])->first();
+                $parity_price  = AdditionalPrice::where(['model_name' => $parity, 'price_id' => '1', 'model_id' => $size])->first();
+                $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', '1')->where('model_id', $request->customer_id)->first();
+            }
+            //calculate addition price according to brand , size , grade    
+            $additional_price = $additional_price + (isset($brand_price->price_adjustment) ? $brand_price->price_adjustment : 0) + (isset($grade_price->price_adjustment) ? $grade_price->price_adjustment : 0) + (isset($size_price->price_adjustment) ? $size_price->price_adjustment : 0) + (isset($parity_price->price_adjustment) ? $parity_price->price_adjustment : 0);
+        } else if (isset($brand) && isset($grade) && isset($size)) {
+            $brand_price = AdditionalPrice::where(['model_name' => 'brand', 'price_id' => '1', 'model_id' => $brand])->first();
+            if ($brand == '2') {
+                $grade_price  = AdditionalPrice::where(['model_name' => 'grade', 'price_id' => '1', 'model_id' => $grade])->first();
+            } else if ($brand == '1') {
+                $grade_price  = AdditionalPrice::where(['model_name' => 'grade_jindal', 'price_id' => '1', 'model_id' => $grade])->first();
+            }
+            $size_price  = AdditionalPrice::where(['model_name' => 'size', 'price_id' => '1', 'model_id' => $size])->first();
+            $parity_price  = AdditionalPrice::where(['model_name' => $parity, 'price_id' => '1', 'model_id' => $size])->first();
+            $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', '1')->where('model_id', $request->customer_id)->first();
+
+            //calculate addition price according to brand , size , grade
+            $additional_price = $additional_price + (isset($brand_price->price_adjustment) ? $brand_price->price_adjustment : 0) + (isset($grade_price->price_adjustment) ? $grade_price->price_adjustment : 0) + (isset($size_price->price_adjustment) ? $size_price->price_adjustment : 0);
+        }
+        $final_price = $additional_price + $check_additional_price?->price_adjustment ?? 0;
+        return response()->json(['status' => true, 'additional_price' => $final_price]);
+    }
+
+    public function updateFinalOrder(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'id' => 'required',
+                'brand_id' => 'required',
+                'qty' => 'required',
+                'additional_rate' => 'required',
+                'category_id' => 'required',
+                // 'random_cut' => 'required',
+                'material' => 'required',
+                'loading_add' => 'required',
+                'base_price' => 'required',
+                'soda_price' => 'required',
+            ]);
+            if ($validator->fails()) {
+                return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
+            }
+            OrderConfirm::where('id', $request->id)->update([
+                'brand_id' => $request->brand_id,
+                'unit_id' => $request->unit_id ?? null,
+                'qty' => $request->qty,
+                'category_id' => $request->category_id,
+                'additional_rate' => $request->additional_rate ?? 0.00,
+                'random_cut' => $request->random_cut ?? NULL,
+                'special_cut' => $request->special_cut ?? 0.00,
+                'material' => $request->material,
+                'loading_add' => $request->loading_add,
+                'base_price' => $request->base_price,
+                'soda_price' => $request->soda_price
+            ]);
+            return response()->json(['status' => 'success', 'message' => 'Final Order Update Successfully !!']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => 'Something went wrong !!']);
+        }
+    }
 }

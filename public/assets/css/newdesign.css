@@ -750,11 +750,11 @@ a.nav-link[aria-expanded="false"]:after {
     border-color: #000 transparent transparent transparent;
 }
 input#start_date {
-    border-bottom: 1px solid #d2d2d2 !important;
+    /* border-bottom: 1px solid #d2d2d2 !important; */
     border-radius: 0px;
 }
 input#end_date {
-    border-bottom: 1px solid #d2d2d2 !important;
+    /* border-bottom: 1px solid #d2d2d2 !important; */
     border-radius: 0px;
 }
 input#start_date::placeholder {

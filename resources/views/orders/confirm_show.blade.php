@@ -193,7 +193,7 @@
                           <span class="badge bg-info" style="font-size: 10px;font-weight: 800;padding: 3px;">{{$order->remark}}</span>
                         </td>
                         <td>
-                          <input type="number" class="form-control special_cut" value="{{$order->special_cut}}" name="special_cut[]" step="0.01">
+                          <input type="text" class="form-control special_cut" value="{{$order->special_cut}}" name="special_cut[]">
                         </td>
                         <td>
                           <input type="text" class="form-control dispatch_base_price" value="{{$order->base_price}}" name="dispatch_base_price[]" readonly>

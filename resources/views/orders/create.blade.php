@@ -283,7 +283,7 @@
           '<td style="width:30%"><div class="input_section"><select required name="loading_add[]" class="form-control loading_add' + counter + ' loading_add_change"><option value="">Select Loading</option><option value="Up">Up</option><option value="Down">Down</option></select></div></td>' +
           '<td><div class="input_section"><input required type="number" step="0.01" name="qty[]"class="form-control points rowchange" /></div></td>' +
           '<td><div class="input_section"><input type="number" step="0.01" name="additional_rate[]"class="form-control additional_rate rowchange" /></div></td>' +
-          '<td><div class="input_section"><input type="number" step="0.01" name="special_cut[]"class="form-control special_cut rowchange" /></div></td>' +
+          '<td><div class="input_section"><input type="text" name="special_cut[]"class="form-control special_cut rowchange" /></div></td>' +
           '<td><div class="input_section"><textarea type="text" name="remark[]"class="form-control remark rowchange"></textarea></div></td>' +
           '<td><div class="input_section"><input required type="number" name="booking_price[]"class="form-control  booking_price_change"  readonly/></div></td>' +
           '<td ><div class="input_section"><input style="width : 120px !important" required type="number" name="total_price[]"class="form-control  total_price_change" readonly/></div></td>' +
