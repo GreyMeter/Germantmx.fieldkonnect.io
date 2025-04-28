@@ -43,6 +43,7 @@
                 <a href="{{ url('orders_confirm/' . encrypt($orders->id) . '/edit?cnf=true') }}" class="btn btn-success">Dispatch Order</a>
                 <!-- <a class="btn btn-danger bg-danger">Cancle Order</a> -->
                 @else
+                @if($orders->status == '0')
                 <button type="button" class="btn btn-success">This order has fully dispatched</button>
                 @endif
                 @endif --}}
@@ -220,11 +221,13 @@
                   </table>
                 </div>
                 <div class="col-12">
-                  @if($orders['status'] == '0')
+                  @if($orders['status'] == '0' || $orders->status == '4')
                   @if(!getOrderQuantityByPo($orders->confirm_po_no))
                   <button type="submit" class="btn btn-success">Dispatch Order</button>
                   {{-- <a href="{{ url('orders_confirm/' . encrypt($orders->id) . '/edit?cnf=true') }}" class="btn btn-success">Dispatch Order</a> --}}
                   <!-- <a class="btn btn-danger bg-danger">Cancle Order</a> -->
+                  @elseif($orders->qty == '0' && $orders->status == '4')
+                  <button type="button" class="btn btn-danger">Canclled</button>
                   @else
                   <button type="button" class="btn btn-success">This order has fully dispatched</button>
                   @endif

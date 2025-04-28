@@ -185,6 +185,7 @@ Route::group(['middleware' => ['auth:users']], function () {
     Route::any('getDispatchOrder', [OrderController::class, 'getDispatchOrder']);
     Route::post('cancelOrder', [OrderController::class, 'cancelOrder']);
     Route::post('updateBooking', [OrderController::class, 'updateBooking']);
+    Route::post('cancelConfirmOrder', [OrderController::class, 'cancelConfirmOrderUser']);
 
     //Leave
     Route::any('addLeaves', [LeaveController::class, 'addLeaves']);

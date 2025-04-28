@@ -1152,13 +1152,14 @@ class OrderController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
             }
-            $order_chain =  OrderConfirm::with('order', 'brands', 'sizes', 'grades', 'order.customer', 'createdbyname')->where(['confirm_po_no' => $request->confirm_order_id])->get();
+            $order_chain =  OrderConfirm::with('order', 'brands', 'sizes', 'grades', 'order.customer', 'createdbyname')->where(['confirm_po_no' => $request->confirm_order_id])->where('qty', '>', 0)->get();
+            $confirm_qty = OrderConfirm::where('order_id', $order_chain[0]->order_id)->sum('qty');
             // if ($order) {
             //     $order->soda = $order->order;
             //     $order->customer = $order->order->customer;
             //     $order->customer_address = $order->order->customer->customeraddress ? $order->order->customer->customeraddress->cityname->city_name . ',' . $order->order->customer->customeraddress->districtname->district_name . ',' . $order->order->customer->customeraddress->statename->state_name . ',' . $order->order->customer->customeraddress->countryname->country_name . ',' . $order->order->customer->customeraddress->pincodename?->pincode : '-';
             // }
-            return response()->json(['status' => 'success', 'message' => 'data retrieved successfully.', 'data' => $order_chain], 200);
+            return response()->json(['status' => 'success', 'message' => 'data retrieved successfully.', 'data' => $order_chain, 'confirm_qty' => $confirm_qty], 200);
             return response()->json(['status' => 'error', 'message' =>  'Soda not found.'], $this->badrequest);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
@@ -1261,6 +1262,32 @@ class OrderController extends Controller
             $orders->qty = $orders->qty - $request->cancel_qty;
             $orders->cancel_qty = $orders->cancel_qty + $request->cancel_qty;
             $orders->cancel_remark = $request->remark;
+            $orders->save();
+            return response()->json(['status' => 'success', 'message' => 'Order cancle successfully !!']);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Order not found !!']);
+        }
+    }
+
+    public function cancelConfirmOrderUser(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'order_confirm_id' => 'required',
+            'cancel_qty' => 'required',
+            'remark' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
+        }
+        $orders = OrderConfirm::find($request->order_confirm_id);
+        if ($orders) {
+            // if ($orders->cancel_qty + $request->cancel_qty > 3) {
+            //     return response()->json(['status' => 'error', 'message' => 'You can not cancel more than 3 Ton !!']);
+            // }
+            $orders->qty = $orders->qty - $request->cancel_qty;
+            $orders->cancel_qty = $orders->cancel_qty + $request->cancel_qty;
+            $orders->cancel_remark = $request->remark;
+            $orders->status = '4';
             $orders->save();
             return response()->json(['status' => 'success', 'message' => 'Order cancle successfully !!']);
         } else {
