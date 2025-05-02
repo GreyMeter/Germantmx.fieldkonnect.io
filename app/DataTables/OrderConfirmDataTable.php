@@ -4,6 +4,7 @@ namespace App\DataTables;
 
 use App\Models\EmployeeDetail;
 use App\Models\OrderConfirm;
+use App\Models\OrderDispatch;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
@@ -26,6 +27,16 @@ class OrderConfirmDataTable extends DataTable
             })
             ->editColumn('qty', function ($data) {
                 return isset($data->total_qty) ? $data->total_qty : '';
+            })
+            ->editColumn('status', function ($data) {
+                $totalOrderDispatchQty = OrderDispatch::where('confirm_po_no', $data->confirm_po_no)->sum('qty');
+                if($totalOrderDispatchQty == 0){
+                    return '<span class="badge badge-danger">Pending</span>';
+                }elseif($totalOrderDispatchQty < $data->total_qty){
+                    return '<span class="badge badge-warning">Partially Dispatched</span>';
+                }else{
+                    return '<span class="badge badge-success">Dispatched</span>';
+                }
             })
             ->addColumn('action', function ($query) {
                 $btn = '';
@@ -58,7 +69,7 @@ class OrderConfirmDataTable extends DataTable
                                 ' . $btn . '
                             </div>' . $activebtn;
             })
-            ->rawColumns(['action', 'created_at']);
+            ->rawColumns(['action', 'created_at', 'status']);
     }
 
     /**

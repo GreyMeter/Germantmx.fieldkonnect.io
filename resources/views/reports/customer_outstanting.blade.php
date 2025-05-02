@@ -236,14 +236,12 @@
             data: 'po_no',
             name: 'po_no',
             orderable: false,
-            searchable: false,
             "defaultContent": ''
           },
           {
             data: 'customer.name',
             name: 'customer.name',
             orderable: false,
-            searchable: false,
             "defaultContent": ''
           },
           {

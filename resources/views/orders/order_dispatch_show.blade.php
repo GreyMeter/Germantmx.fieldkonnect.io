@@ -206,6 +206,7 @@
                         <th>Size</th>
                         <th>Material</th>
                         <th>Total Quantity<small>(Tonn)</small></th>
+                        <th>Special Cut</th>
                         <th>Base Price<small>(1MT)</small></th>
                         <th>Additional Rate</th>
                         <th>Special Cut</th>
@@ -223,6 +224,7 @@
                         <td>{{$order->sizes ? $order->sizes->category_name : '-'}}</td>
                         <td>{{$order->order_confirm->material ?? ''}}</td>
                         <td>{{$order->qty}}</td>
+                        <td>{{$order->order_confirm->special_cut}}</td>
                         <td>
                           {{$order->base_price ?? ''}}
                         </td>

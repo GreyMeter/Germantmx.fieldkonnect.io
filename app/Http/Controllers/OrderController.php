@@ -662,29 +662,29 @@ class OrderController extends Controller
     {
         $id = decrypt($id);
         $orders = Order::with('customer')->find($id);
-        $firstOrder = Order::where('customer_id', $orders->customer->id)->where('id', '<', $id)->count() == 0;
+        // $firstOrder = Order::where('customer_id', $orders->customer->id)->where('id', '<', $id)->count() == 0;
 
-        if (!$firstOrder) {
-            // Check for older orders with pending quantity
-            $pendingOrders = Order::where('customer_id', $orders->customer->id)
-                ->where('id', '<', $id)
-                ->whereNot('status', '4')
-                ->get();
+        // if (!$firstOrder) {
+        //     // Check for older orders with pending quantity
+        //     $pendingOrders = Order::where('customer_id', $orders->customer->id)
+        //         ->where('id', '<', $id)
+        //         ->whereNot('status', '4')
+        //         ->get();
 
-            foreach ($pendingOrders as $pendingOrder) {
-                $totalOrderedQty = $pendingOrder->qty;
+        //     foreach ($pendingOrders as $pendingOrder) {
+        //         $totalOrderedQty = $pendingOrder->qty;
 
-                // Get total confirmed quantity for this order
-                $confirmedQty = OrderConfirm::where('order_id', $pendingOrder->id)->sum('qty');
+        //         // Get total confirmed quantity for this order
+        //         $confirmedQty = OrderConfirm::where('order_id', $pendingOrder->id)->sum('qty');
 
-                // Calculate pending quantity
-                $pendingQty = $totalOrderedQty - $confirmedQty;
+        //         // Calculate pending quantity
+        //         $pendingQty = $totalOrderedQty - $confirmedQty;
 
-                if ($pendingQty > 0) {
-                    return Redirect::to('orders')->with('message_danger', 'Order confirmation blocked. Older orders(' . $pendingOrder->po_no . ') have pending quantity.');
-                }
-            }
-        }
+        //         if ($pendingQty > 0) {
+        //             return Redirect::to('orders')->with('message_danger', 'Order confirmation blocked. Older orders(' . $pendingOrder->po_no . ') have pending quantity.');
+        //         }
+        //     }
+        // }
         $tqty = 0;
         $totalOrderConfirm = OrderConfirm::where('order_id', $id)->distinct('confirm_po_no')->count('confirm_po_no');
         foreach ($request->qty as $k => $qty) {

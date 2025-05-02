@@ -4026,6 +4026,13 @@ class ReportController extends Controller
             if(!Auth::user()->hasRole('superadmin')) {
                 $data->whereIn('customer_id', $customerIds);
             }
+
+            if($request->search && !empty($request->search)) {
+                $data->where('po_no', 'like', '%' . $request->search . '%')
+                    ->orWhereHas('customer', function ($query) use ($request) {
+                        $query->where('name', 'like', '%' . $request->search . '%');
+                    });
+            }
             
             $data = $data->orderBy('created_at', 'desc')->get();
 

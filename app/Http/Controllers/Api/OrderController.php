@@ -821,36 +821,36 @@ class OrderController extends Controller
             $tqty = 0;
             $soda = Order::with('customer')->find($request->soda_id);
 
-            $firstOrder = Order::where('customer_id', $soda->customer->id)->where('id', '<', $request->soda_id)->count() == 0;
+            // $firstOrder = Order::where('customer_id', $soda->customer->id)->where('id', '<', $request->soda_id)->count() == 0;
 
-            if (!$firstOrder) {
-                // Check for older orders with pending quantity
-                $pendingOrders = Order::where('customer_id', $soda->customer->id)
-                    ->where('id', '<', $request->soda_id)
-                    ->whereNot('status', '4')
-                    ->get();
+            // if (!$firstOrder) {
+            //     // Check for older orders with pending quantity
+            //     $pendingOrders = Order::where('customer_id', $soda->customer->id)
+            //         ->where('id', '<', $request->soda_id)
+            //         ->whereNot('status', '4')
+            //         ->get();
 
-                foreach ($pendingOrders as $pendingOrder) {
-                    $totalOrderedQty = $pendingOrder->qty;
+            //     foreach ($pendingOrders as $pendingOrder) {
+            //         $totalOrderedQty = $pendingOrder->qty;
 
-                    // Get total confirmed quantity for this order
-                    $confirmedQty = OrderConfirm::where('order_id', $pendingOrder->id)->sum('qty');
+            //         // Get total confirmed quantity for this order
+            //         $confirmedQty = OrderConfirm::where('order_id', $pendingOrder->id)->sum('qty');
 
-                    // Calculate pending quantity
-                    $pendingQty = $totalOrderedQty - $confirmedQty;
+            //         // Calculate pending quantity
+            //         $pendingQty = $totalOrderedQty - $confirmedQty;
 
-                    if ($pendingQty > 0) {
-                        return response()->json([
-                            'status' => 'error',
-                            'message' => 'Order confirmation blocked. Older orders have pending quantity.',
-                            'pending_orders' => [
-                                'po_no' => $pendingOrder->po_no,
-                                'pending_qty' => $pendingQty
-                            ]
-                        ], 400);
-                    }
-                }
-            }
+            //         if ($pendingQty > 0) {
+            //             return response()->json([
+            //                 'status' => 'error',
+            //                 'message' => 'Order confirmation blocked. Older orders have pending quantity.',
+            //                 'pending_orders' => [
+            //                     'po_no' => $pendingOrder->po_no,
+            //                     'pending_qty' => $pendingQty
+            //                 ]
+            //             ], 400);
+            //         }
+            //     }
+            // }
 
             $totalOrderConfirm = OrderConfirm::where('order_id', $request->soda_id)->distinct('confirm_po_no')->count('confirm_po_no');
             foreach ($request->qty as $k => $qty) {
@@ -980,36 +980,36 @@ class OrderController extends Controller
             $tqty = 0;
             $soda = Order::with('customer')->find($request->soda_id);
 
-            $firstOrder = Order::where('customer_id', $soda->customer->id)->where('id', '<', $request->soda_id)->count() == 0;
+            // $firstOrder = Order::where('customer_id', $soda->customer->id)->where('id', '<', $request->soda_id)->count() == 0;
 
-            if (!$firstOrder) {
-                // Check for older orders with pending quantity
-                $pendingOrders = Order::where('customer_id', $soda->customer->id)
-                    ->where('id', '<', $request->soda_id)
-                    ->whereNot('status', '4')
-                    ->get();
+            // if (!$firstOrder) {
+            //     // Check for older orders with pending quantity
+            //     $pendingOrders = Order::where('customer_id', $soda->customer->id)
+            //         ->where('id', '<', $request->soda_id)
+            //         ->whereNot('status', '4')
+            //         ->get();
 
-                foreach ($pendingOrders as $pendingOrder) {
-                    $totalOrderedQty = $pendingOrder->qty;
+            //     foreach ($pendingOrders as $pendingOrder) {
+            //         $totalOrderedQty = $pendingOrder->qty;
 
-                    // Get total confirmed quantity for this order
-                    $confirmedQty = OrderConfirm::where('order_id', $pendingOrder->id)->sum('qty');
+            //         // Get total confirmed quantity for this order
+            //         $confirmedQty = OrderConfirm::where('order_id', $pendingOrder->id)->sum('qty');
 
-                    // Calculate pending quantity
-                    $pendingQty = $totalOrderedQty - $confirmedQty;
+            //         // Calculate pending quantity
+            //         $pendingQty = $totalOrderedQty - $confirmedQty;
 
-                    if ($pendingQty > 0) {
-                        return response()->json([
-                            'status' => 'error',
-                            'message' => 'Order confirmation blocked. Older orders have pending quantity.',
-                            'pending_orders' => [
-                                'po_no' => $pendingOrder->po_no,
-                                'pending_qty' => $pendingQty
-                            ]
-                        ], 400);
-                    }
-                }
-            }
+            //         if ($pendingQty > 0) {
+            //             return response()->json([
+            //                 'status' => 'error',
+            //                 'message' => 'Order confirmation blocked. Older orders have pending quantity.',
+            //                 'pending_orders' => [
+            //                     'po_no' => $pendingOrder->po_no,
+            //                     'pending_qty' => $pendingQty
+            //                 ]
+            //             ], 400);
+            //         }
+            //     }
+            // }
 
             $totalOrderConfirm = OrderConfirm::where('order_id', $request->soda_id)->distinct('confirm_po_no')->count('confirm_po_no');
             foreach ($request->qty as $k => $qty) {
@@ -1256,9 +1256,9 @@ class OrderController extends Controller
         }
         $orders = OrderConfirm::find($request->order_confirm_id);
         if ($orders) {
-            if ($orders->cancel_qty + $request->cancel_qty > 3) {
-                return response()->json(['status' => 'error', 'message' => 'You can not cancel more than 3 Ton !!']);
-            }
+            // if ($orders->cancel_qty + $request->cancel_qty > 3) {
+            //     return response()->json(['status' => 'error', 'message' => 'You can not cancel more than 3 Ton !!']);
+            // }
             $orders->qty = $orders->qty - $request->cancel_qty;
             $orders->cancel_qty = $orders->cancel_qty + $request->cancel_qty;
             $orders->cancel_remark = $request->remark;
@@ -1366,7 +1366,7 @@ class OrderController extends Controller
                 'category_id' => 'required',
                 // 'random_cut' => 'required',
                 'material' => 'required',
-                'loading_add' => 'required',
+                // 'loading_add' => 'required',
                 'base_price' => 'required',
                 'soda_price' => 'required',
             ]);

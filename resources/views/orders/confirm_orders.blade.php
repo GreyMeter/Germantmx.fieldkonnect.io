@@ -103,13 +103,8 @@
                 <th>PO No.</th>
                 <th>Order No.</th>
                 <th>Customer Name</th>
-                {{-- <th>Brand</th> --}}
-                {{-- <th>Grade</th> --}}
-                {{-- <th>Size</th> --}}
-                {{-- <th>Material</th> --}}
                 <th>Quantity<small>(Tonn)</small></th>
-                {{-- <th>Base Price<small>(1MT)</small></th> --}}
-                {{-- <th>Booking Price</th> --}}
+                <th>Status</th>
                 <th>{!! trans('panel.global.created_by') !!}</th>
                 <th>{!! trans('panel.global.created_at') !!}</th>
               </thead>
@@ -164,17 +159,18 @@
             "defaultContent": '',
             orderable: false
           },
-         
-        
-        
-         
           {
             data: 'qty',
             name: 'qty',
             "defaultContent": '',
             orderable: false
           },
-          
+          {
+            data: 'status',
+            name: 'status',
+            "defaultContent": '',
+            orderable: false
+          },          
           {
             data: 'createdbyname.name',
             name: 'createdbyname.name',
