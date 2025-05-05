@@ -990,6 +990,8 @@ Route::any('getSize', [AjaxController::class, 'getSize']);
 Route::any('sodaDiscount', [AjaxController::class, 'sodaDiscount']);
 Route::any('getPricesOfOrder', [AjaxController::class, 'getPricesOfOrder']);
 Route::any('changeBookingStatus', [AjaxController::class, 'changeBookingStatus']);
+Route::get('/consignee-suggestions', [AjaxController::class, 'getConsigneeSuggestions']);
+
 
 
 

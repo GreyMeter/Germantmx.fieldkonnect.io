@@ -475,7 +475,7 @@ class DashboardController extends Controller
             $data['news'] = [
                 'english' => $data['news'],
                 'hindi'   => $this->translateText($data['news'], 'hi'),
-                'bengali' => $this->translateText($data['news'], 'bn'),
+                'bengali' => $this->translateText($data['news'], 'gu'),
             ];
 
             return response(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data], 200);

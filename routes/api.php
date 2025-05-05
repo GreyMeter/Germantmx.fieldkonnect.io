@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AjaxController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -82,6 +83,7 @@ Route::any('emailExists', [CustomController::class, 'emailExists']);
 
 Route::any('getPriceCalculation', [OrderController::class, 'getPriceCalculation']);
 Route::post('updateFinalOrder', [OrderController::class, 'updateFinalOrder']);
+Route::get('/consignee-suggestions', [AjaxController::class, 'getConsigneeSuggestions']);
 /*================= Customer Routes ============================*/
 Route::group(['middleware' => ['auth:customers']], function () {
     // Route::any('customer/getProfile', [LoginController::class, 'getCustomerProfile']);

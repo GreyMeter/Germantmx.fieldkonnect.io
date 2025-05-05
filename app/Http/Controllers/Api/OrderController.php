@@ -28,6 +28,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Models\Sales;
 use App\Models\AdditionalPrice;
+use App\Models\ConsigneeDetail;
 use App\Models\EmployeeDetail;
 use App\Models\OrderDispatch;
 use App\Models\Settings;
@@ -853,6 +854,9 @@ class OrderController extends Controller
             // }
 
             $totalOrderConfirm = OrderConfirm::where('order_id', $request->soda_id)->distinct('confirm_po_no')->count('confirm_po_no');
+            ConsigneeDetail::updateOrCreate([
+                'consignee_detail' => $request->consignee_details
+            ]);
             foreach ($request->qty as $k => $qty) {
                 if ($soda->customer->customer_parity == 'South Parity') {
                     $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '2', 'model_name' => 'size'])->first())->price_adjustment;
@@ -863,7 +867,6 @@ class OrderController extends Controller
                         $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'price_id' => '2', 'model_name' => 'grade_jindal'])->first())->price_adjustment;
                     }
                     $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'price_id' => '2', 'model_name' => 'brand'])->first())->price_adjustment;
-                    $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', '2')->where('model_id', $soda->customer->id)->first();
                 } else {
                     $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '1', 'model_name' => 'size'])->first())->price_adjustment;
                     $additional_price_parity = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '1', 'model_name' => $soda->customer->customer_parity])->first())->price_adjustment;
@@ -873,15 +876,13 @@ class OrderController extends Controller
                         $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'price_id' => '1', 'model_name' => 'grade_jindal'])->first())->price_adjustment;
                     }
                     $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'price_id' => '1', 'model_name' => 'brand'])->first())->price_adjustment;
-                    $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', '1')->where('model_id', $soda->customer->id)->first();
                 }
 
                 $after_soda_price = ($soda->base_price + $soda->discount_amt)
                     + $additional_price_brand
                     + $additional_price_grade
                     + $additional_price_size
-                    + $additional_price_parity
-                    + ($check_additional_price?->price_adjustment ?? 0);
+                    + $additional_price_parity;
 
                 $additional_rate = $request->additional_rate[$k] ?? 0;
                 $special_cut = $request->special_cut[$k] ?? 0;
@@ -1012,6 +1013,9 @@ class OrderController extends Controller
             // }
 
             $totalOrderConfirm = OrderConfirm::where('order_id', $request->soda_id)->distinct('confirm_po_no')->count('confirm_po_no');
+            ConsigneeDetail::updateOrCreate([
+                'consignee_detail' => $request->consignee_details
+            ]);
             foreach ($request->qty as $k => $qty) {
                 if ($soda->customer->customer_parity == 'South Parity') {
                     $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '2', 'model_name' => 'size'])->first())->price_adjustment;
@@ -1022,7 +1026,6 @@ class OrderController extends Controller
                         $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'price_id' => '2', 'model_name' => 'grade_jindal'])->first())->price_adjustment;
                     }
                     $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'price_id' => '2', 'model_name' => 'brand'])->first())->price_adjustment;
-                    $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', '2')->where('model_id', $soda->customer->id)->first();
                 } else {
                     $additional_price_size = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '1', 'model_name' => 'size'])->first())->price_adjustment;
                     $additional_price_parity = optional(AdditionalPrice::where(['model_id' => $request->size_id[$k], 'price_id' => '1', 'model_name' => $soda->customer->customer_parity])->first())->price_adjustment;
@@ -1032,15 +1035,13 @@ class OrderController extends Controller
                         $additional_price_grade = optional(AdditionalPrice::where(['model_id' => $request->grade_id[$k], 'price_id' => '1', 'model_name' => 'grade_jindal'])->first())->price_adjustment;
                     }
                     $additional_price_brand = optional(AdditionalPrice::where(['model_id' => $request->brand_id[$k], 'price_id' => '1', 'model_name' => 'brand'])->first())->price_adjustment;
-                    $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', '1')->where('model_id', $soda->customer->id)->first();
                 }
 
                 $after_soda_price = ($soda->base_price + $soda->discount_amt)
                     + $additional_price_brand
                     + $additional_price_grade
                     + $additional_price_size
-                    + $additional_price_parity
-                    + ($check_additional_price?->price_adjustment ?? 0);
+                    + $additional_price_parity;
 
                 $additional_rate = $request->additional_rate[$k] ?? 0;
                 $special_cut = $request->special_cut[$k] ?? 0;
@@ -1323,7 +1324,6 @@ class OrderController extends Controller
                 }
                 $size_price  = AdditionalPrice::where(['model_name' => 'size', 'price_id' => '2', 'model_id' => $size])->first();
                 $parity_price  = AdditionalPrice::where(['model_name' => $parity, 'price_id' => '2', 'model_id' => $size])->first();
-                $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', '2')->where('model_id', $request->customer_id)->first();
             } else {
                 $brand_price = AdditionalPrice::where(['model_name' => 'brand', 'price_id' => '1', 'model_id' => $brand])->first();
                 if ($brand == '2') {
@@ -1333,7 +1333,6 @@ class OrderController extends Controller
                 }
                 $size_price  = AdditionalPrice::where(['model_name' => 'size', 'price_id' => '1', 'model_id' => $size])->first();
                 $parity_price  = AdditionalPrice::where(['model_name' => $parity, 'price_id' => '1', 'model_id' => $size])->first();
-                $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', '1')->where('model_id', $request->customer_id)->first();
             }
             //calculate addition price according to brand , size , grade    
             $additional_price = $additional_price + (isset($brand_price->price_adjustment) ? $brand_price->price_adjustment : 0) + (isset($grade_price->price_adjustment) ? $grade_price->price_adjustment : 0) + (isset($size_price->price_adjustment) ? $size_price->price_adjustment : 0) + (isset($parity_price->price_adjustment) ? $parity_price->price_adjustment : 0);
@@ -1346,12 +1345,11 @@ class OrderController extends Controller
             }
             $size_price  = AdditionalPrice::where(['model_name' => 'size', 'price_id' => '1', 'model_id' => $size])->first();
             $parity_price  = AdditionalPrice::where(['model_name' => $parity, 'price_id' => '1', 'model_id' => $size])->first();
-            $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', '1')->where('model_id', $request->customer_id)->first();
 
             //calculate addition price according to brand , size , grade
             $additional_price = $additional_price + (isset($brand_price->price_adjustment) ? $brand_price->price_adjustment : 0) + (isset($grade_price->price_adjustment) ? $grade_price->price_adjustment : 0) + (isset($size_price->price_adjustment) ? $size_price->price_adjustment : 0);
         }
-        $final_price = $additional_price + $check_additional_price?->price_adjustment ?? 0;
+        $final_price = $additional_price ?? 0;
         return response()->json(['status' => true, 'additional_price' => $final_price]);
     }
 

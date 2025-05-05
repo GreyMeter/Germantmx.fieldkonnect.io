@@ -1,4 +1,9 @@
 <x-app-layout>
+  <style>
+    ul#ui-id-1 {
+      z-index: 9999999 !important;
+    }
+  </style>
   <div class="row">
     <div class="col-md-12">
       <div class="card">
@@ -556,5 +561,23 @@
         $('#all-qty-errors').html(errorMessage);
       }
     });
+
+    $(document).ready(function() {
+        $("#consignee_details").autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "/consignee-suggestions",
+                    data: {
+                        term: request.term
+                    },
+                    success: function(data) {
+                        response(data.results);
+                    }
+                });
+            },
+            minLength: 1
+        });
+    });
+
   </script>
 </x-app-layout>

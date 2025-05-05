@@ -2,14 +2,8 @@
 
 namespace App\Exports;
 
-use App\Models\Customers;
-use App\Models\UserActivity;
-use App\Models\Branch;
-use App\Models\User;
-use App\Models\Division;
-use App\Models\Designation;
 use App\Models\EmployeeDetail;
-use App\Models\{CustomerOutstanting, ParentDetail, TransactionHistory, Redemption, MobileUserLoginDetails};
+use App\Models\{CustomerOutstanting, ParentDetail, TransactionHistory, Redemption, MobileUserLoginDetails, Order};
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -32,18 +26,15 @@ class CutomerOutstantingExport implements FromCollection, WithHeadings, ShouldAu
 
     public function collection()
     {
-        DB::statement("SET SESSION group_concat_max_len = 100000000");
-        $data = CustomerOutstanting::with('branch', 'customer')->select(
-            'customer_id',
-            'branch_id',
-            'user_id',
-            'year',
-            'quarter',
-            DB::raw('SUM(amount) as total_amounts'),
-            DB::raw('GROUP_CONCAT(amount) as amounts'),
-            DB::raw('GROUP_CONCAT(days) as days'),
-            DB::raw('JSON_OBJECTAGG(days, amount) as day_amount_pairs'),
-        )->groupBy('customer_id', 'branch_id', 'user_id', 'year', 'quarter',)->get();
+        $customerIds = EmployeeDetail::where('user_id', Auth::user()->id)->pluck('customer_id');
+
+        $data = Order::with('order_confirm', 'customer')->whereNot('status', '4');
+
+        if (!Auth::user()->hasRole('superadmin')) {
+            $data->whereIn('customer_id', $customerIds);
+        }
+
+        $data = $data->orderBy('created_at', 'desc')->get();
 
         return $data;
     }
@@ -52,18 +43,14 @@ class CutomerOutstantingExport implements FromCollection, WithHeadings, ShouldAu
     {
 
         return [
-            'Branch',
-            'Customer ID',
-            'User ID',
-            'Dealer Name',
-            'Year',
-            'Quarter',
-            '0-30',
-            '31-60',
-            '61-90',
-            '91-150',
-            '>150',
-            'Total Outstanding',
+            'Date',
+            'PO Number',
+            'Party Name',
+            'Rate',
+            'Order QTY',
+            'Dispatch QTY',
+            'Pending QTY',
+            'Days',
         ];
     }
 
@@ -72,21 +59,32 @@ class CutomerOutstantingExport implements FromCollection, WithHeadings, ShouldAu
 
     public function map($data): array
     {
-        $day_wise_amount_array = json_decode($data->day_amount_pairs, true);
-        
+        if (count($data->order_confirm) > 0) {
+            if (($data->qty - $data->order_confirm->pluck('qty')->sum()) > 0) {
+                $days = isset($data->created_at)
+                    ? \Carbon\Carbon::parse($data->created_at->toDateString())->diffInDays(now()->toDateString())
+                    : 0;
+            } else {
+                $lastCreatedAt = $data->order_confirm()
+                    ->latest('created_at')
+                    ->value('created_at');
+                $days = \Carbon\Carbon::parse($data->created_at->toDateString())->diffInDays(\Carbon\Carbon::parse($lastCreatedAt)->toDateString());
+            }
+        } else {
+            $days = isset($data->created_at)
+                ? \Carbon\Carbon::parse($data->created_at->toDateString())->diffInDays(now()->toDateString())
+                : 0;
+        }
+
         return [
-            $data->branch ? $data->branch->branch_name : '-',
-            $data->customer_id ? $data->customer_id : '-',
-            $data->user_id ? $data->user_id : '-',
-            $data->customer ? $data->customer->name : '-',
-            $data->year ? $data->year : '-',
-            $data->quarter ? $data->quarter : '-',
-            $day_wise_amount_array['0-30'] ?? '0',
-            $day_wise_amount_array['31-60'] ?? '0',
-            $day_wise_amount_array['61-90'] ?? '0',
-            $day_wise_amount_array['91-150'] ?? '0',
-            $day_wise_amount_array['150'] ?? '0',
-            $data->total_amounts ?? '0',
+            isset($data->created_at) ? date('d M Y', strtotime($data->created_at)) : '-',
+            $data->po_no,
+            $data->customer->name,
+            $data->base_price,
+            $data->qty,
+            isset($data->order_confirm) && count($data->order_confirm) > 0 ? $data->order_confirm->pluck('qty')->sum() : '0',
+            $data->qty - ($data->order_confirm?->pluck('qty')->sum() ?? 0) > 0 ? $data->qty - ($data->order_confirm?->pluck('qty')->sum() ?? 0) : '0',
+            $days > 0 ? $days : '0',
         ];
     }
 
@@ -94,10 +92,16 @@ class CutomerOutstantingExport implements FromCollection, WithHeadings, ShouldAu
     {
         return [
             AfterSheet::class => function (AfterSheet $event) {
-                $lastRow = $event->sheet->getHighestDataRow() + 2;
-                $lastColumn = $event->sheet->getHighestDataColumn();
+                $sheet = $event->sheet->getDelegate();
+                $lastRow = $sheet->getHighestDataRow();
+                $lastColumn = $sheet->getHighestDataColumn();
 
-                $event->sheet->getStyle('A1:' . $lastColumn . '1')->applyFromArray([
+                $firstRowRange = 'A1:' . $lastColumn . '1';
+                $sheet->getRowDimension(1)->setRowHeight(25);
+                $sheet->getStyle($firstRowRange)->getAlignment()->setWrapText(true);
+                $sheet->getStyle($firstRowRange)->getFont()->setSize(14);
+
+                $event->sheet->getStyle($firstRowRange)->applyFromArray([
                     'font' => [
                         'bold' => true,
                         'color' => ['rgb' => 'FFFFFF'],
@@ -108,7 +112,7 @@ class CutomerOutstantingExport implements FromCollection, WithHeadings, ShouldAu
                     ],
                     'fill' => [
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'startColor' => ['rgb' => '336677'],
+                        'startColor' => ['rgb' => '00aadb'],
                     ],
                     'borders' => [
                         'allBorders' => [
@@ -118,7 +122,7 @@ class CutomerOutstantingExport implements FromCollection, WithHeadings, ShouldAu
                     ],
                 ]);
 
-                $event->sheet->getStyle('A2:' . $lastColumn . '' . ($lastRow - 2))->applyFromArray([
+                $event->sheet->getStyle('A1:' . $lastColumn . '' . $lastRow)->applyFromArray([
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,

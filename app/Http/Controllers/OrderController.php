@@ -39,6 +39,7 @@ use App\Models\OrderConfirm;
 use App\Models\OrderDispatch;
 use App\Models\Price;
 use App\Models\AdditionalPrice;
+use App\Models\ConsigneeDetail;
 use App\Models\UnitMeasure;
 use App\Models\OrderDispactchDetails;
 use App\Models\Settings;
@@ -687,6 +688,9 @@ class OrderController extends Controller
         // }
         $tqty = 0;
         $totalOrderConfirm = OrderConfirm::where('order_id', $id)->distinct('confirm_po_no')->count('confirm_po_no');
+        ConsigneeDetail::updateOrCreate([
+            'consignee_detail' => $request->consignee_details
+        ]);
         foreach ($request->qty as $k => $qty) {
             $data['confirm_po_no'] = $orders->po_no . '-' . $totalOrderConfirm + 1;
             $data['order_id'] = $id;
