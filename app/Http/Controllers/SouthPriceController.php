@@ -219,6 +219,8 @@ class SouthPriceController extends Controller
             'base_price' => 'required|numeric|min:0',
             'size.id' => 'sometimes|array',
             'size.price' => 'sometimes|array',
+            'size_jindal.id' => 'sometimes|array',
+            'size_jindal.price' => 'sometimes|array',
             'grade.id' => 'sometimes|array',
             'grade.price' => 'sometimes|array',
             'brand.id' => 'sometimes|array',
@@ -254,8 +256,7 @@ class SouthPriceController extends Controller
 
         if (!empty($validatedData['size']['id'])) {
             foreach ($validatedData['size']['id'] as $index => $sizeId) {
-                AdditionalPrice::updateOrCreate(['model_id' => $sizeId, 'model_name' => 'size'], [
-                    'price_id' => $price->id,
+                AdditionalPrice::updateOrCreate(['model_id' => $sizeId, 'model_name' => 'size', 'price_id' => $price->id], [
                     'model_name' => 'size', // Specify that this is a size adjustment
                     'model_id' => $sizeId,
                     'price_adjustment' => $validatedData['size']['price'][$index] ?? 0,
@@ -263,11 +264,20 @@ class SouthPriceController extends Controller
             }
         }
 
+        if (!empty($validatedData['size_jindal']['id'])) {
+            foreach ($validatedData['size_jindal']['id'] as $index => $size_jindalId) {
+                AdditionalPrice::updateOrCreate(['model_id' => $size_jindalId, 'model_name' => 'size_jindal', 'price_id' => $price->id], [
+                    'model_name' => 'size_jindal', // Specify that this is a size_jindal adjustment
+                    'model_id' => $size_jindalId,
+                    'price_adjustment' => $validatedData['size_jindal']['price'][$index] ?? 0,
+                ]);
+            }
+        }
+
         // Store additional prices for grades
         if (!empty($validatedData['grade']['id'])) {
             foreach ($validatedData['grade']['id'] as $index => $gradeId) {
-                AdditionalPrice::updateOrCreate(['model_id' => $gradeId, 'model_name' => 'grade'], [
-                    'price_id' => $price->id,
+                AdditionalPrice::updateOrCreate(['model_id' => $gradeId, 'model_name' => 'grade', 'price_id' => $price->id], [
                     'model_name' => 'grade', // Specify that this is a grade adjustment
                     'model_id' => $gradeId,
                     'price_adjustment' => $validatedData['grade']['price'][$index] ?? 0,
@@ -278,8 +288,7 @@ class SouthPriceController extends Controller
         // Store additional prices for brands
         if (!empty($validatedData['brand']['id'])) {
             foreach ($validatedData['brand']['id'] as $index => $brandId) {
-                AdditionalPrice::updateOrCreate(['model_id' => $brandId, 'model_name' => 'brand'], [
-                    'price_id' => $price->id,
+                AdditionalPrice::updateOrCreate(['model_id' => $brandId, 'model_name' => 'brand', 'price_id' => $price->id], [
                     'model_name' => 'brand', // Specify that this is a brand adjustment
                     'model_id' => $brandId,
                     'price_adjustment' => $validatedData['brand']['price'][$index] ?? 0,
@@ -290,8 +299,7 @@ class SouthPriceController extends Controller
         // Store additional prices for distributors
         if (!empty($validatedData['distributor']['id'])) {
             foreach ($validatedData['distributor']['id'] as $index => $distributorId) {
-                AdditionalPrice::updateOrCreate(['model_id' => $distributorId, 'model_name' => 'distributor'], [
-                    'price_id' => $price->id,
+                AdditionalPrice::updateOrCreate(['model_id' => $distributorId, 'model_name' => 'distributor', 'price_id' => $price->id], [
                     'model_name' => 'distributor', // Specify that this is a distributor adjustment
                     'model_id' => $distributorId,
                     'price_adjustment' => $validatedData['distributor']['price'][$index] ?? 0,
@@ -302,8 +310,7 @@ class SouthPriceController extends Controller
         // Store additional prices for General Parity
         if (!empty($validatedData['general_parity']['id'])) {
             foreach ($validatedData['general_parity']['id'] as $index => $general_parityId) {
-                AdditionalPrice::updateOrCreate(['model_id' => $general_parityId, 'model_name' => 'general_parity'], [
-                    'price_id' => $price->id,
+                AdditionalPrice::updateOrCreate(['model_id' => $general_parityId, 'model_name' => 'general_parity', 'price_id' => $price->id], [
                     'model_name' => 'general_parity', // Specify that this is a general_parity adjustment
                     'model_id' => $general_parityId,
                     'price_adjustment' => $validatedData['general_parity']['price'][$index] ?? 0,
@@ -314,8 +321,7 @@ class SouthPriceController extends Controller
         // Store additional prices for South Parity
         if (!empty($validatedData['south_parity']['id'])) {
             foreach ($validatedData['south_parity']['id'] as $index => $south_parityId) {
-                AdditionalPrice::updateOrCreate(['model_id' => $south_parityId, 'model_name' => 'south_parity'], [
-                    'price_id' => $price->id,
+                AdditionalPrice::updateOrCreate(['model_id' => $south_parityId, 'model_name' => 'south_parity', 'price_id' => $price->id], [
                     'model_name' => 'south_parity', // Specify that this is a south_parity adjustment
                     'model_id' => $south_parityId,
                     'price_adjustment' => $validatedData['south_parity']['price'][$index] ?? 0,

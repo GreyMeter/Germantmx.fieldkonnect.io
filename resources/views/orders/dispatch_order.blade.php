@@ -160,6 +160,13 @@
               </thead>
               <tbody>
               </tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="5"><b>Total : </b></th>
+                  <th id="totalQty"></th>
+                  <th colspan="2"></th>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -176,6 +183,27 @@
       var table = $('#getorder').DataTable({
         processing: true,
         serverSide: true,
+        "footerCallback": function(row, data, start, end, display) {
+        var api = this.api();
+
+        var intVal = function(i) {
+          return typeof i === 'string' ?
+            parseFloat(i.replace(/[\$,]/g, '')) :
+            typeof i === 'number' ? i : 0;
+        };
+
+        var totalQty = api
+          .column(5, {
+            page: 'current'
+          })
+          .data()
+          .reduce(function(a, b) {
+            return intVal(a) + intVal(b);
+          }, 0);
+
+        // Update footer
+        $(api.column(5).footer()).html(totalQty.toFixed(2));
+      },
         ajax: {
           url: "{{ route('orders.dispatch.list') }}",
           data: function(d) {

@@ -1444,19 +1444,21 @@ class AjaxController extends Controller
                 $brand_price = AdditionalPrice::where(['model_name' => 'brand', 'price_id' => '2', 'model_id' => $brand])->first();
                 if ($brand == '2') {
                     $grade_price  = AdditionalPrice::where(['model_name' => 'grade', 'price_id' => '2', 'model_id' => $grade])->first();
+                    $size_price  = AdditionalPrice::where(['model_name' => 'size', 'price_id' => '2', 'model_id' => $size])->first();
                 } else if ($brand == '1') {
                     $grade_price  = AdditionalPrice::where(['model_name' => 'grade_jindal', 'price_id' => '2', 'model_id' => $grade])->first();
+                    $size_price  = AdditionalPrice::where(['model_name' => 'size_jindal', 'price_id' => '2', 'model_id' => $size])->first();
                 }
-                $size_price  = AdditionalPrice::where(['model_name' => 'size', 'price_id' => '2', 'model_id' => $size])->first();
                 $parity_price  = AdditionalPrice::where(['model_name' => $parity, 'price_id' => '2', 'model_id' => $size])->first();
             } else {
                 $brand_price = AdditionalPrice::where(['model_name' => 'brand', 'price_id' => '1', 'model_id' => $brand])->first();
                 if ($brand == '2') {
                     $grade_price  = AdditionalPrice::where(['model_name' => 'grade', 'price_id' => '1', 'model_id' => $grade])->first();
+                    $size_price  = AdditionalPrice::where(['model_name' => 'size', 'price_id' => '1', 'model_id' => $size])->first();
                 } else if ($brand == '1') {
                     $grade_price  = AdditionalPrice::where(['model_name' => 'grade_jindal', 'price_id' => '1', 'model_id' => $grade])->first();
+                    $size_price  = AdditionalPrice::where(['model_name' => 'size_jindal', 'price_id' => '1', 'model_id' => $size])->first();
                 }
-                $size_price  = AdditionalPrice::where(['model_name' => 'size', 'price_id' => '1', 'model_id' => $size])->first();
                 $parity_price  = AdditionalPrice::where(['model_name' => $parity, 'price_id' => '1', 'model_id' => $size])->first();
             }
             //calculate addition price according to brand , size , grade    
@@ -1465,10 +1467,11 @@ class AjaxController extends Controller
             $brand_price = AdditionalPrice::where(['model_name' => 'brand', 'price_id' => '1', 'model_id' => $brand])->first();
             if ($brand == '2') {
                 $grade_price  = AdditionalPrice::where(['model_name' => 'grade', 'price_id' => '1', 'model_id' => $grade])->first();
+                $size_price  = AdditionalPrice::where(['model_name' => 'size', 'price_id' => '1', 'model_id' => $size])->first();
             } else if ($brand == '1') {
                 $grade_price  = AdditionalPrice::where(['model_name' => 'grade_jindal', 'price_id' => '1', 'model_id' => $grade])->first();
+                $size_price  = AdditionalPrice::where(['model_name' => 'size_jindal', 'price_id' => '1', 'model_id' => $size])->first();
             }
-            $size_price  = AdditionalPrice::where(['model_name' => 'size', 'price_id' => '1', 'model_id' => $size])->first();
             $parity_price  = AdditionalPrice::where(['model_name' => $parity, 'price_id' => '1', 'model_id' => $size])->first();
 
             //calculate addition price according to brand , size , grade

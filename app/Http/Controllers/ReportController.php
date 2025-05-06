@@ -4044,6 +4044,13 @@ class ReportController extends Controller
                 ->editColumn('date', function ($data) {
                     return isset($data->created_at) ? date('d M Y', strtotime($data->created_at)) : '';
                 })
+                ->editColumn('pending_dispatch', function ($data) {
+                    if (count($data->order_confirm) > 0) {
+                        return $data->order_confirm->pluck('qty')->sum();
+                    } else {
+                        return '0';
+                    }
+                })
                 ->editColumn('dispatch', function ($data) {
                     if (count($data->order_confirm) > 0) {
                         return $data->order_confirm->pluck('qty')->sum();
@@ -4086,7 +4093,7 @@ class ReportController extends Controller
                 })
 
 
-                ->rawColumns(['date', 'dispatch', 'pending', 'days'])
+                ->rawColumns(['date', 'pending_dispatch', 'dispatch', 'pending', 'days'])
                 ->make(true);
         }
 

@@ -74,6 +74,8 @@ class PriceController extends Controller
             'base_price' => 'required|numeric|min:0',
             'size.id' => 'sometimes|array',
             'size.price' => 'sometimes|array',
+            'size_jindal.id' => 'sometimes|array',
+            'size_jindal.price' => 'sometimes|array',
             'grade.id' => 'sometimes|array',
             'grade.price' => 'sometimes|array',
             'grade_jindal.id' => 'sometimes|array',
@@ -218,6 +220,8 @@ class PriceController extends Controller
             'base_price' => 'required|numeric|min:0',
             'size.id' => 'sometimes|array',
             'size.price' => 'sometimes|array',
+            'size_jindal.id' => 'sometimes|array',
+            'size_jindal.price' => 'sometimes|array',
             'grade.id' => 'sometimes|array',
             'grade.price' => 'sometimes|array',
             'grade_jindal.id' => 'sometimes|array',
@@ -259,6 +263,16 @@ class PriceController extends Controller
                     'model_name' => 'size', // Specify that this is a size adjustment
                     'model_id' => $sizeId,
                     'price_adjustment' => $validatedData['size']['price'][$index] ?? 0,
+                ]);
+            }
+        }
+
+        if (!empty($validatedData['size_jindal']['id'])) {
+            foreach ($validatedData['size_jindal']['id'] as $index => $size_jindalId) {
+                AdditionalPrice::updateOrCreate(['model_id' => $size_jindalId, 'model_name' => 'size_jindal', 'price_id' => $price->id], [
+                    'model_name' => 'size_jindal', // Specify that this is a size_jindal adjustment
+                    'model_id' => $size_jindalId,
+                    'price_adjustment' => $validatedData['size_jindal']['price'][$index] ?? 0,
                 ]);
             }
         }

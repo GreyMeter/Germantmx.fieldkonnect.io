@@ -182,7 +182,7 @@
           @endif
 
           <div class="table-responsive">
-            <table id="getprimarysales" class="table table-striped table-bordered table-hover table-checkable no-wrap">
+            <table id="getCustomerOutstanding" class="table table-striped table-bordered table-hover table-checkable no-wrap">
               <thead class=" text-primary">
                 <th>Date</th>
                 <th>PO Number</th>
@@ -195,6 +195,15 @@
               </thead>
               <tbody>
               </tbody>
+              <tfoot>
+                <tr>
+                  <th colspan="4"><b>Total : </b></th>
+                  <th id="totalQty"></th>
+                  <th id="disQty"></th>
+                  <th id="penQty"></th>
+                  <th></th>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -209,7 +218,7 @@
           'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
       });
-      var table = $('#getprimarysales').DataTable({
+      var table = $('#getCustomerOutstanding').DataTable({
         processing: true,
         serverSide: true,
         columnDefs: [{
@@ -218,6 +227,48 @@
           targets: -1
         }],
         "retrieve": true,
+        "footerCallback": function(row, data, start, end, display) {
+        var api = this.api();
+
+        var intVal = function(i) {
+          return typeof i === 'string' ?
+            parseFloat(i.replace(/[\$,]/g, '')) :
+            typeof i === 'number' ? i : 0;
+        };
+
+        var totalQty = api
+          .column(4, {
+            page: 'current'
+          })
+          .data()
+          .reduce(function(a, b) {
+            return intVal(a) + intVal(b);
+          }, 0);
+
+        var disQty = api
+          .column(5, {
+            page: 'current'
+          })
+          .data()
+          .reduce(function(a, b) {
+            return intVal(a) + intVal(b);
+          }, 0);
+
+        var penQty = api
+          .column(6, {
+            page: 'current'
+          })
+          .data()
+          .reduce(function(a, b) {
+            return intVal(a) + intVal(b);
+          }, 0);
+
+        // Update footer
+        $(api.column(4).footer()).html(totalQty.toFixed(2));
+        $(api.column(5).footer()).html(disQty.toFixed(2));
+        $(api.column(6).footer()).html(penQty.toFixed(2));
+        $(api.column(7).footer()).html(penQty.toFixed(2));
+      },
         ajax: {
           url: "{{ route('reports.customer_outstanting') }}",
           data: function(d) {
@@ -287,5 +338,6 @@
       $('#prifilfrm').find('input:text, input:password, input:file, select, textarea').val('');
       $('#prifilfrm').find('select').change();
     })
+
   </script>
 </x-app-layout>

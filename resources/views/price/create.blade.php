@@ -152,6 +152,7 @@
 
           @php
           $add_size = $price->additionalPrices->where('model_name', 'size')->pluck('price_adjustment','model_id')->toArray();
+          $add_size_jindal = $price->additionalPrices->where('model_name', 'size_jindal')->pluck('price_adjustment','model_id')->toArray();
           $add_grade = $price->additionalPrices->where('model_name', 'grade')->pluck('price_adjustment','model_id')->toArray();
           $add_grade_jindal = $price->additionalPrices->where('model_name', 'grade_jindal')->pluck('price_adjustment','model_id')->toArray();
           $add_brand = $price->additionalPrices->where('model_name', 'brand')->pluck('price_adjustment','model_id')->toArray();
@@ -181,7 +182,27 @@
               </table>
             </div>
             <div class="col-md-4">
-              <h5>Additional Prices Grade</h5>
+              <h5>Additional Prices Size Jindal</h5>
+              <table class="table table-striped" id="size_table">
+                <thead>
+                  <tr>
+                    <th>Size</th>
+                    <th>Price (+/-)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @foreach($sizes as $category)
+                  <tr id="size_{{$category->id}}">
+                    <td>{{$category->category_name}} MM</td>
+                    <input type="hidden" name="size_jindal[id][]" value="{{$category->id}}">
+                    <td class="brand_msg"><input {{!$editable ? 'disabled' : ''}} type="number" class="form-control" name="size_jindal[price][]" value="{{($price->exists && count($add_size_jindal)>0) ? ($add_size_jindal[$category->id]??'0.00'):'0.00'}}"></td>
+                  </tr>
+                  @endforeach
+                </tbody>
+              </table>
+            </div>
+            <div class="col-md-4">
+              <h5>Additional Prices Grade German</h5>
               <table class="table table-striped" id="grade_table">
                 <thead>
                   <tr>
@@ -328,19 +349,19 @@
       if ($.isArray(baseIds)) {
         $.each(baseIds, function(index, value) {
           var row = $('#' + additionalPrefix + '_' + value);
-          row.find('input[type="number"]').prop('readonly', true); // Disable number input
-          row.find('input[type="number"]').val('0.00'); // Set number input value to 0.00
-          row.addClass('show-before'); // Add class to show the before element
+          row.find('input[type="number"]').prop('readonly', true);
+          row.find('input[type="number"]').val('0.00');
+          row.addClass('show-before');
         });
       } else if (baseIds) {
         var row = $('#' + additionalPrefix + '_' + baseIds);
-        row.find('input[type="number"]').prop('readonly', true); // Disable number input
-        row.find('input[type="number"]').val('0.00'); // Set number input value to 0.00
-        row.addClass('show-before'); // Add class to show the before element
+        row.find('input[type="number"]').prop('readonly', true);
+        row.find('input[type="number"]').val('0.00');
+        row.addClass('show-before');
       }
     }
 
-    // Apply filtering when base fields change
+   
     $('#base_brand').change(function() {
       toggleAdditionalInputs('#base_brand', 'brand');
     }).trigger('change');
