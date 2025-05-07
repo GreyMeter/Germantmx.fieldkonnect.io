@@ -189,6 +189,7 @@
                 <th>Party Name</th>
                 <th>Rate</th>
                 <th>Order QTY</th>
+                <th>Pending Dispatch QTY</th>
                 <th>Dispatch QTY</th>
                 <th>Pending QTY</th>
                 <th>Days</th>
@@ -245,7 +246,7 @@
             return intVal(a) + intVal(b);
           }, 0);
 
-        var disQty = api
+        var pendisQty = api
           .column(5, {
             page: 'current'
           })
@@ -254,8 +255,17 @@
             return intVal(a) + intVal(b);
           }, 0);
 
-        var penQty = api
+        var disQty = api
           .column(6, {
+            page: 'current'
+          })
+          .data()
+          .reduce(function(a, b) {
+            return intVal(a) + intVal(b);
+          }, 0);
+
+        var penQty = api
+          .column(7, {
             page: 'current'
           })
           .data()
@@ -265,8 +275,8 @@
 
         // Update footer
         $(api.column(4).footer()).html(totalQty.toFixed(2));
-        $(api.column(5).footer()).html(disQty.toFixed(2));
-        $(api.column(6).footer()).html(penQty.toFixed(2));
+        $(api.column(5).footer()).html(pendisQty.toFixed(2));
+        $(api.column(6).footer()).html(disQty.toFixed(2));
         $(api.column(7).footer()).html(penQty.toFixed(2));
       },
         ajax: {
@@ -304,6 +314,12 @@
           {
             data: 'qty',
             name: 'qty',
+            orderable: false,
+            "defaultContent": ''
+          },
+          {
+            data: 'pending_dispatch',
+            name: 'pending_dispatch',
             orderable: false,
             "defaultContent": ''
           },

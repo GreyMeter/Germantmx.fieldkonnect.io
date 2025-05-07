@@ -30,8 +30,10 @@ class OrderConfirmDataTable extends DataTable
             })
             ->editColumn('status', function ($data) {
                 $totalOrderDispatchQty = OrderDispatch::where('confirm_po_no', $data->confirm_po_no)->sum('qty');
-                if($totalOrderDispatchQty == 0){
-                    return '<span class="badge badge-danger">Pending</span>';
+                if($data->total_qty == 0 && $data->status == '4'){
+                    return '<span class="badge badge-danger">Cancelled</span>';
+                }elseif($totalOrderDispatchQty == 0){
+                    return '<span class="badge badge-info">Pending</span>';
                 }elseif($totalOrderDispatchQty < $data->total_qty){
                     return '<span class="badge badge-warning">Partially Dispatched</span>';
                 }else{
@@ -104,7 +106,8 @@ class OrderConfirmDataTable extends DataTable
             $query->whereDate('created_at', '<=', $request->end_date);
         }
 
-        return $query->latest();
+        return $query->orderByRaw("CASE WHEN status = 4 THEN 1 ELSE 0 END")
+        ->latest();
     }
 
 

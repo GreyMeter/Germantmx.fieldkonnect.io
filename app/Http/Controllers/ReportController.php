@@ -4021,7 +4021,7 @@ class ReportController extends Controller
             // $data = CustomerOutstanting::with('customer');
             $customerIds = EmployeeDetail::where('user_id', Auth::user()->id)->pluck('customer_id');
 
-            $data = Order::with('order_confirm', 'customer')->whereNot('status', '4');
+            $data = Order::with('order_confirm', 'customer', 'dispatchorders')->whereNot('status', '4');
             
             if(!Auth::user()->hasRole('superadmin')) {
                 $data->whereIn('customer_id', $customerIds);
@@ -4035,8 +4035,6 @@ class ReportController extends Controller
             }
             
             $data = $data->orderBy('created_at', 'desc')->get();
-
-            // dd($data->get());
 
             return Datatables::of($data)
                 ->addIndexColumn()
@@ -4052,8 +4050,8 @@ class ReportController extends Controller
                     }
                 })
                 ->editColumn('dispatch', function ($data) {
-                    if (count($data->order_confirm) > 0) {
-                        return $data->order_confirm->pluck('qty')->sum();
+                    if (count($data->dispatchorders) > 0) {
+                        return $data->dispatchorders->pluck('qty')->sum();
                     } else {
                         return '0';
                     }

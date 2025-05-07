@@ -45,4 +45,9 @@ class Order extends Model
         return $this->hasMany('App\Models\OrderConfirm', 'order_id', 'id');
     }
 
+    public function dispatchorders()
+    {
+        return $this->hasMany('App\Models\OrderDispatch', 'order_id', 'id');
+    }
+
 }

@@ -28,7 +28,7 @@ class CutomerOutstantingExport implements FromCollection, WithHeadings, ShouldAu
     {
         $customerIds = EmployeeDetail::where('user_id', Auth::user()->id)->pluck('customer_id');
 
-        $data = Order::with('order_confirm', 'customer')->whereNot('status', '4');
+        $data = Order::with('order_confirm', 'customer', 'dispatchorders')->whereNot('status', '4');
 
         if (!Auth::user()->hasRole('superadmin')) {
             $data->whereIn('customer_id', $customerIds);
@@ -48,6 +48,7 @@ class CutomerOutstantingExport implements FromCollection, WithHeadings, ShouldAu
             'Party Name',
             'Rate',
             'Order QTY',
+            'Pending Dispatch QTY',
             'Dispatch QTY',
             'Pending QTY',
             'Days',
@@ -83,6 +84,7 @@ class CutomerOutstantingExport implements FromCollection, WithHeadings, ShouldAu
             $data->base_price,
             $data->qty,
             isset($data->order_confirm) && count($data->order_confirm) > 0 ? $data->order_confirm->pluck('qty')->sum() : '0',
+            isset($data->dispatchorders) && count($data->dispatchorders) > 0 ? $data->dispatchorders->pluck('qty')->sum() : '0',
             $data->qty - ($data->order_confirm?->pluck('qty')->sum() ?? 0) > 0 ? $data->qty - ($data->order_confirm?->pluck('qty')->sum() ?? 0) : '0',
             $days > 0 ? $days : '0',
         ];

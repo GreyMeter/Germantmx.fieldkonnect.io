@@ -15,7 +15,7 @@
             <span class="pull-right">
               <div class="btn-group">
                 @if(auth()->user()->can(['order_access']))
-                <a href="{{ $orders->exists?url('orders/' . encrypt($orders->id)):url('orders') }}" class="btn btn-just-icon btn-theme" title="{!! trans('panel.order.title_singular') !!}{!! trans('panel.global.list') !!}"><i class="material-icons">next_plan</i></a>
+                <a href="{{ $orders->exists?url('orders/' . encrypt($orders->id)):url('orders') }}" class="btn btn-just-icon btn-theme" title="Booking {!! trans('panel.global.list') !!}"><i class="material-icons">next_plan</i></a>
                 @endif
               </div>
             </span>
@@ -42,7 +42,7 @@
           ]) !!}
 
           <div class="row">
-            @if($orders->exists)
+            @if($orders->exists && $cnf)
             <div class="col-md-12">
               <div class="row">
                 <label class="col-md-2 col-form-label">Consignee Details<span class="text-danger"> *</span></label>
@@ -69,7 +69,7 @@
                       <option value="">Select Customer</option>
                       @if(@isset($customers ))
                       @foreach($customers as $customer)
-                      <option data-limit="{{$customer->order_limit}}" {{isset($cnf)?'disabled':''}} value="{!! $customer['id'] !!}" {{ old( 'customer_id' , (!empty($orders->customer_id)) ? ($orders->customer_id) :('') ) == $customer['id'] ? 'selected' : '' }}>{!! $customer['name'] !!}</option>
+                      <option data-limit="{{$customer->order_limit}}" {{isset($cnf) && $cnf ?'disabled':''}} value="{!! $customer['id'] !!}" {{ old( 'customer_id' , (!empty($orders->customer_id)) ? ($orders->customer_id) :('') ) == $customer['id'] ? 'selected' : '' }}>{!! $customer['name'] !!}</option>
                       @endforeach
                       @endif
                     </select>
@@ -105,7 +105,7 @@
                 <label class="col-md-3 col-form-label">Quantity<small>(Tonn)</small> <span class="text-danger"> *</span></label>
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                    <input type="number" name="qty" {{isset($cnf)?'disabled':''}} id="qty" class="form-control" value="{!! $orders['qty']-$totalOrderConfirmQty !!}" min="0.01" max="{{isset($cnf)?$orders['qty']-$totalOrderConfirmQty:''}}" step="0.01" required>
+                    <input type="number" name="qty" {{isset($cnf) && $cnf?'disabled':''}} id="qty" class="form-control" value="{!! $orders['qty']-$totalOrderConfirmQty !!}" min="0.01" max="{{isset($cnf)?$orders['qty']-$totalOrderConfirmQty:''}}" step="0.01" required>
                     @if ($errors->has('qty'))
                     <div class="error col-lg-12">
                       <p class="text-danger">{{ $errors->first('qty') }}</p>
@@ -132,7 +132,7 @@
                 </div>
               </div>
             </div>
-            @if($orders->exists)
+            @if($orders->exists && $cnf)
             <span class="badge badge-danger" id="all-qty-errors"></span>
             <table class="table kvcodes-dynamic-rows-example" id="tab_logic">
               <thead>
@@ -257,8 +257,10 @@
           </div>
         </div>
         <div class="card-footer">
-          @if(isset($cnf))
+          @if(isset($cnf) && $cnf)
           {{ Form::submit('Confirm Order', array('class' => 'btn btn-theme pull-right', 'id'=>'smt-btn')) }}
+          @elseif($orders->exists)
+          {{ Form::submit('Update', array('class' => 'btn btn-theme pull-right', 'id'=>'smt-btn')) }}
           @else
           {{ Form::submit('Submit', array('class' => 'btn btn-theme pull-right', 'id'=>'smt-btn')) }}
           @endif

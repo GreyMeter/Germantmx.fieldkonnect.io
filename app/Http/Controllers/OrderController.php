@@ -217,107 +217,11 @@ class OrderController extends Controller
         abort_if(Gate::denies('order_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $id = decrypt($id);
 
-        $request['cluster_amount'] = $request['extra_cluster_discount'];
-        $request['deal_discount'] = $request['extra_discount'] ?? NULL;
-        $request['deal_amount'] = $request['extra_discount_amount'] ?? NULL;
-        $request['distributor_amount'] = $request['distributor_discount_amount'];
-        $request['frieght_amount'] = $request['frieght_discount_amount'];
-        $request['special_amount'] = $request['special_discount_amount'];
-        $request['ebd_amount'] = $request['extra_ebd_discount'];
-        $request['gst5_amt'] = $request['5_gst'];
-        $request['gst12_amt'] = $request['12_gst'];
-        $request['gst28_amt'] = $request['18_gst'];
-        $request['gst18_amt'] = $request['28_gst'];
-
-        $orders = Order::with('orderdetails')->find($id);
-        $orders->buyer_id = isset($request['seller_id']) ? $request['seller_id'] : null;
-        $orders->seller_id = isset($request['buyer_id']) ? $request['buyer_id'] : null;
-
-        //$orders->buyer_id = isset($request['buyer_id']) ? $request['buyer_id'] :null ;
-        $orders->executive_id = isset($request['executive_id']) ? $request['executive_id'] : null;
-        //$orders->seller_id = isset($request['seller_id']) ? $request['seller_id'] :null ;
-        $orders->order_date = isset($request['order_date']) ? $request['order_date'] : null;
-        $orders->total_gst = isset($request['total_gst']) ? $request['total_gst'] : 0.00;
-        $orders->total_discount = isset($request['total_discount']) ? $request['total_discount'] : 0.00;
-        $orders->extra_discount = isset($request['extra_discount']) ? $request['extra_discount'] : 0.00;
-        $orders->gst_amount = isset($request['gst_amount']) ? $request['gst_amount'] : null;
-        $orders->schme_amount = isset($request['schme_amount']) ? $request['schme_amount'] : null;
-        $orders->ebd_discount = isset($request['ebd_discount']) ? $request['ebd_discount'] : null;
-        $orders->ebd_amount = isset($request['ebd_amount']) ? $request['ebd_amount'] : null;
-        $orders->special_discount = isset($request['special_discount']) ? $request['special_discount'] : null;
-        $orders->special_amount = isset($request['special_amount']) ? $request['special_amount'] : null;
-        $orders->cluster_discount = isset($request['cluster_discount']) ? $request['cluster_discount'] : null;
-        $orders->cluster_amount = isset($request['cluster_amount']) ? $request['cluster_amount'] : null;
-        $orders->deal_discount = isset($request['deal_discount']) ? $request['deal_discount'] : null;
-        $orders->deal_amount = isset($request['deal_amount']) ? $request['deal_amount'] : null;
-        $orders->distributor_discount = isset($request['distributor_discount']) ? $request['distributor_discount'] : null;
-        $orders->distributor_amount = isset($request['distributor_amount']) ? $request['distributor_amount'] : null;
-        $orders->frieght_discount = isset($request['frieght_discount']) ? $request['frieght_discount'] : null;
-        $orders->frieght_amount = isset($request['frieght_amount']) ? $request['frieght_amount'] : null;
-        $orders->product_cat_id = isset($request['product_cat_id']) ? $request['product_cat_id'] : null;
-        $orders->dod_discount = isset($request['dod_discount']) ? $request['dod_discount'] : null;
-        $orders->cash_discount = isset($request['cash_discount']) ? $request['cash_discount'] : null;
-        $orders->special_distribution_discount = isset($request['special_distribution_discount']) ? $request['special_distribution_discount'] : null;
-        $orders->distribution_margin_discount = isset($request['distribution_margin_discount']) ? $request['distribution_margin_discount'] : null;
-        $orders->total_fan_discount = isset($request['total_fan_discount']) ? $request['total_fan_discount'] : null;
-        $orders->total_fan_discount_amount = isset($request['total_fan_discount_amount']) ? $request['total_fan_discount_amount'] : null;
-
-        $orders->gst5_amt = isset($request['gst5_amt']) ? $request['gst5_amt'] : null;
-        $orders->gst12_amt = isset($request['gst12_amt']) ? $request['gst12_amt'] : null;
-        $orders->gst18_amt = isset($request['gst18_amt']) ? $request['gst18_amt'] : null;
-        $orders->gst28_amt = isset($request['gst28_amt']) ? $request['gst28_amt'] : null;
-        $orders->sub_total = isset($request['sub_total']) ? $request['sub_total'] : 0.00;
-        $orders->grand_total = isset($request['grand_total']) ? $request['grand_total'] : 0.00;
-        $orders->order_taking = isset($request['order_taking']) ? $request['order_taking'] : '';
-        $orders->suc_del = isset($request['suc_del']) ? $request['suc_del'] : '';
-        $orders->updated_by = Auth::user()->id;
-        if ($orders->save()) {
-            // foreach ($request['orderdetail'] as $key => $rows) {
-            //         OrderDetails::updateOrCreate(['product_id' => $request['product_id'], 'order_id' => $id], [
-            //             'order_id' => $id,
-            //             'product_id' => isset($rows['product_id']) ? $rows['product_id'] :null,
-            //             'product_detail_id' => isset($rows['product_detail']) ? $rows['product_detail'] :null,
-            //             'quantity' => isset($rows['quantity']) ? $rows['quantity'] :0,
-            //             'shipped_qty' => isset($rows['shipped_qty']) ? $rows['shipped_qty'] :0,
-            //             'price' => isset($rows['price']) ? $rows['price'] :0.00,
-            //             'tax_amount' => isset($rows['tax_amount']) ? $rows['tax_amount'] :0.00,
-            //             'line_total' => isset($rows['line_total']) ? $rows['line_total'] :0.00,
-            //             'created_at' => getcurentDateTime(),
-            //         ]);
-            //     }
-            foreach ($request['orderdetail'] as $key => $rows) {
-                $check = OrderDetails::updateOrCreate(['product_id' => $rows['product_id'], 'order_id' => $id], [
-                    'order_id' => $id,
-                    'product_id' => isset($rows['product_id']) ? $rows['product_id'] : null,
-                    'product_detail_id' => isset($rows['product_detail']) ? $rows['product_detail'] : null,
-                    'quantity' => isset($rows['quantity']) ? $rows['quantity'] : 0,
-                    'shipped_qty' => isset($rows['shipped_qty']) ? $rows['shipped_qty'] : 0,
-                    'price' => isset($rows['mrp']) ? $rows['mrp'] : 0.00,
-                    'tax_amount' => isset($rows['tax_amount']) ? $rows['tax_amount'] : 0.00,
-                    'line_total' => isset($rows['line_total']) ? $rows['line_total'] : 0.00,
-                    'gst' => isset($rows['gst']) ? $rows['gst'] : 0.00,
-                    'gst_amount' => $single_product_amount ?? 0.00,
-                    'discount' => isset($rows['discount']) ? $rows['discount'] : 0.00,
-                    'scheme_discount' => isset($rows['scheme_dis']) ? $rows['scheme_dis'] : 0.00,
-                    'scheme_name' => isset($rows['scheme_name']) ? $rows['scheme_name'] : null,
-                    'scheme_amount' => isset($rows['scheme_amount']) ? $rows['scheme_amount'] : 0.00,
-                    'cluster_discount' => isset($rows['clustered_dis']) ? $rows['clustered_dis'] : 0.00,
-                    'cluster_amount' => isset($rows['clus_amounts']) ? $rows['clus_amounts'] : 0.00,
-                    'distributor_discount' => isset($rows['distributot_dis']) ? $rows['distributot_dis'] : 0.00,
-                    'distributor_amount' => isset($rows['distributot_amounts']) ? $rows['distributot_amounts'] : 0.00,
-                    'deal_discount' => isset($rows['deal_dis']) ? $rows['deal_dis'] : 0.00,
-                    'deal_amount' => isset($rows['deal_amounts']) ? $rows['deal_amounts'] : 0.00,
-                    'ebd_dis' => isset($rows['ebd_dis']) ? $rows['ebd_dis'] : 0.00,
-                    'ebd_amount' => isset($rows['ebd_amounts']) ? $rows['ebd_amounts'] : 0.00,
-                    'special_dis' => isset($rows['special_dis']) ? $rows['special_dis'] : 0.00,
-                    'special_amounts' => isset($rows['special_amounts']) ? $rows['special_amounts'] : 0.00,
-                    'frieght_discount' => isset($rows['frieght_dis']) ? $rows['frieght_dis'] : 0.00,
-                    'frieght_amount' => isset($rows['frieght_amounts']) ? $rows['frieght_amounts'] : 0.00,
-                    'created_at' => getcurentDateTime(),
-                ]);
-            }
-            return Redirect::to('orders')->with('message_success', 'Order update Successfully');
+        $orders = Order::find($id);
+        if ($orders->update($request->all())) {
+            return Redirect::to('orders')->with('message_success', 'Booking update Successfully');
         }
+
         return redirect()->back()->with('message_danger', 'Error in Purchases Store')->withInput();
     }
 
@@ -757,7 +661,7 @@ class OrderController extends Controller
         $id = decrypt($id);
         $orders = OrderConfirm::where(['confirm_po_no' => $id])->get();
         $disorder = OrderDispatch::where('order_id', $orders[0]->order_id)->get();
-        if((collect($request->dispatch_qty)->sum()+$disorder->sum('qty')) > $orders->sum('qty')){
+        if ((collect($request->dispatch_qty)->sum() + $disorder->sum('qty')) > $orders->sum('qty')) {
             return Redirect::back()->with('message_error', 'Please Check your remaining quantity');
         }
         $check_stock = true;

@@ -40,11 +40,11 @@ class OrderDataTable extends DataTable
             ->addColumn('action', function ($query) {
                 $btn = '';
                 $activebtn = '';
-                // if (auth()->user()->can(['order_edit'])) {
-                //     $btn = $btn . '<a href="' . url("orders/" . encrypt($query->id) . '/edit') . '" class="btn btn-info btn-just-icon btn-sm" title="' . trans('panel.global.show') . ' ' . trans('panel.order.title_singular') . '">
-                //                     <i class="material-icons">edit</i>
-                //                 </a>';
-                // }
+                if (auth()->user()->can(['soda_editt'])) {
+                    $btn = $btn . '<a href="' . url("orders/" . encrypt($query->id) . '/edit') . '" class="btn btn-info btn-just-icon btn-sm" title="' . trans('panel.global.show') . ' ' . trans('panel.order.title_singular') . '">
+                                    <i class="material-icons">edit</i>
+                                </a>';
+                }
                 if (auth()->user()->can(['soda_show'])) {
                     $btn = $btn . '<a href="' . url("orders/" . encrypt($query->id)) . '" class="btn btn-theme btn-just-icon btn-sm" title="' . trans('panel.global.show') . ' ' . trans('panel.order.title_singular') . '">
                                     <i class="material-icons">visibility</i>
