@@ -1486,7 +1486,18 @@ class AjaxController extends Controller
         $update = Order::where('id', $request->id)->update(['status' => '1']);
 
         if ($update) {
-            return response()->json(['status' => true, 'msg' => 'Order Status Change Successfully !!']);
+            return response()->json(['status' => true, 'msg' => 'Booking Status Change Successfully !!']);
+        } else {
+            return response()->json(['status' => false]);
+        }
+    }
+
+    public function squaredOffBooking(Request $request)
+    {
+        $update = Order::where('id', $request->id)->update(['status' => '5']);
+
+        if ($update) {
+            return response()->json(['status' => true, 'msg' => 'Booking Squared Off Successfully !!']);
         } else {
             return response()->json(['status' => false]);
         }

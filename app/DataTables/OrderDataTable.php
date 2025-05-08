@@ -26,7 +26,7 @@ class OrderDataTable extends DataTable
                 $totalOrderConfirmQty = OrderConfirm::where('order_id', $data->id)->sum('qty');
                 if ($data->status == 4) {
                     return '<span class="badge badge-danger">Cancelled</span>';
-                } else if ($totalOrderConfirmQty > 0 && $data->qty == $totalOrderConfirmQty) {
+                } else if ($totalOrderConfirmQty > 0 && $data->qty <= $totalOrderConfirmQty) {
                     return '<span class="badge badge-success">Completed</span>';
                 } else if ($totalOrderConfirmQty > 0 && $data->qty > $totalOrderConfirmQty) {
                     return '<span class="badge badge-warning">Partially Completed</span>';

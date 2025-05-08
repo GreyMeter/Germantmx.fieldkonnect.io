@@ -36,96 +36,33 @@
                 @if(auth()->user()->can(['customer_outstanting_download']))
                 <form method="POST" action="{{url('customer_outstanting/download')}}">
                   @csrf
-                  <div class="d-flex flex-wrap flex-row">
-                    <!-- division filter -->
-                    {{-- <div class="p-2" style="width:200px;">
-                      <label for="division">Division</label>
-                      <select class="select2" name="division[]" placeholder="Division" multiple id="ps_division_id" data-style="select-with-transition" title="{!! trans('panel.secondary_dashboard.division') !!}">
-                        <option value="" disabled>{!! trans('panel.secondary_dashboard.division') !!}</option>
-                        @if(@isset($ps_divisions ))
-                        @foreach($ps_divisions as $division)
-                        <option value="{!! $division->division !!}">{!! $division->division !!}</option>
-                        @endforeach
-                        @endif
-                      </select>
-                    </div>
-                    <!-- branch filter -->
-                    <div class="p-2" style="width:180px;">
-                      <select class="select2" name="branch_id" id="ps_branch_id" data-style="select-with-transition" title="panel.sales_users.branch">
-                        <option value="" disabled selected>{!! trans('panel.secondary_dashboard.branch') !!}</option>
-                        @if(@isset($ps_branches ))
-                        @foreach($ps_branches as $branch)
-                        <option value="{!! $branch->final_branch !!}">{!! $branch->final_branch !!}</option>
-                        @endforeach
-                        @endif
-                      </select>
-                    </div>
-                    <!-- financial year filter -->
+                  <div class="d-flex flex-wrap flex-row" style="align-items: self-end;">
+                    <!-- Date filter -->
+                    <div class="p-2" style="width:150px;"><label for="date">Date</label><input type="text" class="form-control datepicker" id="date" name="date" placeholder="Date" autocomplete="off" readonly></div>
+                    <!-- PO Number filter -->
                     <div class="p-2" style="width:200px;">
-                      <select class="select2" name="financial_year" id="ps_financial_year" required data-style="select-with-transition" title="Year">
-                        <option value="" disabled selected>{!! trans('panel.secondary_dashboard.year') !!}</option>
-                        @foreach($years as $year)
-                        @php
-                        $startYear = $year - 1;
-                        $endYear = $year;
-                        @endphp
-                        <option value="{!!$startYear!!}-{!!$endYear!!}">{!! $startYear!!} - {!! $endYear !!}</option>
-                        @endforeach
-                      </select>
-                    </div>
-                    <!-- month filter-->
-                    <div class="p-2" style="width:200px;">
-                      <label for="month">Month </label>
-                      <select class="selectpicker" name="month[]" multiple id="ps_month" disabled data-style="select-with-transition" title="Month">
-                        <option value="" disabled>{!! trans('panel.secondary_dashboard.month') !!}</option>
-                        @for ($month = 1; $month <= 12; $month++) <option value="{!! date('M', mktime(0, 0, 0, $month, 1)) !!}">{!! date('M', mktime(0, 0, 0, $month, 1)) !!}</option>
-                          @endfor
-                      </select>
-                    </div>
-                    <!-- dealer/distributors filter -->
-                    <div class="p-2" style="width:200px;">
-                      <select class="select2" name="dealer" id="ps_dealer_id" data-style="select-with-transition" title="{!! trans('panel.sales_users.user_name') !!}">
-                        <option value="" selected>{!! trans('panel.secondary_dashboard.dealers_and_distibutors') !!}</option>
-                        @if(@isset($ps_dealers ))
-                        @foreach($ps_dealers as $dealer)
-                        <option value="{!! $dealer->dealer !!}">{!! $dealer->dealer !!}</option>
+                      <label for="po_no">PO Number</label>
+                      <select class="select2" name="po_no[]" placeholder="po_no" multiple id="po_no" data-style="select-with-transition" title="PO Number">
+                        <option value="" disabled>Select PO Number</option>
+                        @if(@isset($po_nos ))
+                        @foreach($po_nos as $po_no)
+                        <option value="{!! $po_no->po_no !!}">{!! $po_no->po_no !!}</option>
                         @endforeach
                         @endif
                       </select>
                     </div>
-                    <!-- sales persons filter -->
-                   <div class="p-2" style="width:200px;">
-                      <select class="select2" name="sales_person" id="ps_executive_id" data-style="select-with-transition" title="{!! trans('panel.sales_users.user_name') !!}">
-                        <option value="" selected>{!! trans('panel.secondary_dashboard.sales_person') !!}</option>
-                        @if(@isset($ps_sales_persons ))
-                        @foreach($ps_sales_persons as $sales_person)
-                        <option value="{!! $sales_person->sales_person !!}">{!! $sales_person->sales_person !!}</option>
+                    <!-- Party Name filter -->
+                    <div class="p-2" style="width:200px;">
+                      <label for="customer_id">Party Name</label>
+                      <select class="select2" name="customer_id[]" placeholder="customer_id" multiple id="customer_id" data-style="select-with-transition" title="Party Name">
+                        <option value="" disabled>Select Party Name</option>
+                        @if(@isset($partys ))
+                        @foreach($partys as $party)
+                        <option value="{!! $party->id !!}">{!! $party->name !!}</option>
                         @endforeach
                         @endif
                       </select>
                     </div>
-                    <!-- product models filter -->
-                    <div class="p-2" style="width:200px;">
-                      <select class="select2" name="product_model" id="ps_product_model" data-style="select-with-transition" title="{!! trans('panel.secondary_dashboard.product_model') !!}">
-                        <option value="" selected>{!! trans('panel.secondary_dashboard.product_model') !!}</option>
-                        @if(@isset($ps_product_models ))
-                        @foreach($ps_product_models as $product)
-                        <option value="{!! $product->product_name !!}">{!! $product->product_name !!}</option>
-                        @endforeach
-                        @endif
-                      </select>
-                    </div>
-                    <!-- new group name filter -->
-                    <div class="p-2" style="width:200px;">
-                      <select class="select2" name="new_group" id="ps_new_group" data-style="select-with-transition" title="{!! trans('panel.secondary_dashboard.new_group_name') !!}">
-                        <option value="" selected>{!! trans('panel.secondary_dashboard.new_group_name') !!}</option>
-                        @if(@isset($ps_new_group_names ))
-                        @foreach($ps_new_group_names as $product)
-                        <option value="{!! $product->new_group !!}">{!! $product->new_group !!}</option>
-                        @endforeach
-                        @endif
-                      </select>
-                    </div>--}}
                     <div class="p-2" style="width:200px;">
                       <button class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.download') !!} Customer Outstanding">
                         <i class="material-icons">cloud_download</i>
@@ -227,6 +164,10 @@
           orderable: false,
           targets: -1
         }],
+        initComplete: function () {
+            let searchInput = $('div.dataTables_filter input');
+            searchInput.attr('id', 'myCustomSearch');
+        },
         "retrieve": true,
         "footerCallback": function(row, data, start, end, display) {
         var api = this.api();
@@ -279,11 +220,13 @@
         $(api.column(6).footer()).html(disQty.toFixed(2));
         $(api.column(7).footer()).html(penQty.toFixed(2));
       },
-        ajax: {
-          url: "{{ route('reports.customer_outstanting') }}",
-          data: function(d) {
-            d.new_group = $('#ps_new_group').val(),
-              d.search = $('input[type="search"]').val()
+      ajax: {
+        url: "{{ route('reports.customer_outstanting') }}",
+        data: function(d) {
+            d.search = $('#myCustomSearch').val(),
+            d.date = $('#date').val(),
+            d.po_no = $('#po_no').val(),
+            d.customer_id = $('#customer_id').val()
           }
         },
         columns: [{
@@ -345,7 +288,13 @@
           }
         ]
       });
-      $('#ps_month').change(function() {
+      $('#date').change(function() {
+        table.draw();
+      });
+      $('#po_no').change(function() {
+        table.draw();
+      });
+      $('#customer_id').change(function() {
         table.draw();
       });
     });

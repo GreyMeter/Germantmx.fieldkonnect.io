@@ -4027,11 +4027,24 @@ class ReportController extends Controller
                 $data->whereIn('customer_id', $customerIds);
             }
 
-            if($request->search && !empty($request->search)) {
-                $data->where('po_no', 'like', '%' . $request->search . '%')
-                    ->orWhereHas('customer', function ($query) use ($request) {
-                        $query->where('name', 'like', '%' . $request->search . '%');
-                    });
+            if($request->date && !empty($request->date)) {
+                $data->whereDate('created_at', $request->date);
+            }
+
+            if($request->po_no && !empty($request->po_no)) {
+                $data->whereIn('po_no', $request->po_no);
+            }
+            if($request->customer_id && !empty($request->customer_id)) {
+                $data->whereIn('customer_id', $request->customer_id);
+            }
+            
+            if ($request->search && !empty($request->search)) {
+                $data->where(function ($query) use ($request) {
+                    $query->where('po_no', 'like', '%' . $request->search . '%')
+                          ->orWhereHas('customer', function ($q) use ($request) {
+                              $q->where('name', 'like', '%' . $request->search . '%');
+                          });
+                });
             }
             
             $data = $data->orderBy('created_at', 'desc')->get();
@@ -4094,8 +4107,14 @@ class ReportController extends Controller
                 ->rawColumns(['date', 'pending_dispatch', 'dispatch', 'pending', 'days'])
                 ->make(true);
         }
-
-        return view('reports.customer_outstanting', compact('branches', 'dealers'));
+        $po_nos = Order::select('po_no')->distinct()->get();
+        $customerIds = EmployeeDetail::where('user_id', Auth::user()->id)->pluck('customer_id');
+        $partys = Customers::where('active', 'Y')->select('id', 'name');
+        if (!Auth::user()->hasRole('superadmin')) {
+            $partys->whereIn('customer_id', $customerIds);
+        }
+        $partys = $partys->get();
+        return view('reports.customer_outstanting', compact('po_nos', 'partys'));
     }
 
     public function customer_outstanting_upload(Request $request)

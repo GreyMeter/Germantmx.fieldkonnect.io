@@ -21,46 +21,59 @@
                 $isPending = $orders['status'] == '0';
                 $isConfirmed = $orders['status'] == '1';
                 $isCancelled = $orders['status'] == '4';
-                $isPartiallyConfirmed = $orders->qty > $totalOrderConfirmQty;
-                @endphp
+                $isSquaredOff = $orders['status'] == '5';
 
-                @if($isPending || $isConfirmed)
-                @if($isPartiallyConfirmed)
-                @can('add_final_order')
-                <a href="{{ url('orders/' . encrypt($orders->id) . '/edit?cnf=true') }}" class="btn btn-info">Add Final Order</a>
-                @endcan
-                @if($isPending)
-                @can('confirm_booking')
-                <button type="button" id="change_status" data-id="{{ $orders->id }}" data-quantity="{{ $orders->qty }}" class="btn btn-success">Confirm Order</button>
-                @endcan
-                @endif
-                @else
-                <button type="button" class="btn btn-success">This order is fully confirmed</button>
-                @endif
-                @endif
+                $isFullyConfirmed = $orders->qty <= $totalOrderConfirmQty;
+                  $isPartiallyConfirmed=!$isFullyConfirmed && $totalOrderConfirmQty > 0;
+                  @endphp
+                  
+                  @if(($isPending || $isConfirmed) && !$isFullyConfirmed)
+                  @can('add_final_order')
+                  <a href="{{ url('orders/' . encrypt($orders->id) . '/edit?cnf=true') }}" class="btn btn-info">Add Final Order</a>
+                  @can('soda_edit')
+                  <a href="{{ url('orders/' . encrypt($orders->id) . '/edit') }}" class="btn btn-info">Edit Booking</a>
+                  @endcan
+                  @endcan
 
-                @if($isConfirmed && $isPartiallyConfirmed)
-                <button type="button" class="btn btn-success">Confirmed</button>
-                @endif
+                  @if($isPending)
+                  @can('confirm_booking')
+                  <button type="button" id="change_status" data-id="{{ $orders->id }}" data-quantity="{{ $orders->qty }}" class="btn btn-success">Confirm Booking</button>
+                  @endcan
+                  @endif
+                  @endif
 
-                @if($isCancelled)
-                <button type="button" class="btn btn-danger bg-danger">This order is cancelled</button><br>
-                <span class="badge badge-info">Remark : {{ $orders['cancel_remark'] }}</span>
-                @endif
+                  @if($isConfirmed && $isPartiallyConfirmed)
+                  <button type="button" class="btn btn-success">Confirmed</button>
+                  <button type="button" class="btn btn-warning" id="squared_off" data-id="{{ $orders->id }}">Square off</button>
+                  @endif
 
-                @if($isPartiallyConfirmed && !$isCancelled)
-                @can('cancel_booking')
-                <a class="btn btn-danger bg-danger" id="cancelButton" data-orderid="{{ encrypt($orders->id) }}">Cancel Order</a>
-                @endcan
-                @endif
+                  @if($isCancelled)
+                  <button type="button" class="btn btn-danger bg-danger">This booking is cancelled</button><br>
+                  <span class="badge badge-info">Remark : {{ $orders['cancel_remark'] }}</span>
+                  @endif
 
-                <span class="pull-right">
-                  <div class="btn-group">
-                    @if(auth()->user()->can(['order_access']))
-                    <a href="{{ url('orders') }}" class="btn btn-just-icon btn-theme" title="{!! trans('panel.order.title_singular') !!}{!! trans('panel.global.list') !!}"><i class="material-icons">next_plan</i></a>
-                    @endif
-                  </div>
-                </span>
+                  @if(!$isPartiallyConfirmed && !$isCancelled && !$isFullyConfirmed)
+                  @can('cancel_booking')
+                  <a class="btn btn-danger bg-danger" id="cancelButton" data-orderid="{{ encrypt($orders->id) }}">Cancel Booking</a>
+                  @endcan
+                  @endif
+
+                  @if($isSquaredOff)
+                  <button type="button" class="btn btn-danger bg-danger">This booking is squared off</button>
+                  @endif
+
+                  @if($isFullyConfirmed)
+                  <button type="button" class="btn btn-success">This order is fully confirmed</button>
+                  @endif
+
+
+                  <span class="pull-right">
+                    <div class="btn-group">
+                      @if(auth()->user()->can(['order_access']))
+                      <a href="{{ url('orders') }}" class="btn btn-just-icon btn-theme" title="{!! trans('panel.order.title_singular') !!}{!! trans('panel.global.list') !!}"><i class="material-icons">next_plan</i></a>
+                      @endif
+                    </div>
+                  </span>
               </div>
             </div>
 
@@ -297,7 +310,38 @@
             },
             success: function(res) {
               if (res.status === true) {
-                Swal.fire("Order Confirmed successfully!", res.msg, "success");
+                Swal.fire("Booking Confirmed successfully!", res.msg, "success");
+                location.reload();
+              } else {
+                Swal.fire("Somthing went wrong", "", "error");
+              }
+            }
+          });
+        }
+      });
+    });
+    $("#squared_off").on('click', function() {
+      var id = $(this).data('id');
+      Swal.fire({
+        title: "ARE YOU SURE YOU WANT TO SQUARED OFF THIS ORDER ?",
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+        denyButtonText: `No`
+      }).then((result) => {
+        console.log(result);
+        if (result.value) {
+          $.ajax({
+            url: "{{ url('squaredOffBooking') }}",
+            dataType: "json",
+            type: "POST",
+            data: {
+              _token: "{{csrf_token()}}",
+              id: id
+            },
+            success: function(res) {
+              if (res.status === true) {
+                Swal.fire("Squared Off successfully!", res.msg, "success");
                 location.reload();
               } else {
                 Swal.fire("Somthing went wrong", "", "error");
