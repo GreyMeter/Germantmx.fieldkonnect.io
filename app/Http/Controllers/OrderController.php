@@ -834,4 +834,28 @@ class OrderController extends Controller
             return Redirect::back()->with('message_error', 'Something went wrong.');
         }
     }
+
+    public function confirm_orders_cancel(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'order_confirm_id' => 'required',
+            'remark' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
+        }
+        $orders = OrderConfirm::where('confirm_po_no', $request->order_confirm_id)->get();
+        if ($orders) {
+            foreach ($orders as $order) {
+                $order->cancel_qty = $order->qty;
+                $order->qty = 0;
+                $order->cancel_remark = $request->remark;
+                $order->status = '4';
+                $order->save();
+            }
+            return response()->json(['status' => 'success', 'message' => 'Order cancle successfully !!']);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Order not found !!']);
+        }
+    }
 }

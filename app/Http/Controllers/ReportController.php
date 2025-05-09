@@ -4040,7 +4040,7 @@ class ReportController extends Controller
             
             if ($request->search && !empty($request->search)) {
                 $data->where(function ($query) use ($request) {
-                    $query->where('po_no', 'like', '%' . $request->search . '%')
+                    $query->where('po_no', 'like', '%' . $request->search . '%')->orWhere('qty', 'like', '%' . $request->search . '%')
                           ->orWhereHas('customer', function ($q) use ($request) {
                               $q->where('name', 'like', '%' . $request->search . '%');
                           });
@@ -4079,7 +4079,7 @@ class ReportController extends Controller
                 ->editColumn('days', function ($data) {
                     $blink = 'blink-text';
                     if (count($data->order_confirm) > 0) {
-                        if (($data->qty - $data->order_confirm->pluck('qty')->sum()) > 0) {
+                        if (($data->qty - $data->order_confirm->pluck('qty')->sum()) > 0 || $data->status == 5) {
                             $days = isset($data->created_at)
                                 ? \Carbon\Carbon::parse($data->created_at->toDateString())->diffInDays(now()->toDateString())
                                 : '';

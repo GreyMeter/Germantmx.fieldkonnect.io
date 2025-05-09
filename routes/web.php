@@ -431,6 +431,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::any('orders_confirm/update', [OrderController::class, 'confirm_orders_update'])->name('confirm_order.update');
     Route::any('orders_confirm/{id}', [OrderController::class, 'confirm_orders_show'])->name('orders.confirm.show');
     Route::any('orders_confirm/{id}/edit', [OrderController::class, 'confirm_orders_edit'])->name('orders.confirm.edit');
+    Route::any('orders_confirm_cancel', [OrderController::class, 'confirm_orders_cancel'])->name('orders.confirm.cancel');
+
     Route::any('orders_dispatch/{id}', [OrderController::class, 'dispatch_order'])->name('orders.dispatch');
     Route::any('orders_dispatch_multi/{id}', [OrderController::class, 'dispatch_order_multi'])->name('orders.dispatch_multi');
     Route::any('orders_dispatch', [OrderController::class, 'order_dispatch'])->name('orders.dispatch.list');
@@ -439,22 +441,8 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::any('orders-download', [OrderController::class, 'download'])->name('orders.download');
     Route::any('final-orders-download', [OrderController::class, 'final_order_download'])->name('final_orders.download');
-    // Route::any('orders-template', [OrderController::class, 'template'])->name('orders.template');
-    // Route::post('orders-upload', [OrderController::class, 'upload'])->name('orders.upload');
-    // Route::post('orders-active', [OrderController::class, 'active'])->name('orders.active');
-    // Route::any('ordersInfo', [OrderController::class, 'ordersInfo'])->name('orders.info');
-    // Route::get('ordertopoint', [OrderController::class, 'ordertopoint']);
-    // Route::any('expected-delivery', [OrderController::class, 'expectedDelivery'])->name('orders.expecteddelivery');
-    // Route::any('submit-expected-delivery', [OrderController::class, 'submitExpectedDelivery'])->name('orders.submitexpecteddelivery');
-    // Route::any('order-dispatched/{id}', [OrderController::class, 'orderDispatched'])->name('orders.dispatched');
-    // Route::any('order-partially-dispatched/{id}', [OrderController::class, 'orderPartiallyDispatched'])->name('orders.partiallydispatched');
     Route::any('order-cancle/{id}', [OrderController::class, 'orderCancle'])->name('orders.orderCancle');
-    // Route::post('submit-dispatched', [OrderController::class, 'submitDispatched'])->name('orders.submitdispatched');
-    // Route::any('order-detail-delete', [OrderController::class, 'deleteOrderDtails'])->name('orders.deletedetails');
-
-    // Route::post('submit-fullydispatched', [OrderController::class, 'submitFullyDispatched'])->name('orders.submitFullyDispatched');
-
-
+    
     //Targets
     Route::resource('targets', TargetController::class);
     //Secondry Sales

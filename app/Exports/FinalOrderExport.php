@@ -2,11 +2,13 @@
 
 namespace App\Exports;
 
+use App\Models\Category;
 use App\Models\Customers;
 use App\Models\Order;
 use App\Models\OrderConfirm;
 use App\Models\OrderDetails;
-use App\Models\User;
+use App\Models\OrderDispatch;
+use DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
@@ -26,49 +28,78 @@ class FinalOrderExport implements FromCollection, WithHeadings, WithMapping, Sho
         $this->order_id = $request->input('order_id');
         $this->customer_id = $request->input('customer_id');
         $this->customer_type_id = $request->input('customer_type_id');
+        $this->sizes = Category::where('active', 'Y')->get();
 
         $this->userids = getUsersReportingToAuth();
     }
 
     public function collection()
     {
-        return OrderConfirm::with('order', 'brands', 'sizes', 'grades', 'order.customer')->where( function ($query) {
-            if (!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin')) {
-                $query->whereIn('created_by', $this->userids);
-            }
-            if ($this->startdate) {
-                $query->whereDate('created_at', '>=', $this->startdate);
-            }
-            if ($this->enddate) {
-                $query->whereDate('created_at', '<=', $this->enddate);
-            }
-            if ($this->customer_id) {
-                $query->where('customer_id', $this->customer_id);
-            }
-        })->latest()->get();
+        return OrderConfirm::with('order', 'brands', 'sizes', 'grades', 'order.customer')
+            ->select([
+                DB::raw('SUM(qty) as total_qty'),
+                DB::raw('GROUP_CONCAT(category_id) as sizes'),
+                DB::raw('GROUP_CONCAT(qty) as qtys'),
+                'consignee_details',
+                'order_id',
+                'confirm_po_no',
+                'unit_id'
+            ])
+            ->where(function ($query) {
+                if (!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin')) {
+                    $query->whereIn('created_by', $this->userids);
+                }
+                if ($this->startdate) {
+                    $query->whereDate('created_at', '>=', $this->startdate);
+                }
+                if ($this->enddate) {
+                    $query->whereDate('created_at', '<=', $this->enddate);
+                }
+                if ($this->customer_id) {
+                    $query->where('customer_id', $this->customer_id);
+                }
+            })->groupBy('order_id', 'confirm_po_no', 'unit_id')->latest()->get();
     }
 
     public function headings(): array
     {
-        return ['id', 'Order Date', 'PO Number', 'Order Number', 'Distributor/Dealer Name', 'Brand', 'Grade', 'Size', 'Quantity', 'Base Price', 'consignee_details'];
-        
+        $headings = ['PARTY NAME', 'CONSIGNEE/DESTINATION', 'GRADE', 'TOTAL QTY', 'PENDING TOTAL', 'UP / DOWN'];
+
+        foreach ($this->sizes as $key => $value) {
+            $headings[] = $value->category_name . ' MM';
+        }
+
+        return $headings;
     }
 
     public function map($data): array
     {
-        return[
-            $data['id'],
-            date('d M Y', strtotime($data['created_at'])),
-            $data['po_no'],
-            $data['confirm_po_no'],
-            $data['order']?($data['order']['customer']?$data['order']['customer']['name']:'-'):'-',
-            $data['brands']?$data['brands']['brand_name']:'-',
-            $data['grades']?$data['grades']['unit_name']:'-',
-            $data['sizes']?$data['sizes']['category_name']:'-',
-            $data['qty'],
-            $data['base_price'],
+        $all_order_size = explode(',', $data['sizes']);
+        $all_order_qty = explode(',', $data['qtys']);
+        $dispatch_qty = OrderDispatch::where('order_id', $data['order_id'])->where('confirm_po_no', $data['confirm_po_no'])->whereIn('category_id', $all_order_size)->sum('qty');
+        $main_data = [
+            $data['order'] ? ($data['order']['customer'] ? $data['order']['customer']['name'] : '-') : '-',
             $data['consignee_details'],
+            $data['grades'] ? $data['grades']['unit_name'] : '-',
+            $data['total_qty'],
+            $dispatch_qty > 0 ? $data['total_qty'] - $dispatch_qty : $data['total_qty'],
         ];
+
+        foreach ($this->sizes as $size) {
+            $found = false;
+            foreach ($all_order_size as $k => $v) {
+                if ($v == $size->id) {
+                    $main_data[] = $all_order_qty[$k];
+                    $found = true;
+                    break;
+                }
+            }
+            if (!$found) {
+                $main_data[] = '0';
+            }
+        }
+
+        return $main_data;
     }
 
     public function registerEvents(): array

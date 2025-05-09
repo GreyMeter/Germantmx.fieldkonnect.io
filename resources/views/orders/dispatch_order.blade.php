@@ -150,7 +150,7 @@
                 {{-- <th>Brand</th> --}}
                 {{-- <th>Grade</th> --}}
                 {{-- <th>Size</th> --}}
-                {{-- <th>Plant</th> --}}
+                <th>Plant</th>
                 {{-- <th>material</th> --}}
                 <th>Quantity<small>(Tonn)</small></th>
                 {{-- <th>Base Price<small>(1MT)</small></th> --}}
@@ -193,7 +193,7 @@
         };
 
         var totalQty = api
-          .column(5, {
+          .column(6, {
             page: 'current'
           })
           .data()
@@ -202,7 +202,7 @@
           }, 0);
 
         // Update footer
-        $(api.column(5).footer()).html(totalQty.toFixed(2));
+        $(api.column(6).footer()).html(totalQty.toFixed(2));
       },
         ajax: {
           url: "{{ route('orders.dispatch.list') }}",
@@ -264,12 +264,12 @@
           //   "defaultContent": '',
           //   orderable: false
           // },
-          // {
-          //   data: 'plant.plant_name',
-          //   name: 'plant.plant_name',
-          //   "defaultContent": '',
-          //   orderable: false
-          // },
+          {
+            data: 'plant.plant_name',
+            name: 'plant.plant_name',
+            "defaultContent": '',
+            orderable: false
+          },
           // {
           //   data: 'order.material',
           //   name: 'order.material',

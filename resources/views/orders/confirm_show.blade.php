@@ -225,9 +225,10 @@
                   @if(!getOrderQuantityByPo($orders->confirm_po_no))
                   <button type="submit" class="btn btn-success">Dispatch Order</button>
                   {{-- <a href="{{ url('orders_confirm/' . encrypt($orders->id) . '/edit?cnf=true') }}" class="btn btn-success">Dispatch Order</a> --}}
-                  <!-- <a class="btn btn-danger bg-danger">Cancle Order</a> -->
+                  <a class="btn btn-danger bg-danger" type="button" id="cancleButton" data-po_no="{{ $orders->confirm_po_no }}">Cancle Order</a>
                   @elseif($orders->qty == '0' && $orders->status == '4')
                   <button type="button" class="btn btn-danger">Canclled</button>
+                  <span class="badge bg-info" style="font-size: 12px;font-weight: 600;padding: 3px;">Cancle Remark: {{ $orders->cancel_remark }}</span
                   @else
                   <button type="button" class="btn btn-success">This order has fully dispatched</button>
                   @endif
@@ -276,13 +277,14 @@
         if (result.value) {
           var token = $("meta[name='csrf-token']").attr("content");
           var base_url = $('.baseurl').data('baseurl');
-          var orderId = $(this).data("orderid");
+          var orderId = $(this).data("po_no");
           $.ajax({
-            url: base_url + '/order-cancle/' + orderId,
+            url: base_url + '/orders_confirm_cancel',
             dataType: "json",
             type: "POST",
             data: {
               _token: token,
+              order_confirm_id: orderId,
               remark: result.value
             },
             success: function(res) {
@@ -290,9 +292,9 @@
                 title: res.status,
                 text: res.message,
               });
-              if (res.status == 'success') {
-                window.location.href = base_url + '/orders';
-              }
+              // if (res.status == 'success') {
+              //   window.location.href = base_url + '/orders_confirm';
+              // }
             }
           });
         }

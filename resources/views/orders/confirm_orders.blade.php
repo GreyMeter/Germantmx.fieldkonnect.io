@@ -104,6 +104,7 @@
                 <th>Order No.</th>
                 <th>Customer Name</th>
                 <th>Quantity<small>(Tonn)</small></th>
+                <th>Consignee Details</th>
                 <th>Status</th>
                 <th>{!! trans('panel.global.created_by') !!}</th>
                 <th>{!! trans('panel.global.created_at') !!}</th>
@@ -162,6 +163,12 @@
           {
             data: 'qty',
             name: 'qty',
+            "defaultContent": '',
+            orderable: false
+          },
+          {
+            data: 'consignee_details',
+            name: 'consignee_details',
             "defaultContent": '',
             orderable: false
           },

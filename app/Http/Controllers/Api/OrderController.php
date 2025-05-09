@@ -1267,6 +1267,7 @@ class OrderController extends Controller
             $orders->qty = $orders->qty - $request->cancel_qty;
             $orders->cancel_qty = $orders->cancel_qty + $request->cancel_qty;
             $orders->cancel_remark = $request->remark;
+            $orders->status = '4';
             $orders->save();
             return response()->json(['status' => 'success', 'message' => 'Order cancle successfully !!']);
         } else {
