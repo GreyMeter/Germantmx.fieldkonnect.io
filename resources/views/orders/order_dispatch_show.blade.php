@@ -218,6 +218,11 @@
                       @if($orders->exists)
                       @foreach ($dispatch_orders as $order)
                       <tr>
+                        <input type="hidden" name="order_id" value="{{$order->id}}">
+                        <input type="hidden" name="brand_id" value="{{$order->brand_id}}">
+                        <input type="hidden" name="unit_id" value="{{$order->unit_id}}">
+                        <input type="hidden" name="category_id" value="{{$order->category_id}}">
+                        <input type="hidden" name="qty" value="{{$order->qty}}">
                         <td>{{$order->brands ? $order->brands->brand_name : '-'}}</td>
                         <td>{{$order->grades ? $order->grades->unit_name : '-'}}</td>
                         <td>{{$order->order_confirm ? $order->order_confirm->random_cut : '-'}}</td>
@@ -239,7 +244,11 @@
                           {{$order->soda_price ?? ''}}
                         </td>
                         <td>
-                          {{$order->plant->plant_name ?? ''}}
+                          <select name="plant_id" class="form-control plant_id_select">
+                            @foreach($plants as $plant)
+                            <option value="{{$plant->id}}" {{ $order->plant_id == $plant->id ? 'selected' : '' }}>{{$plant->plant_name ?? ''}}</option>
+                            @endforeach
+                          </select>
                         </td>
                       </tr>
                       @endforeach
@@ -352,6 +361,44 @@
           $(this).removeClass('is-invalid'); // Remove red border
         }
       });
+    });
+
+    $(".plant_id_select").on("change", function() {
+      var plant_id = $(this).val();
+      var tr = $(this).closest("tr");
+      var order_id = tr.find("input[name='order_id']").val();
+      var brand_id = tr.find("input[name='brand_id']").val();
+      var unit_id = tr.find("input[name='unit_id']").val();
+      var category_id = tr.find("input[name='category_id']").val();
+      var qty = tr.find("input[name='qty']").val();
+
+      $.ajax({
+        url: "{{ url('check-stock') }}",
+        type: "POST",
+        data: {
+          "_token": "{{ csrf_token() }}",
+          "plant_id": plant_id,
+          "order_id": order_id,
+          "brand_id": brand_id,
+          "unit_id": unit_id,
+          "category_id": category_id,
+          "qty": qty
+        },
+        success: function(response) {
+          if (!response) {
+            Swal.fire({
+              title: "Selected plant is out of stock.",
+              icon: "error",
+              showCancelButton: true,
+              cancelButtonText: "Cancel",
+              cancelButtonColor: '#d33',
+              confirmButtonColor: '#3085d6'
+            });
+            location.reload();            
+          }
+        }
+      });
+
     });
   </script>
 

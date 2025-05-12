@@ -660,7 +660,7 @@ class OrderController extends Controller
     {
         $id = decrypt($id);
         $orders = OrderConfirm::where(['confirm_po_no' => $id])->get();
-        $disorder = OrderDispatch::where('order_id', $orders[0]->order_id)->get();
+        $disorder = OrderDispatch::where('confirm_po_no', $id)->get();
         if ((collect($request->dispatch_qty)->sum() + $disorder->sum('qty')) > $orders->sum('qty')) {
             return Redirect::back()->with('message_error', 'Please Check your remaining quantity');
         }
@@ -764,8 +764,9 @@ class OrderController extends Controller
     {
         $id = decrypt($id);
         $orders = OrderDispatch::find($id);
+        $plants = Plant::where('active', 'Y')->latest()->get();
         $dispatch_orders = OrderDispatch::with('order_confirm')->where(['dispatch_po_no' => $orders->dispatch_po_no])->get();
-        return view('orders.order_dispatch_show', compact('dispatch_orders', 'orders'));
+        return view('orders.order_dispatch_show', compact('dispatch_orders', 'orders', 'plants'));
     }
 
     public function orders_dispatch_update(OrderDispactchDetails $id, Request $request)
@@ -857,5 +858,12 @@ class OrderController extends Controller
         } else {
             return response()->json(['status' => 'error', 'message' => 'Order not found !!']);
         }
+    }
+
+    public function checkStock(Request $request)
+    {
+        $order = OrderConfirm::find($request->order_id);
+        $result = manageStockMulti($order, $request->qty, $request->plant_id);
+        return response()->json($result);
     }
 }
