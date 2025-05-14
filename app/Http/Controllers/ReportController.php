@@ -4076,6 +4076,9 @@ class ReportController extends Controller
                         return $data->qty;
                     }
                 })
+                ->editColumn('base_price', function ($data) {
+                    return $data->base_price + $data->discount_amt;
+                })
                 ->editColumn('days', function ($data) {
                     $blink = 'blink-text';
                     if (count($data->order_confirm) > 0) {
@@ -4104,7 +4107,7 @@ class ReportController extends Controller
                 })
 
 
-                ->rawColumns(['date', 'pending_dispatch', 'dispatch', 'pending', 'days'])
+                ->rawColumns(['date', 'pending_dispatch', 'dispatch', 'pending', 'days', 'base_price'])
                 ->make(true);
         }
         $po_nos = Order::select('po_no')->distinct()->get();

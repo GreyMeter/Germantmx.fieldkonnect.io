@@ -436,25 +436,48 @@
       });
     });
 
+    let syncingBrands = false;
+
     $(document).on('change', '.brand_change, .grade_change, .size_change', function() {
-        var row = $(this).closest('tr'); // Get the closest row of the changed input/select
+      // Sync brand values
+      let firstValue = null;
+          $('.brand_change').each(function () {
+              let val = $(this).val();
+              if (val) {
+                  firstValue = val;
+                  return false; // break
+              }
+          });
 
-        row.find('.dispatch_soda_price').val(''); // Update the booking price in the row
-        row.find('.dispatch_base_price').val('');
-        var brand = row.find('.brand_change').val();
-        var grade = row.find('.grade_change').val();
-        var size = row.find('.size_change').val();
-        var material = row.find('.material_change').val();
-        var quantity = row.find('.points').val();
-        var additionalRate = row.find('.additional_rate').val();
-        // var specialCut = row.find('.special_cut').val();
+          if (firstValue !== null) {
+              syncingBrands = true; // Prevent recursion
+              $('.brand_change').each(function () {
+                  $(this).val(firstValue);
+              });
+              syncingBrands = false;
+          }
+        // Now do row-specific logic
+        var tBody = $(this).closest('tbody');
+        tBody.find('tr').each(function() {
+            var row = $(this);
 
-        if (brand && size) {
-          getPrices(brand, grade, size, material, quantity, row, additionalRate);
-        } else {
-          row.find('.dispatch_soda_price').text(''); // Update the booking price in the row
-          row.find('.dispatch_base_price').text('');
-        }
+          row.find('.dispatch_soda_price').val(''); // Update the booking price in the row
+          row.find('.dispatch_base_price').val('');
+          var brand = row.find('.brand_change').val();
+          var grade = row.find('.grade_change').val();
+          var size = row.find('.size_change').val();
+          var material = row.find('.material_change').val();
+          var quantity = row.find('.points').val();
+          var additionalRate = row.find('.additional_rate').val();
+          // var specialCut = row.find('.special_cut').val();
+
+          if (brand && size) {
+            getPrices(brand, grade, size, material, quantity, row, additionalRate);
+          } else {
+            row.find('.dispatch_soda_price').text(''); // Update the booking price in the row
+            row.find('.dispatch_base_price').text('');
+          }
+        });
       });
 
 

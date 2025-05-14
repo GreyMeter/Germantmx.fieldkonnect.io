@@ -18,6 +18,11 @@ class OrderConfirm extends Model
         return $this->belongsTo('App\Models\Order', 'order_id', 'id');
     }
 
+    public function orderDispatch()
+    {
+        return $this->hasMany('App\Models\OrderDispatch', 'order_confirm_id', 'id');
+    }
+
     public function createdbyname()
     {
         return $this->belongsTo('App\Models\User', 'created_by', 'id');

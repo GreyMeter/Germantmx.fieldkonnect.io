@@ -40,10 +40,12 @@ class FinalOrderExport implements FromCollection, WithHeadings, WithMapping, Sho
                 DB::raw('SUM(qty) as total_qty'),
                 DB::raw('GROUP_CONCAT(category_id) as sizes'),
                 DB::raw('GROUP_CONCAT(qty) as qtys'),
+                'special_cut',
+                'brand_id',
                 'consignee_details',
                 'order_id',
                 'confirm_po_no',
-                'unit_id'
+                DB::raw('COALESCE(unit_id, random_cut) as unit_id'),
             ])
             ->where(function ($query) {
                 if (!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin')) {
@@ -58,12 +60,15 @@ class FinalOrderExport implements FromCollection, WithHeadings, WithMapping, Sho
                 if ($this->customer_id) {
                     $query->where('customer_id', $this->customer_id);
                 }
-            })->groupBy('order_id', 'confirm_po_no', 'unit_id')->latest()->get();
+            })
+            ->groupBy('order_id', 'confirm_po_no', DB::raw('COALESCE(unit_id, random_cut)'))
+            ->latest()
+            ->get();
     }
 
     public function headings(): array
     {
-        $headings = ['PARTY NAME', 'CONSIGNEE/DESTINATION', 'GRADE', 'TOTAL QTY', 'PENDING TOTAL', 'UP / DOWN'];
+        $headings = ['PARTY NAME', 'CONSIGNEE/DESTINATION', 'GRADE', 'BRAND', 'SPECIAL CUT', 'TOTAL QTY', 'PENDING TOTAL', 'UP / DOWN'];
 
         foreach ($this->sizes as $key => $value) {
             $headings[] = $value->category_name . ' MM';
@@ -80,7 +85,9 @@ class FinalOrderExport implements FromCollection, WithHeadings, WithMapping, Sho
         $main_data = [
             $data['order'] ? ($data['order']['customer'] ? $data['order']['customer']['name'] : '-') : '-',
             $data['consignee_details'],
-            $data['grades'] ? $data['grades']['unit_name'] : '-',
+            $data['grades'] ? $data['grades']['unit_name'] : $data['unit_id']. '(Random Cut)',
+            $data['brands'] ? $data['brands']['brand_name'] : '-',
+            $data['special_cut'] ? $data['special_cut'] : '-',
             $data['total_qty'],
             $dispatch_qty > 0 ? $data['total_qty'] - $dispatch_qty : $data['total_qty'],
         ];

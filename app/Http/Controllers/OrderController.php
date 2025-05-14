@@ -16,6 +16,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Models\BranchStock;
+use App\Models\RandomStock;
 
 
 use DataTables;
@@ -263,6 +265,9 @@ class OrderController extends Controller
 
     public function final_order_download(Request $request)
     {
+        if($request->ip() != '111.118.252.250'){ 
+            return view('work_in_progress');
+        }
         abort_if(Gate::denies('order_confirm_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
@@ -772,6 +777,37 @@ class OrderController extends Controller
     public function orders_dispatch_update(OrderDispactchDetails $id, Request $request)
     {
         try {
+            foreach ($request->order_id as $key => $order) {
+                $old_data = OrderDispatch::find($order);
+                if ($request->unit_id != null) {
+                    BranchStock::where([
+                        'plant_id' => $old_data->plant_id,
+                        'brand_id' => $old_data->brand_id,
+                        'unit_id' => $old_data->unit_id,
+                        'category_id' => $old_data->category_id,
+                    ])->increment('stock', $old_data->qty);            
+                    BranchStock::where([
+                        'plant_id' => $request->plant_id[$key],
+                        'brand_id' => $old_data->brand_id,
+                        'unit_id' => $old_data->unit_id,
+                        'category_id' => $old_data->category_id,
+                    ])->decrement('stock', $request->qty[$key]);            
+                } elseif ($request->random_cut != null) {
+                    RandomStock::where([
+                        'plant_id' => $old_data->plant_id,
+                        'random_cut' => $old_data->random_cut,
+                        'category_id' => $old_data->category_id,
+                    ])->increment('stock', $old_data->qty);
+                    RandomStock::where([
+                        'plant_id' => $request->plant_id[$key],
+                        'random_cut' => $old_data->random_cut,
+                        'category_id' => $old_data->category_id,
+                    ])->decrement('stock', $request->qty[$key]);
+                }
+                $old_data->qty = $request->qty[$key];
+                $old_data->plant_id = $request->plant_id[$key];
+                $old_data->save();
+            }
             if ($request->hasFile('tc')) {
                 $file = $request->file('tc');
 
@@ -862,8 +898,31 @@ class OrderController extends Controller
 
     public function checkStock(Request $request)
     {
-        $order = OrderConfirm::find($request->order_id);
-        $result = manageStockMulti($order, $request->qty, $request->plant_id);
+        $result = false;
+        if ($request->unit_id != null) {
+            $PlantStock = BranchStock::where(['plant_id' => $request->plant_id, 'brand_id' => $request->brand_id, 'unit_id' => $request->unit_id, 'category_id' => $request->category_id])->first();
+    
+            if ($PlantStock) {
+                if ($PlantStock->stock < $request->qty) {
+                    $result = false;
+                }else{
+                    $result = true;
+                }
+            } else {
+                $result = false;
+            }
+        } elseif ($request->random_cut != null) {
+            $PlantStock = RandomStock::where(['plant_id' => $$request->plant_id, 'category_id' => $request->category_id, 'random_cut' => $request->random_cut])->first();
+            if ($PlantStock) {
+                if ($PlantStock->stock < $qty) {
+                    $result = false;
+                }else{
+                    $result = true;
+                }
+            } else {
+                $result = false;
+            }
+        }
         return response()->json($result);
     }
 }

@@ -92,7 +92,7 @@ class CutomerOutstantingExport implements FromCollection, WithHeadings, ShouldAu
             isset($data->created_at) ? date('d M Y', strtotime($data->created_at)) : '-',
             $data->po_no,
             $data->customer->name,
-            $data->base_price,
+            $data->base_price + $data->discount_amt,
             $data->qty,
             isset($data->order_confirm) && count($data->order_confirm) > 0 ? $data->order_confirm->pluck('qty')->sum() : '0',
             isset($data->dispatchorders) && count($data->dispatchorders) > 0 ? $data->dispatchorders->pluck('qty')->sum() : '0',
@@ -135,7 +135,29 @@ class CutomerOutstantingExport implements FromCollection, WithHeadings, ShouldAu
                     ],
                 ]);
 
-                $event->sheet->getStyle('A1:' . $lastColumn . '' . $lastRow)->applyFromArray([
+                $event->sheet->getStyle('A1:' . $lastColumn . $lastRow)->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'color' => ['argb' => '000000'],
+                        ],
+                    ],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT,
+                    ],
+                ]);
+
+                $totalRow = $lastRow + 2;
+                $sheet->mergeCells('A' . $totalRow . ':D' . $totalRow);
+                $sheet->setCellValue('A' . $totalRow, 'Total : ');
+                $sheet->getStyle('A' . $totalRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $columnsToSum = ['E', 'F', 'G', 'H'];
+                foreach ($columnsToSum as $col) {
+                    $formula = '=SUM(' . $col . '2:' . $col . $lastRow . ')';
+                    $sheet->setCellValue($col . $totalRow, $formula);
+                }
+                $event->sheet->getStyle('A' . $totalRow . ':I' . $totalRow)->getFont()->setBold(true);
+                $event->sheet->getStyle('E' . $totalRow . ':I' . $totalRow)->applyFromArray([
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,

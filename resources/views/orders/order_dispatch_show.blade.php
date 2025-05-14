@@ -142,21 +142,21 @@
               <!-- Table row -->
 
               <div class="row">
-                <div class="col-12">
-                  <!-- New Row for Driver Details -->
-                  <div class="card p-3 mb-3 bg-light">
-                    <h5 class="mb-3"><strong>Driver Details</strong></h5>
-                    @if(session()->has('message_success'))
-                    <div class="alert alert-success">
-                      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                        <i class="material-icons">close</i>
-                      </button>
-                      <span>
-                        {{ session()->get('message_success') }}
-                      </span>
-                    </div>
-                    @endif
-                    <form id="updateOrderDispatch" action="{{route('order_dispatch_update', $dispatch_orders[0]->order_dispatch_details->id)}}" method="post" enctype="multipart/form-data">
+                <form id="updateOrderDispatch" action="{{route('order_dispatch_update', $dispatch_orders[0]->order_dispatch_details->id)}}" method="post" enctype="multipart/form-data">
+                  <div class="col-12">
+                    <!-- New Row for Driver Details -->
+                    <div class="card p-3 mb-3 bg-light">
+                      <h5 class="mb-3"><strong>Driver Details</strong></h5>
+                      @if(session()->has('message_success'))
+                      <div class="alert alert-success">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                          <i class="material-icons">close</i>
+                        </button>
+                        <span>
+                          {{ session()->get('message_success') }}
+                        </span>
+                      </div>
+                      @endif
                       @csrf
                       <div class="row">
                         <div class="col-md-4">
@@ -188,74 +188,73 @@
                           <label>Wevrage Slip Image</label>
                           <input type="file" accept="image/*" name="wevrage_slip" id="wevrage_slip" class="form-control">
                         </div>
-                        <div class="col-md-4">
-                          <input type="submit" class="btn btn-primary" value="Update">
-                        </div>
                         @endif
                       </div>
-                    </form>
+                    </div>
                   </div>
-                </div>
-                <div class="col-12 table-responsive">
-                  <table class="table table-striped">
-                    <thead>
-                      <tr>
-                        <th>Brand</th>
-                        <th>Grade</th>
-                        <th>Random Cut</th>
-                        <th>Size</th>
-                        <th>Material</th>
-                        <th>Total Quantity<small>(Tonn)</small></th>
-                        <th>Special Cut</th>
-                        <th>Base Price<small>(1MT)</small></th>
-                        <th>Additional Rate</th>
-                        <th>Special Cut</th>
-                        <th>Total</th>
-                        <th>Plants</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @if($orders->exists)
-                      @foreach ($dispatch_orders as $order)
-                      <tr>
-                        <input type="hidden" name="order_id" value="{{$order->id}}">
-                        <input type="hidden" name="brand_id" value="{{$order->brand_id}}">
-                        <input type="hidden" name="unit_id" value="{{$order->unit_id}}">
-                        <input type="hidden" name="category_id" value="{{$order->category_id}}">
-                        <input type="hidden" name="qty" value="{{$order->qty}}">
-                        <td>{{$order->brands ? $order->brands->brand_name : '-'}}</td>
-                        <td>{{$order->grades ? $order->grades->unit_name : '-'}}</td>
-                        <td>{{$order->order_confirm ? $order->order_confirm->random_cut : '-'}}</td>
-                        <td>{{$order->sizes ? $order->sizes->category_name : '-'}}</td>
-                        <td>{{$order->order_confirm->material ?? ''}}</td>
-                        <td>{{$order->qty}}</td>
-                        <td>{{$order->order_confirm->special_cut}}</td>
-                        <td>
-                          {{$order->base_price ?? ''}}
-                        </td>
-                        <td>
-                          {{$order->rate ?? ''}} <br>
-                          <span class="badge bg-info" style="font-size: 10px;font-weight: 800;padding: 3px;">{{$order->order_confirm->remark}}</span>
-                        </td>
-                        <td>
-                          {{$order->order_confirm->special_cut ?? ''}}
-                        </td>
-                        <td>
-                          {{$order->soda_price ?? ''}}
-                        </td>
-                        <td>
-                          <select name="plant_id" class="form-control plant_id_select">
-                            @foreach($plants as $plant)
-                            <option value="{{$plant->id}}" {{ $order->plant_id == $plant->id ? 'selected' : '' }}>{{$plant->plant_name ?? ''}}</option>
-                            @endforeach
-                          </select>
-                        </td>
-                      </tr>
-                      @endforeach
-                      @endif
-                    </tbody>
-                  </table>
-                </div>
+                  <div class="col-12 table-responsive">
+                    <table class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th>Brand</th>
+                          <th>Grade</th>
+                          <th>Random Cut</th>
+                          <th>Size</th>
+                          <th>Material</th>
+                          <th>Total Quantity<small>(Tonn)</small></th>
+                          <th>Special Cut</th>
+                          <th>Base Price<small>(1MT)</small></th>
+                          <th>Additional Rate</th>
+                          <th>Special Cut</th>
+                          <th>Total</th>
+                          <th>Plants</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @if($orders->exists)
+                        @foreach ($dispatch_orders as $order)
+                        <tr>
+                          <input type="hidden" name="order_id[]" value="{{$order->id}}">
+                          <input type="hidden" name="brand_id[]" value="{{$order->brand_id}}">
+                          <input type="hidden" name="unit_id[]" value="{{$order->unit_id}}">
+                          <input type="hidden" name="category_id[]" value="{{$order->category_id}}">
+                          <td>{{$order->brands ? $order->brands->brand_name : '-'}}</td>
+                          <td>{{$order->grades ? $order->grades->unit_name : '-'}}</td>
+                          <td>{{$order->order_confirm ? $order->order_confirm->random_cut : '-'}}</td>
+                          <td>{{$order->sizes ? $order->sizes->category_name : '-'}}</td>
+                          <td>{{$order->order_confirm->material ?? ''}}</td>
+                          <td><input type="number" {{auth()->user()->can('order_dispatch_update') ? '' : 'readonly'}} class="form-control quantitys" step="0.01" min="0.01" max="{{$order->order_confirm->qty - $order->order_confirm->orderDispatch->reject(function ($dispatch) use ($order) {return $dispatch->id === $order->id;})->sum('qty') }}" name="qty[]" value="{{$order->qty}}"></td>
+                          <td>{{$order->order_confirm->special_cut}}</td>
+                          <td>
+                            {{$order->base_price ?? ''}}
+                          </td>
+                          <td>
+                            {{$order->rate ?? ''}} <br>
+                            <span class="badge bg-info" style="font-size: 10px;font-weight: 800;padding: 3px;">{{$order->order_confirm->remark}}</span>
+                          </td>
+                          <td>
+                            {{$order->order_confirm->special_cut ?? ''}}
+                          </td>
+                          <td>
+                            {{$order->soda_price ?? ''}}
+                          </td>
+                          <td>
+                            <select name="plant_id[]" {{auth()->user()->can('order_dispatch_update') ? '' : 'disabled'}} class="form-control plant_id_select">
+                              @foreach($plants as $plant)
+                              <option value="{{$plant->id}}" {{ $order->plant_id == $plant->id ? 'selected' : '' }}>{{$plant->plant_name ?? ''}}</option>
+                              @endforeach
+                            </select>
+                          </td>
+                        </tr>
+                        @endforeach
+                        @endif
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="col-md-4">
+                    <input type="submit" class="btn btn-primary" value="Update">
+                  </div>
+                </form>
 
                 @if(isset($dispatch_orders[0]->order_dispatch_details) && $dispatch_orders[0]->order_dispatch_details->media->count() > 0)
                 <div class="container mt-4">
@@ -322,6 +321,12 @@
           },
           vehicle_number: {
             vehicleFormat: true
+          },
+          qty: {
+            required: true,
+            max: function() {
+              return parseFloat($('#qty').attr('max'));
+            }
           }
         },
         errorClass: "error", // Use the correct error class
@@ -363,14 +368,14 @@
       });
     });
 
-    $(".plant_id_select").on("change", function() {
-      var plant_id = $(this).val();
+    $(".plant_id_select, .quantitys").on("input", function() {
       var tr = $(this).closest("tr");
-      var order_id = tr.find("input[name='order_id']").val();
-      var brand_id = tr.find("input[name='brand_id']").val();
-      var unit_id = tr.find("input[name='unit_id']").val();
-      var category_id = tr.find("input[name='category_id']").val();
-      var qty = tr.find("input[name='qty']").val();
+      var plant_id = tr.find("select[name='plant_id[]']").val();
+      var order_id = tr.find("input[name='order_id[]']").val();
+      var brand_id = tr.find("input[name='brand_id[]']").val();
+      var unit_id = tr.find("input[name='unit_id[]']").val();
+      var category_id = tr.find("input[name='category_id[]']").val();
+      var qty = tr.find("input[name='qty[]']").val();
 
       $.ajax({
         url: "{{ url('check-stock') }}",
@@ -394,7 +399,9 @@
               cancelButtonColor: '#d33',
               confirmButtonColor: '#3085d6'
             });
-            location.reload();            
+            // setTimeout(function() {
+            //   location.reload();
+            // }, 1000);
           }
         }
       });
