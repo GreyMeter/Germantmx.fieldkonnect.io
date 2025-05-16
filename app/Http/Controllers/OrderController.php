@@ -265,9 +265,6 @@ class OrderController extends Controller
 
     public function final_order_download(Request $request)
     {
-        if($request->ip() != '111.118.252.250'){ 
-            return view('work_in_progress');
-        }
         abort_if(Gate::denies('order_confirm_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
