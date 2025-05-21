@@ -81,6 +81,11 @@
               <!-- </div> -->
               <hr>
               <!-- info row -->
+              {!! Form::model($orders,[
+              'route' => ['confirm_order.update'],
+              'method' => 'POST',
+              'id' => 'UpdateOrderForm',
+              ]) !!}
               <div class="row invoice-info">
                 <div class="col-sm-4 invoice-col">
                   <h3 style="margin-bottom: 10px;font-weight: 500;">Customer Deatils:</h3>
@@ -94,9 +99,7 @@
                 </div>
                 <div class="col-sm-4 invoice-col">
                   <h3 style="margin-bottom: 10px;font-weight: 500;">Consignee Details:</h3>
-                  <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
-                    <strong>{!! nl2br(e($orders['consignee_details'])) !!} </strong>
-                  </address>
+                      <textarea style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8; font-weight: 900;color: #000;" name="consignee_details" class="form-control" cols="30" rows="6" id="consignee_details" required>{!! $orders['consignee_details'] !!} </textarea>
                 </div>
                 <div class="col-sm-4 invoice-col">
                   <h3 style="margin-bottom: 10px;font-weight: 500;">Booking Deatils:</h3>
@@ -112,12 +115,7 @@
               <!-- /.row -->
 
               <!-- Table row -->
-              {!! Form::model($orders,[
-              'route' => ['confirm_order.update'],
-              'method' => 'POST',
-              'id' => 'UpdateOrderForm',
-              ]) !!}
-
+              
               <div class="row">
                 {{--<div class="col-12">
                   <!-- New Row for Driver Details -->
@@ -232,7 +230,7 @@
                             <option {{$order->material == 'Bend' ? 'selected' : ''}} value="Bend">Bend</option>
                           </select>
                         </td>
-                        <td><select required name="loading_add[]" class="form-control loading_add' + counter + ' loading_add_change">
+                        <td><select name="loading_add[]" class="form-control loading_add' + counter + ' loading_add_change">
                             <option value="">Select Loading</option>
                             <option {{$order->loading_add == 'Up' ? 'selected' : ''}} value="Up">Up</option>
                             <option {{$order->loading_add == 'Down' ? 'selected' : ''}} value="Down">Down</option>
@@ -551,6 +549,23 @@
         e.preventDefault();
         $('#all-qty-errors').html(errorMessage);
       }
+    });
+
+    $(document).ready(function() {
+        $("#consignee_details").autocomplete({
+            source: function(request, response) {
+                $.ajax({
+                    url: "/consignee-suggestions",
+                    data: {
+                        term: request.term
+                    },
+                    success: function(data) {
+                        response(data.results);
+                    }
+                });
+            },
+            minLength: 1
+        });
     });
   </script>
   <!-- /.content -->

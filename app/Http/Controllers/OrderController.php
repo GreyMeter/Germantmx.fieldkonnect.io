@@ -860,6 +860,7 @@ class OrderController extends Controller
                     'material' => $request->material[$key],
                     'loading_add' => $request->loading_add[$key],
                     'base_price' => $request->dispatch_base_price[$key],
+                    'consignee_details' => $request->consignee_details,
                     'soda_price' => $request->dispatch_soda_price[$key]
                 ]);
             }

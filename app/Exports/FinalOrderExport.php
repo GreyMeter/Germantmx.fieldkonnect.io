@@ -45,6 +45,7 @@ class FinalOrderExport implements FromCollection, WithHeadings, WithMapping, Sho
                 'consignee_details',
                 'order_id',
                 'confirm_po_no',
+                'loading_add',
                 DB::raw('COALESCE(unit_id, random_cut) as unit_id'),
             ])
             ->where(function ($query) {
@@ -90,6 +91,7 @@ class FinalOrderExport implements FromCollection, WithHeadings, WithMapping, Sho
             $data['special_cut'] ? $data['special_cut'] : '-',
             $data['total_qty'],
             $dispatch_qty > 0 ? $data['total_qty'] - $dispatch_qty : $data['total_qty'],
+            $data['loading_add'] ? $data['loading_add'] : '-',
         ];
 
         foreach ($this->sizes as $size) {
