@@ -315,6 +315,7 @@
 
           // Sync brand values
           let firstValue = null;
+          let firstValueM = null;
           $('.brand_change').each(function () {
               let val = $(this).val();
               if (val) {
@@ -322,11 +323,27 @@
                   return false; // break
               }
           });
-
+          
           if (firstValue !== null) {
+            syncingBrands = true; // Prevent recursion
+            $('.brand_change').each(function () {
+              $(this).val(firstValue);
+            });
+            syncingBrands = false;
+          }
+
+          // Sync material values
+          $('.material_change').each(function () {
+              let val = $(this).val();
+              if (val) {
+                firstValueM = val;
+                  return false; // break
+              }
+          });
+          if (firstValueM !== null) {
               syncingBrands = true; // Prevent recursion
-              $('.brand_change').each(function () {
-                  $(this).val(firstValue);
+              $('.material_change').each(function () {
+                  $(this).val(firstValueM);
               });
               syncingBrands = false;
           }
@@ -410,6 +427,19 @@
       }
     }
 
+    $(document).ready(function () {
+      var customerId = $('#customer_id').val();
+      if (customerId) {
+          $('#customer_id').trigger({
+              type: 'select2:select',
+              params: {
+                  data: $('#customer_id').val()
+              }
+          });
+      }
+});
+
+
 
     $('#customer_id').on('select2:select', function(e) {
       var customerId = $(this).val();
@@ -427,9 +457,10 @@
             url: "{{ url('getOrderLimit') }}",
             data: {
               "customer_id": customerId,
+              "order_id": "{{$orders->exists ? $orders->id : 0}}",
             },
             success: function(res) {
-              orderLimit = orderLimit - res.today_order_qty;
+              orderLimit = orderLimit - parseFloat(res.today_order_qty || 0) + parseFloat(res.edit_order || 0);
               if (res.final_price != null) {
                 $("#base_price").val(res.final_price);
 
@@ -448,7 +479,11 @@
                 $("#qty-errors").addClass("text-info");
                 $("#qty-errors").removeClass("text-danger");
                 $("#qty").prop('max', orderLimit);
-                $("#qty").val(orderLimit).trigger('keyup');
+                if(res.edit_order > 0){
+                  $("#qty").val(res.edit_order).trigger('keyup');
+                }else{
+                  $("#qty").val(orderLimit).trigger('keyup');
+                }
 
                 $("#soda_price").val((mtLimit * {{$base_price}}).toFixed(2));
               }
@@ -530,6 +565,7 @@
             html += '<option value="' + v.id + '">' + v.brand_name + '</option>';
           });
           $('.brand' + counter).html(html);
+          $('.brand_change').change();
         }
       });
       $.ajax({
@@ -540,6 +576,15 @@
             html += '<option value="' + v.id + '">' + v.unit_name + '</option>';
           });
           $('.grade' + counter).html(html);
+          let lastValue = null;
+          $($('.grade_change').get().reverse()).each(function () {
+              let val = $(this).val();
+              if (val) {
+                  lastValue = val;
+                  return false; // break
+              }
+          });
+          $('.grade' + counter).val(lastValue).trigger('change');
         }
       });
       $.ajax({

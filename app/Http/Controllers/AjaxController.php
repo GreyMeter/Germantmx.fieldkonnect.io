@@ -1371,6 +1371,7 @@ class AjaxController extends Controller
 
     public function getOrderLimit(Request $request)
     {
+        $edit_order = Order::where('id', $request->order_id)->sum('qty') ?? 0;
         $today_order_qty = Order::where('customer_id', $request->customer_id)
             ->whereDate('created_at', today())
             ->whereNot('status', '4')
@@ -1389,7 +1390,7 @@ class AjaxController extends Controller
 
         $final_price = $base_price + $check_additional_price?->price_adjustment ?? 0;
 
-        return response()->json(['status' => 'success', 'today_order_qty' => $today_order_qty, 'final_price' => $final_price]);
+        return response()->json(['status' => 'success', 'today_order_qty' => $today_order_qty, 'final_price' => $final_price, 'edit_order' => $edit_order]);
     }
 
     public function getAdditionalPrice(Request $request)

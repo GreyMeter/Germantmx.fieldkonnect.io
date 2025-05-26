@@ -4057,7 +4057,7 @@ class ReportController extends Controller
                 })
                 ->editColumn('pending_dispatch', function ($data) {
                     if (count($data->order_confirm) > 0) {
-                        return $data->order_confirm->pluck('qty')->sum();
+                        return $data->order_confirm->pluck('qty')->sum() - $data->dispatchorders->pluck('qty')->sum();
                     } else {
                         return '0';
                     }

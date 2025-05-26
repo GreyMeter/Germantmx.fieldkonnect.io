@@ -1379,6 +1379,12 @@ class OrderController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
             }
+            if(isset($request->consignee_details) && !empty($request->consignee_details)){
+                $fOrder = OrderConfirm::where('id', $request->id)->first();
+                OrderConfirm::where('confirm_po_no', $fOrder->confirm_po_no)->update([
+                    'consignee_details' => $request->consignee_details,
+                ]);
+            }
             OrderConfirm::where('id', $request->id)->update([
                 'brand_id' => $request->brand_id,
                 'unit_id' => $request->unit_id ?? null,

@@ -94,7 +94,7 @@ class CutomerOutstantingExport implements FromCollection, WithHeadings, ShouldAu
             $data->customer->name,
             $data->base_price + $data->discount_amt,
             $data->qty,
-            isset($data->order_confirm) && count($data->order_confirm) > 0 ? $data->order_confirm->pluck('qty')->sum() : '0',
+            isset($data->order_confirm) && count($data->order_confirm) > 0 ? ($data->order_confirm->pluck('qty')->sum() - $data->dispatchorders->pluck('qty')->sum() > 0 ? $data->order_confirm->pluck('qty')->sum() - $data->dispatchorders->pluck('qty')->sum() : '0') : '0',
             isset($data->dispatchorders) && count($data->dispatchorders) > 0 ? $data->dispatchorders->pluck('qty')->sum() : '0',
             $data->qty - ($data->order_confirm?->pluck('qty')->sum() ?? 0) > 0 ? $data->qty - ($data->order_confirm?->pluck('qty')->sum() ?? 0) : '0',
             $days > 0 ? $days : '0',
