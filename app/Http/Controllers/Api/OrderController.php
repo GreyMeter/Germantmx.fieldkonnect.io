@@ -621,11 +621,12 @@ class OrderController extends Controller
 
             $customer_parity = $customer->customer_parity;
 
-            $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('model_id', $customer->id)->first();
             if ($customer_parity == 'South Parity') {
                 $price = Price::where('id', 2)->first()->base_price;
+                $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', 2)->where('model_id', $customer->id)->first();
             } else {
                 $price = Price::where('id', 1)->first()->base_price;
+                $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', 1)->where('model_id', $customer->id)->first();
             }
             if ($check_additional_price) {
                 $price = number_format((floatval($price) + floatval($check_additional_price->price_adjustment)), 2, '.', '');
@@ -659,11 +660,12 @@ class OrderController extends Controller
                 ->whereNot('status', '4')
                 ->sum('qty');
 
-            $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('model_id', $request['customer_id'])->first();
             if ($customer_parity == 'South Parity') {
                 $price = Price::where('id', 2)->first()->base_price;
+                $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', 2)->where('model_id', $request['customer_id'])->first();
             } else {
                 $price = Price::where('id', 1)->first()->base_price;
+                $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', 1)->where('model_id', $request['customer_id'])->first();
             }
             if ($check_additional_price) {
                 $price = number_format((floatval($price) + floatval($check_additional_price->price_adjustment)), 2, '.', '');
@@ -1379,7 +1381,7 @@ class OrderController extends Controller
             if ($validator->fails()) {
                 return response()->json(['status' => 'error', 'message' =>  $validator->errors()], $this->badrequest);
             }
-            if(isset($request->consignee_details) && !empty($request->consignee_details)){
+            if (isset($request->consignee_details) && !empty($request->consignee_details)) {
                 $fOrder = OrderConfirm::where('id', $request->id)->first();
                 OrderConfirm::where('confirm_po_no', $fOrder->confirm_po_no)->update([
                     'consignee_details' => $request->consignee_details,

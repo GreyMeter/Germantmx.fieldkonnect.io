@@ -479,6 +479,15 @@ class OrderController extends Controller
             $orders->status = '4';
             $orders->cancel_remark = $request->remark;
             $orders->save();
+            $dipatchO = OrderDispatch::where('order_id', '=', $orders->id)->get();
+            if($dipatchO && count($dipatchO) > 0){
+                foreach ($dipatchO as $key => $value) {
+                    OrderDispactchDetails::where('order_dispatch_po_no', '=', $value->dispatch_po_no)->delete();
+                    $value->delete();
+                }
+            }
+            OrderConfirm::where('order_id', $orderid)->delete();
+            $orders->delete();
             return response()->json(['status' => 'success', 'message' => 'Booking cancle successfully !!']);
         } else {
             return response()->json(['status' => 'error', 'message' => 'Booking not found !!']);

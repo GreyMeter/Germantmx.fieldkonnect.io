@@ -310,7 +310,7 @@
     function addJquery() {
       let syncingBrands = false;
 
-      $(document).on('change', '.brand_change, .grade_change, .size_change', function() {
+      $(document).on('change', '.brand_change, .grade_change, .size_change, .material_change', function() {
           if (syncingBrands) return;
 
           // Sync brand values

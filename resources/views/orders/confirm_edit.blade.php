@@ -436,9 +436,12 @@
 
     let syncingBrands = false;
 
-    $(document).on('change', '.brand_change, .grade_change, .size_change', function() {
-      // Sync brand values
-      let firstValue = null;
+    $(document).on('change', '.brand_change, .grade_change, .size_change, .material_change', function() {
+          if (syncingBrands) return;
+
+          // Sync brand values
+          let firstValue = null;
+          let firstValueM = null;
           $('.brand_change').each(function () {
               let val = $(this).val();
               if (val) {
@@ -446,11 +449,27 @@
                   return false; // break
               }
           });
-
+          
           if (firstValue !== null) {
+            syncingBrands = true; // Prevent recursion
+            $('.brand_change').each(function () {
+              $(this).val(firstValue);
+            });
+            syncingBrands = false;
+          }
+
+          // Sync material values
+          $('.material_change').each(function () {
+              let val = $(this).val();
+              if (val) {
+                firstValueM = val;
+                  return false; // break
+              }
+          });
+          if (firstValueM !== null) {
               syncingBrands = true; // Prevent recursion
-              $('.brand_change').each(function () {
-                  $(this).val(firstValue);
+              $('.material_change').each(function () {
+                  $(this).val(firstValueM);
               });
               syncingBrands = false;
           }
