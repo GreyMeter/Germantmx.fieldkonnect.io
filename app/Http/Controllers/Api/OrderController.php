@@ -227,8 +227,13 @@ class OrderController extends Controller
             $customer_parity = $customer->customer_parity;
             if ($customer_parity == 'South Parity') {
                 $price = Price::where('id', 2)->first()->base_price;
+                $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', 2)->where('model_id', $customer->id)->first();
             } else {
                 $price = Price::where('id', 1)->first()->base_price;
+                $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', 1)->where('model_id', $customer->id)->first();
+            }
+            if ($check_additional_price) {
+                $price = number_format((floatval($price) + floatval($check_additional_price->price_adjustment)), 2, '.', '');
             }
 
             $request['base_price'] = $price;
@@ -711,11 +716,12 @@ class OrderController extends Controller
             if ($order_limit_remain < $request->qty) {
                 return response()->json(['status' => 'error', 'message' =>  'The quantity is greater than today\'s limit.'], $this->badrequest);
             }
-            $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('model_id', $customer->id)->first();
             if ($customer_parity == 'South Parity') {
                 $price = Price::where('id', 2)->first()->base_price;
+                $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', 2)->where('model_id', $customer->id)->first();
             } else {
                 $price = Price::where('id', 1)->first()->base_price;
+                $check_additional_price = AdditionalPrice::where('model_name', 'distributor')->where('price_id', 1)->where('model_id', $customer->id)->first();
             }
             if ($check_additional_price) {
                 $price = number_format((floatval($price) + floatval($check_additional_price->price_adjustment)), 2, '.', '');

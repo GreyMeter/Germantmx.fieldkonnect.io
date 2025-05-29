@@ -891,8 +891,9 @@ class OrderController extends Controller
         $orders = OrderConfirm::where('confirm_po_no', $request->order_confirm_id)->get();
         if ($orders) {
             foreach ($orders as $order) {
+                $dispatch_orders_qty = OrderDispatch::where('order_confirm_id', $order->id)->sum('qty');
                 $order->cancel_qty = $order->qty;
-                $order->qty = 0;
+                $order->qty = $dispatch_orders_qty;
                 $order->cancel_remark = $request->remark;
                 $order->status = '4';
                 $order->save();
