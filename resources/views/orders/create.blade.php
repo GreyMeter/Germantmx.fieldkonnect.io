@@ -122,7 +122,7 @@
                 <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
                     <input readonly type="text" name="base_price" id="base_price" class="form-control" value="{!! $orders['base_price']?$orders['base_price']+$orders['discount_amt']:$base_price !!}" maxlength="200" required>
-                    <input type="hidden" name="first_base_price" id="first_base_price" value="{{$base_price}}">
+                    <input type="hidden" name="first_base_price" id="first_base_price" value="{{$orders->exists ? $orders['base_price'] : $base_price}}">
                     @if ($errors->has('base_price'))
                     <div class="error col-lg-12">
                       <p class="text-danger">{{ $errors->first('base_price') }}</p>
@@ -284,7 +284,7 @@
           '<tr> <td>' + counter + '</td>' +
           '<td class="group" style="width:30%"><div class="input_section"><select required name="brand_id[]" class="form-control brand' + counter + ' brand_change"></select></div></td>' +
           '<td style="width:30%" class="subCat"><div class="input_section"><select name="grade_id[]" class="form-control grade' + counter + ' grade_change"></select></div></td>' +
-          '<td style="width:30%" class="subCat"><div class="input_section"><select name="random_cut[]" class="form-control random_cut' + counter + ' random_cut_change"><option value="">Slecte Random Cut</option><option value="10-25">10-25</option><option value="25-35">23-35</option></select></div></td>' +
+          '<td style="width:30%" class="subCat"><div class="input_section"><select name="random_cut[]" class="form-control random_cut' + counter + ' random_cut_change"><option value="">Slecte Random Cut</option><option value="10-25">10-25</option><option value="25-35">25-35</option></select></div></td>' +
           '<td style="width:30%"><div class="input_section"><select required name="category_id[]" class="form-control allsizes size' + counter + ' size_change"></select></div></td>' +
           '<td style="width:30%"><div class="input_section"><select required name="material[]" class="form-control material' + counter + ' material_change"><option value="">Select Material</option><option value="Straight">Straight</option><option value="Bend">Bend</option></select></div></td>' +
           '<td style="width:30%"><div class="input_section"><select required name="loading_add[]" class="form-control loading_add' + counter + ' loading_add_change"><option value="">Select Loading</option><option value="Up">Up</option><option value="Down">Down</option></select></div></td>' +
@@ -462,7 +462,10 @@
             success: function(res) {
               orderLimit = orderLimit - parseFloat(res.today_order_qty || 0) + parseFloat(res.edit_order || 0);
               if (res.final_price != null) {
-                $("#base_price").val(res.final_price);
+                var orderExists = {{ isset($orders) && $orders->exists ? 'true' : 'false' }};
+                if (!orderExists) {
+                  $("#base_price").val(res.final_price);
+                }
 
               }
               if (orderLimit < 1) {

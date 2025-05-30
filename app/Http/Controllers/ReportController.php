@@ -4027,8 +4027,12 @@ class ReportController extends Controller
                 $data->whereIn('customer_id', $customerIds);
             }
 
-            if($request->date && !empty($request->date)) {
-                $data->whereDate('created_at', $request->date);
+            if($request->start_date && !empty($request->start_date)) {
+                $data->whereDate('created_at', '>=', $request->start_date);
+            }
+
+            if($request->end_date && !empty($request->end_date)) {
+                $data->whereDate('created_at', '<=', $request->end_date);
             }
 
             if($request->po_no && !empty($request->po_no)) {
@@ -4071,9 +4075,9 @@ class ReportController extends Controller
                 })
                 ->editColumn('pending', function ($data) {
                     if (count($data->order_confirm) > 0) {
-                        return $data->qty - $data->order_confirm->pluck('qty')->sum();
+                        return round($data->qty - $data->order_confirm->pluck('qty')->sum(), 2);
                     } else {
-                        return $data->qty;
+                        return round($data->qty, 2);
                     }
                 })
                 ->editColumn('base_price', function ($data) {

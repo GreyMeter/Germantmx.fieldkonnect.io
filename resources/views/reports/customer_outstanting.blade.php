@@ -38,7 +38,8 @@
                   @csrf
                   <div class="d-flex flex-wrap flex-row" style="align-items: self-end;">
                     <!-- Date filter -->
-                    <div class="p-2" style="width:150px;"><label for="date">Date</label><input type="text" class="form-control datepicker" id="date" name="date" placeholder="Date" autocomplete="off" readonly></div>
+                    <div class="p-2" style="width:150px;"><label for="start_date">Start Date</label><input type="text" class="form-control datepicker" id="start_date" name="start_date" placeholder="Start Date" autocomplete="off" readonly></div>
+                    <div class="p-2" style="width:150px;"><label for="end_date">End Date</label><input type="text" class="form-control datepicker" id="end_date" name="end_date" placeholder="End Date" autocomplete="off" readonly></div>
                     <!-- PO Number filter -->
                     <div class="p-2" style="width:200px;">
                       <label for="po_no">PO Number</label>
@@ -224,7 +225,8 @@
         url: "{{ route('reports.customer_outstanting') }}",
         data: function(d) {
             d.search = $('#myCustomSearch').val(),
-            d.date = $('#date').val(),
+            d.start_date = $('#start_date').val(),
+            d.end_date = $('#end_date').val(),
             d.po_no = $('#po_no').val(),
             d.customer_id = $('#customer_id').val()
           }
@@ -288,7 +290,12 @@
           }
         ]
       });
-      $('#date').change(function() {
+      $('#start_date').change(function() {
+        var selectedStartDate = $('#start_date').datepicker('getDate');
+      $('#end_date').datepicker("option", "minDate", selectedStartDate);
+        table.draw();
+      });
+      $('#end_date').change(function() {
         table.draw();
       });
       $('#po_no').change(function() {

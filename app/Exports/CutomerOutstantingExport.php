@@ -18,7 +18,8 @@ class CutomerOutstantingExport implements FromCollection, WithHeadings, ShouldAu
 {
     public function __construct($request)
     {
-        $this->date = $request->input('date');
+        $this->start_date = $request->input('start_date');
+        $this->end_date = $request->input('end_date');
         $this->po_no = $request->input('po_no');
         $this->customer_id = $request->input('customer_id');
         $this->dealer_id = $request->input('dealer_id');
@@ -34,8 +35,12 @@ class CutomerOutstantingExport implements FromCollection, WithHeadings, ShouldAu
             $data->whereIn('customer_id', $customerIds);
         }
 
-        if ($this->date && !empty($this->date)) {
-            $data->whereDate('created_at', $this->date);
+        if ($this->start_date && !empty($this->start_date)) {
+            $data->whereDate('created_at', '>=', $this->start_date);
+        }
+
+        if ($this->end_date && !empty($this->end_date)) {
+            $data->whereDate('created_at', '<=', $this->end_date);
         }
 
         if ($this->po_no && !empty($this->po_no)) {

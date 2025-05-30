@@ -220,8 +220,11 @@ class OrderController extends Controller
         $id = decrypt($id);
 
         $orders = Order::find($id);
-        if ($orders->update($request->all())) {
-            return Redirect::to('orders')->with('message_success', 'Booking update Successfully');
+        if ($orders->update([
+            'customer_id' => $request->customer_id,
+            'qty' => $request->qty
+        ])) {
+            return redirect('orders')->with('message_success', 'Booking updated successfully');
         }
 
         return redirect()->back()->with('message_danger', 'Error in Purchases Store')->withInput();
