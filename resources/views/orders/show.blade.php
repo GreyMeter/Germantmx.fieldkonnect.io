@@ -66,6 +66,10 @@
                   <button type="button" class="btn btn-success">This order is fully confirmed</button>
                   @endif
 
+                  @if(auth()->user()->can(['booking_print']))
+                  <button class="btn btn-info" onclick="printDivByClass('invoice')">Print</button>
+                  @endif
+
 
                   <span class="pull-right">
                     <div class="btn-group">

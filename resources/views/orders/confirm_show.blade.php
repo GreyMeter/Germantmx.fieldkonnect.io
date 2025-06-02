@@ -49,8 +49,11 @@
                 @endif --}}
                 <span class="pull-right">
                   <div class="btn-group">
+                  @if(auth()->user()->can(['order_print']))
+                  <button class="btn btn-just-icon btn-theme mr-2" title="Print" onclick="printDivByClass('invoice')"><i class="material-icons">print</i></button>
+                  @endif
                     @if(auth()->user()->can(['order_access']))
-                    <a href="{{ url('orders_confirm') }}" class="btn btn-just-icon btn-theme" title="{!! trans('panel.order.title_singular') !!}{!! trans('panel.global.list') !!}"><i class="material-icons">next_plan</i></a>
+                    <a href="{{ url('orders_confirm') }}" class="btn btn-just-icon btn-theme" title="{!! trans('panel.order.title_singular') !!} {!! trans('panel.global.list') !!}"><i class="material-icons">next_plan</i></a>
                     @endif
                   </div>
                 </span>
@@ -104,7 +107,8 @@
                   <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
                     PO Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['po_no'] !!}</span> <br>
                     Order Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['confirm_po_no'] !!}</span> <br>
-                    Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!} <br><br>
+                    Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!} <br>
+                    Base Price: {!! $orders['order']['base_price'] + $orders['order']['discount'] !!} <br>
                     Created By: {!! $orders['createdbyname']?$orders['createdbyname']['name']:'Self' !!}
                   </address>
                 </div>

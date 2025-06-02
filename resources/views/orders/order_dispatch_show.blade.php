@@ -76,8 +76,11 @@
                 @endif --}}
                 <span class="pull-right">
                   <div class="btn-group">
+                  @if(auth()->user()->can(['dispatch_print']))
+                  <button class="btn btn-just-icon btn-theme mr-2" title="Print" onclick="printDivByClass('invoice')"><i class="material-icons">print</i></button>
+                  @endif
                     @if(auth()->user()->can(['order_access']))
-                    <a href="{{ url('orders_dispatch') }}" class="btn btn-just-icon btn-theme" title="{!! trans('panel.order.title_singular') !!}{!! trans('panel.global.list') !!}"><i class="material-icons">next_plan</i></a>
+                    <a href="{{ url('orders_dispatch') }}" class="btn btn-just-icon btn-theme" title="Dispatch {!! trans('panel.global.list') !!}"><i class="material-icons">next_plan</i></a>
                     @endif
                   </div>
                 </span>
@@ -132,7 +135,8 @@
                     PO Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['po_no'] !!}</span> <br>
                     Order Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['confirm_po_no'] !!}</span> <br>
                     Order Dispatch Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['dispatch_po_no'] !!}</span> <br>
-                    Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!} <br><br>
+                    Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!} <br>
+                    Base Price: {!! $orders['order']['base_price'] + $orders['order']['discount'] !!} <br>
                     Created By: {!! $orders['createdbyname']?$orders['createdbyname']['name']:'Self' !!}
                   </address>
                 </div>
@@ -202,7 +206,7 @@
                           <th>Size</th>
                           <th>Material</th>
                           <th>Total Quantity<small>(Tonn)</small></th>
-                          <th>Special Cut</th>
+                          <th>Loading-Add </th>
                           <th>Base Price<small>(1MT)</small></th>
                           <th>Additional Rate</th>
                           <th>Special Cut</th>
@@ -224,7 +228,7 @@
                           <td>{{$order->sizes ? $order->sizes->category_name : '-'}}</td>
                           <td>{{$order->order_confirm->material ?? ''}}</td>
                           <td><input type="number" {{auth()->user()->can('order_dispatch_update') ? '' : 'readonly'}} class="form-control quantitys" step="0.01" min="0.01" max="{{$order->order_confirm->qty - $order->order_confirm->orderDispatch->reject(function ($dispatch) use ($order) {return $dispatch->id === $order->id;})->sum('qty') }}" name="qty[]" value="{{$order->qty}}"></td>
-                          <td>{{$order->order_confirm->special_cut}}</td>
+                          <td>{{$order->order_confirm->loading_add}}</td>
                           <td>
                             {{$order->base_price ?? ''}}
                           </td>

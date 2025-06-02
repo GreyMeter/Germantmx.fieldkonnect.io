@@ -1481,6 +1481,16 @@
     integrity="sha512-F636MAkMAhtTplahL9F6KmTfxTmYcAcjcCkyu0f0voT3N/6vzAuJ4Num55a0gEJ+hRLHhdz3vDvZpf6kqgEa5w=="
     crossorigin="anonymous" referrerpolicy="no-referrer"></script>
   <script>
+    function printDivByClass(className) {
+      const printContents = document.querySelector('.' + className).innerHTML;
+      const originalContents = document.body.innerHTML;
+
+      document.body.innerHTML = printContents;
+      window.print();
+      document.body.innerHTML = originalContents;
+      location.reload(); // Reload to restore scripts and state
+    }
+
     $(function() {
       $('#toggle-one').bootstrapToggle();
       $('.datetimepicker').datetimepicker({
