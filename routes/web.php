@@ -441,6 +441,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::any('orders-download', [OrderController::class, 'download'])->name('orders.download');
     Route::any('final-orders-download', [OrderController::class, 'final_order_download'])->name('final_orders.download');
+    Route::any('dispatch-orders-download', [OrderController::class, 'dispatch_order_download'])->name('final_orders.download');
     Route::any('order-cancle/{id}', [OrderController::class, 'orderCancle'])->name('orders.orderCancle');
 
     Route::any('check-stock', [OrderController::class, 'checkStock']);

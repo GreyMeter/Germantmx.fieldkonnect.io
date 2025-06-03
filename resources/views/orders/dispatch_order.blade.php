@@ -19,50 +19,16 @@
               <div class="btn-group header-frm-btn">
 
                 @if(auth()->user()->can(['order_dispatch_download']))
-                <form method="GET" action="{{ URL::to('orders-download') }}">
+                <form method="GET" action="{{ URL::to('dispatch-orders-download') }}">
                   <div class="d-flex flex-wrap flex-row">
-                  <div class="p-2" style="width:190px;">
-                      <select class="select2" name="dividion_id" id="dividion_id" required>
-                        <option value="">Select Division</option>
-                        @foreach($divisions as $division)
-                        <option value="{{$division->id}}">{{$division->category_name}}</option>
+                    <div class="p-2" style="width:190px;">
+                      <select class="select2" name="customer_id" id="customer_id">
+                        <option value="">Select Customer</option>
+                        @foreach($customers as $customer)
+                        <option value="{{$customer->id}}">{{$customer->name}}</option>
                         @endforeach
                       </select>
                     </div>
-                    <div class="p-2" style="width:190px;">
-                      <select class="select2" name="retailers_id" id="retailers_id" title="Select Retailers">
-                        <option value="">Select Retailers</option>
-                        @foreach($retailers as $user)
-                        <option value="{!! $user['id'] !!}" {{ old( 'retailers_id') == $user->id ? 'selected' : '' }}>{!! $user['name'] !!}</option>
-                        @endforeach
-                      </select>
-                    </div>
-                    <div class="p-2" style="width:190px;">
-                      <select class="select2" name="customer_type_id" id="customer_type_id" title="Select Retailers">
-                        <option value="">Customer Type</option>
-                        @foreach($customer_types as $customer_type)
-                        <option value="{!! $customer_type['id'] !!}" {{ old( 'customer_type_id') == $customer_type->id ? 'selected' : '' }}>{!! $customer_type['customertype_name'] !!}</option>
-                        @endforeach
-                      </select>
-                    </div>
-                    <div class="p-2" style="width:190px;">
-                      <select class="select2" name="distributor_id" id="distributor_id" title="Select Distributor">
-                        <option value="">Select Distributor</option>
-                        @foreach($distributors as $user)
-                        <option value="{!! $user['id'] !!}" {{ old( 'distributor_id') == $user->id ? 'selected' : '' }}>{!! $user['name'] !!}</option>
-                        @endforeach
-                      </select>
-                    </div>
-
-                    <div class="p-2" style="width:190px;">
-                      <select class="selectpicker" name="pending_status" id="pending_status" data-style="select-with-transition">
-                        <option value="">Select Status</option>
-                        <option value="1">Dispatch</option>
-                        <option value="2">Partial Dispatch</option>
-                        <option value="0">Pending</option>
-                      </select>
-                    </div>
-
                     <div class="p-2"><input type="text" class="form-control datepicker" id="start_date" name="start_date" placeholder="Start Date" autocomplete="off" readonly></div>
                     <div class="p-2"><input type="text" class="form-control datepicker" id="end_date" name="end_date" placeholder="End Date" autocomplete="off" readonly></div>
                     <div class="p-2"><button class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.download') !!} {!! trans('panel.order.title') !!}"><i class="material-icons">cloud_download</i></button></div>

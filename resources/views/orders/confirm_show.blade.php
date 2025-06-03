@@ -108,7 +108,7 @@
                     PO Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['po_no'] !!}</span> <br>
                     Order Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['confirm_po_no'] !!}</span> <br>
                     Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!} <br>
-                    Base Price: {!! $orders['order']['base_price'] + $orders['order']['discount'] !!} <br>
+                    Base Price: {!! $orders['order']['base_price'] + $orders['order']['discount_amt'] !!} <br>
                     Created By: {!! $orders['createdbyname']?$orders['createdbyname']['name']:'Self' !!}
                   </address>
                 </div>

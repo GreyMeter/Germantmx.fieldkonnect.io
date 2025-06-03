@@ -26,6 +26,7 @@ use Gate;
 use Excel;
 use App\DataTables\OrderDataTable;
 use App\DataTables\OrderDispatchDataTable;
+use App\Exports\DispatchOrderExport;
 use App\Exports\FinalOrderExport;
 use App\Exports\OrderEmailExport;
 use App\Imports\OrderImport;
@@ -69,17 +70,15 @@ class OrderController extends Controller
     public function confirm_orders(OrderConfirmDataTable $dataTable)
     {
         abort_if(Gate::denies('order_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $divisions = Category::where('active', 'Y')->get();
-        $customer_types = CustomerType::where('active', 'Y')->get();
-        return $dataTable->render('orders.confirm_orders', compact('divisions', 'customer_types'));
+        $customers = Customers::where('active', 'Y')->get();
+        return $dataTable->render('orders.confirm_orders', compact('customers'));
     }
 
     public function order_dispatch(OrderDispatchDataTable $dataTable)
     {
         abort_if(Gate::denies('order_dispatch'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-        $divisions = Category::where('active', 'Y')->get();
-        $customer_types = CustomerType::where('active', 'Y')->get();
-        return $dataTable->render('orders.dispatch_order', compact('divisions', 'customer_types'));
+        $customers = Customers::where('active', 'Y')->get();
+        return $dataTable->render('orders.dispatch_order', compact('customers'));
     }
 
     /**
@@ -272,6 +271,16 @@ class OrderController extends Controller
         if (ob_get_contents()) ob_end_clean();
         ob_start();
         return Excel::download(new FinalOrderExport($request), 'Final Ordes.xlsx');
+    }
+    public function dispatch_order_download(Request $request)
+    {
+        if($request->ip() !== '111.118.252.250'){
+            return view('work_in_progress');
+        }
+        abort_if(Gate::denies('order_dispatch_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if (ob_get_contents()) ob_end_clean();
+        ob_start();
+        return Excel::download(new DispatchOrderExport($request), 'Dispatch Ordes.xlsx');
     }
     public function template()
     {
@@ -707,6 +716,7 @@ class OrderController extends Controller
                                 'unit_id'          => $orders[$key]->unit_id,
                                 'brand_id'         => $orders[$key]->brand_id,
                                 'category_id'      => $orders[$key]->category_id,
+                                'random_cut'       => $orders[$key]->random_cut,
                                 'plant_id'         => $request->plant_id[$key],
                                 'base_price'       => $request->dispatch_base_price[$key],
                                 'soda_price'       => $request->dispatch_soda_price[$key],

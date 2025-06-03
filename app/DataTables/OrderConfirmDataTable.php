@@ -106,6 +106,12 @@ class OrderConfirmDataTable extends DataTable
             $query->whereDate('created_at', '<=', $request->end_date);
         }
 
+        if ($request->customer_id && !empty($request->customer_id)) {
+            $query->whereHas('order', function ($query) use ($request) {
+                $query->where('customer_id', $request->customer_id);
+            });
+        }
+
         return $query->orderByRaw("CASE WHEN status = 4 THEN 1 ELSE 0 END")
         ->latest();
     }

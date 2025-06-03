@@ -6,7 +6,7 @@ use App\Models\Category;
 use App\Models\Customers;
 use App\Models\Order;
 use App\Models\OrderConfirm;
-use App\Models\OrderDetails;
+use App\Models\OrderDispactchDetails;
 use App\Models\OrderDispatch;
 use DB;
 use Maatwebsite\Excel\Concerns\FromCollection;
@@ -18,7 +18,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Illuminate\Support\Facades\Auth;
 
 
-class FinalOrderExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithEvents
+class DispatchOrderExport implements FromCollection, WithHeadings, WithMapping, ShouldAutoSize, WithEvents
 {
     public function __construct($request)
     {
@@ -35,17 +35,15 @@ class FinalOrderExport implements FromCollection, WithHeadings, WithMapping, Sho
 
     public function collection()
     {
-        return OrderConfirm::with('order', 'brands', 'sizes', 'grades', 'order.customer')
+        return OrderDispatch::with('order', 'brands', 'sizes', 'grades', 'order.customer', 'order_confirm', 'order_dispatch_details')
             ->select([
                 DB::raw('SUM(qty) as total_qty'),
                 DB::raw('GROUP_CONCAT(category_id) as sizes'),
                 DB::raw('GROUP_CONCAT(qty) as qtys'),
-                'special_cut',
                 'brand_id',
-                'consignee_details',
+                'dispatch_po_no',
                 'order_id',
                 'confirm_po_no',
-                'loading_add',
                 DB::raw('COALESCE(unit_id, random_cut) as unit_id'),
             ])
             ->where(function ($query) {
@@ -64,14 +62,14 @@ class FinalOrderExport implements FromCollection, WithHeadings, WithMapping, Sho
                     });
                 }
             })
-            ->groupBy('order_id', 'confirm_po_no', DB::raw('COALESCE(unit_id, random_cut)'))
+            ->groupBy('order_id', 'dispatch_po_no', 'confirm_po_no', DB::raw('COALESCE(unit_id, random_cut)'))
             ->latest()
             ->get();
     }
 
     public function headings(): array
     {
-        $headings = ['PARTY NAME', 'CONSIGNEE/DESTINATION', 'GRADE', 'BRAND', 'SPECIAL CUT', 'TOTAL QTY', 'PENDING TOTAL', 'UP / DOWN'];
+        $headings = ['PARTY NAME', 'CONSIGNEE/DESTINATION', 'GRADE', 'BRAND', 'SPECIAL CUT', 'DISPATCH QTY', 'UP / DOWN', 'DRIVER DETAILS'];
 
         foreach ($this->sizes as $key => $value) {
             $headings[] = $value->category_name . ' MM';
@@ -84,16 +82,16 @@ class FinalOrderExport implements FromCollection, WithHeadings, WithMapping, Sho
     {
         $all_order_size = explode(',', $data['sizes']);
         $all_order_qty = explode(',', $data['qtys']);
-        $dispatch_qty = OrderDispatch::where('order_id', $data['order_id'])->where('confirm_po_no', $data['confirm_po_no'])->whereIn('category_id', $all_order_size)->sum('qty');
         $main_data = [
             $data['order'] ? ($data['order']['customer'] ? $data['order']['customer']['name'] : '-') : '-',
-            $data['consignee_details'],
+            $data['order_confirm']['consignee_details'],
             $data['grades'] ? $data['grades']['unit_name'] : $data['unit_id']. '(Random Cut)',
             $data['brands'] ? $data['brands']['brand_name'] : '-',
-            $data['special_cut'] ? $data['special_cut'] : '-',
+            $data['order_confirm']['special_cut'] ? $data['order_confirm']['special_cut'] : '-',
             $data['total_qty'],
-            $dispatch_qty > 0 ? $data['total_qty'] - $dispatch_qty : $data['total_qty'],
-            $data['loading_add'] ? $data['loading_add'] : '-',
+            // $dispatch_qty > 0 ? $data['total_qty'] - $dispatch_qty : $data['total_qty'],
+            $data['order_confirm']['loading_add'] ? $data['order_confirm']['loading_add'] : '-',
+            $data['order_dispatch_details'] ? $data['order_dispatch_details']['driver_name'].' / '.$data['order_dispatch_details']['driver_contact_number']. ' / '.$data['order_dispatch_details']['vehicle_number'] : '-',
         ];
 
         foreach ($this->sizes as $size) {
