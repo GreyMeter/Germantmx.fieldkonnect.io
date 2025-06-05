@@ -20,6 +20,11 @@ class OrderDispatch extends Model
 
     public function order_confirm()
     {
+        return $this->belongsTo('App\Models\OrderConfirm', 'order_confirm_id', 'id');
+    }
+
+    public function order_confirm_one()
+    {
         return $this->belongsTo('App\Models\OrderConfirm', 'confirm_po_no', 'confirm_po_no');
     }
 

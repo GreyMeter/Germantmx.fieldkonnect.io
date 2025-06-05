@@ -26,6 +26,8 @@ class OrderDataTable extends DataTable
                 $totalOrderConfirmQty = OrderConfirm::where('order_id', $data->id)->sum('qty');
                 if ($data->status == 4) {
                     return '<span class="badge badge-danger">Cancelled</span>';
+                } else if ($data->status == 5) {
+                    return '<span class="badge badge-warning">Squared Off</span>';
                 } else if ($totalOrderConfirmQty > 0 && $data->qty <= $totalOrderConfirmQty) {
                     return '<span class="badge badge-success">Completed</span>';
                 } else if ($totalOrderConfirmQty > 0 && $data->qty > $totalOrderConfirmQty) {
@@ -89,8 +91,6 @@ class OrderDataTable extends DataTable
             $query->whereIn('customer_id', $customerIds);
         }
 
-        $query->newQuery();
-
         if ($request->customer_id && !empty($request->customer_id)) {
             $query->where('customer_id', $request->customer_id);
         }
@@ -103,9 +103,7 @@ class OrderDataTable extends DataTable
             $query->whereDate('created_at', '<=', $request->end_date);
         }
 
-        return $query
-            ->orderByRaw("CASE WHEN status = 4 THEN 1 ELSE 0 END")
-            ->latest();
+        return $query->orderBy("ordering", "asc")->latest();
     }
 
 

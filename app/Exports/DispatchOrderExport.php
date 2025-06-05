@@ -35,7 +35,7 @@ class DispatchOrderExport implements FromCollection, WithHeadings, WithMapping, 
 
     public function collection()
     {
-        return OrderDispatch::with('order', 'brands', 'sizes', 'grades', 'order.customer', 'order_confirm', 'order_dispatch_details')
+        return OrderDispatch::with('order', 'brands', 'sizes', 'grades', 'order.customer', 'order_confirm_one', 'order_dispatch_details')
             ->select([
                 DB::raw('SUM(qty) as total_qty'),
                 DB::raw('GROUP_CONCAT(category_id) as sizes'),
@@ -84,13 +84,13 @@ class DispatchOrderExport implements FromCollection, WithHeadings, WithMapping, 
         $all_order_qty = explode(',', $data['qtys']);
         $main_data = [
             $data['order'] ? ($data['order']['customer'] ? $data['order']['customer']['name'] : '-') : '-',
-            $data['order_confirm']['consignee_details'],
+            $data['order_confirm_one']['consignee_details'],
             $data['grades'] ? $data['grades']['unit_name'] : $data['unit_id']. '(Random Cut)',
             $data['brands'] ? $data['brands']['brand_name'] : '-',
-            $data['order_confirm']['special_cut'] ? $data['order_confirm']['special_cut'] : '-',
+            $data['order_confirm_one']['special_cut'] ? $data['order_confirm_one']['special_cut'] : '-',
             $data['total_qty'],
             // $dispatch_qty > 0 ? $data['total_qty'] - $dispatch_qty : $data['total_qty'],
-            $data['order_confirm']['loading_add'] ? $data['order_confirm']['loading_add'] : '-',
+            $data['order_confirm_one']['loading_add'] ? $data['order_confirm_one']['loading_add'] : '-',
             $data['order_dispatch_details'] ? $data['order_dispatch_details']['driver_name'].' / '.$data['order_dispatch_details']['driver_contact_number']. ' / '.$data['order_dispatch_details']['vehicle_number'] : '-',
         ];
 

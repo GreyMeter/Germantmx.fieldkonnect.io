@@ -119,6 +119,7 @@
                 <th>Plant</th>
                 {{-- <th>material</th> --}}
                 <th>Quantity<small>(Tonn)</small></th>
+                <th>Driver Status</th>
                 {{-- <th>Base Price<small>(1MT)</small></th> --}}
                 {{-- <th>Booking Price</th> --}}
                 <th>{!! trans('panel.global.created_by') !!}</th>
@@ -173,10 +174,9 @@
         ajax: {
           url: "{{ route('orders.dispatch.list') }}",
           data: function(d) {
-            d.retailers_id = $('#retailers_id').val();
-            d.distributor_id = $('#distributor_id').val();
-            d.customer_type_id = $('#customer_type_id').val();
-            d.pending_status = $('#pending_status').val();
+            d.customer_id = $('#customer_id').val();
+            d.start_date = $('#start_date').val();
+            d.end_date = $('#end_date').val();
           }
         },
         columns: [
@@ -248,12 +248,13 @@
             "defaultContent": '',
             orderable: false
           },
-          // {
-          //   data: 'base_price',
-          //   name: 'base_price',
-          //   "defaultContent": '',
-          //   orderable: false
-          // },
+          {
+            data: 'driver_status',
+            name: 'driver_status',
+            "defaultContent": '',
+            orderable: false,
+            searchable: false
+          },
           // {
           //   data: 'soda_price',
           //   name: 'soda_price',
@@ -283,14 +284,14 @@
         ]
       });
 
-      $('#retailers_id').change(function() {
+      $('#customer_id').change(function() {
         table.draw();
       });
 
-      $('#distributor_id').change(function() {
+      $('#start_date').change(function() {
         table.draw();
       });
-      $('#customer_type_id').change(function() {
+      $('#end_date').change(function() {
         table.draw();
       });
       $('#pending_status').change(function() {

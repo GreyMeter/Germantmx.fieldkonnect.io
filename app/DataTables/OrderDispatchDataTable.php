@@ -4,6 +4,7 @@ namespace App\DataTables;
 
 use App\Models\EmployeeDetail;
 use App\Models\OrderDispatch;
+use Illuminate\Http\Request;
 use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Html\Editor\Editor;
@@ -26,6 +27,13 @@ class OrderDispatchDataTable extends DataTable
             ->editColumn('qty', function ($data) {
                 return isset($data->total_qty) ? $data->total_qty : '';
             })
+            ->editColumn('driver_status', function ($data) {
+                return ($data->order_dispatch_details &&
+                    $data->order_dispatch_details->driver_name &&
+                    $data->order_dispatch_details->driver_contact_number &&
+                    $data->order_dispatch_details->vehicle_number)
+                    ? 'Yes' : 'No';
+            })
             ->addColumn('action', function ($query) {
                 $btn = '';
                 $activebtn = '';
@@ -35,7 +43,7 @@ class OrderDispatchDataTable extends DataTable
                 //                 </a>';
                 // }
                 // if (auth()->user()->can(['order_show'])) {
-                    $btn = $btn . '<a href="' . url("orders_dispatch/" . encrypt($query->id)) . '" class="btn btn-theme btn-just-icon btn-sm" title="' . trans('panel.global.show') . ' ' . trans('panel.order.title_singular') . '">
+                $btn = $btn . '<a href="' . url("orders_dispatch/" . encrypt($query->id)) . '" class="btn btn-theme btn-just-icon btn-sm" title="' . trans('panel.global.show') . ' ' . trans('panel.order.title_singular') . '">
                                     <i class="material-icons">visibility</i>
                                 </a>';
                 // }
@@ -67,11 +75,26 @@ class OrderDispatchDataTable extends DataTable
      * @return \Illuminate\Database\Eloquent\Builder
      */
 
-    public function query(OrderDispatch $model)
+    public function query(OrderDispatch $model, Request $request)
     {
         $userids = getUsersReportingToAuth();
 
-        $query = $model->with('order_confirm','brands', 'sizes', 'grades', 'order.customer', 'createdbyname', 'plant')->selectRaw('*, SUM(qty) as total_qty')->groupBy('dispatch_po_no');
+        $query = $model->with('order_confirm', 'brands', 'sizes', 'grades', 'order.customer', 'createdbyname', 'plant', 'order_dispatch_details')
+            ->selectRaw('
+                        *,
+                        SUM(qty) as total_qty,
+                        CASE
+                            WHEN EXISTS (
+                                SELECT 1 FROM order_dispactch_details odd
+                                WHERE odd.order_dispatch_po_no = order_dispatches.dispatch_po_no
+                                AND odd.driver_name IS NOT NULL
+                                AND odd.driver_contact_number IS NOT NULL
+                                AND odd.vehicle_number IS NOT NULL
+                            )
+                            THEN 1
+                            ELSE 0
+                        END AS has_driver_info
+                        ')->groupBy('dispatch_po_no');
 
         if (!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin')) {
             $customerIds = EmployeeDetail::where('user_id', Auth::user()->id)->pluck('customer_id');
@@ -80,18 +103,24 @@ class OrderDispatchDataTable extends DataTable
             });
         }
 
-        
+
         $query->newQuery();
 
-        if (request()->has('retailers_id') && request()->get('retailers_id') != '') {
-            $query->where('buyer_id', request()->get('retailers_id'));
+        if ($request->start_date && !empty($request->start_date)) {
+            $query->whereDate('created_at', '>=', $request->start_date);
         }
 
-        if (request()->has('retailers_id') && request()->get('retailers_id') != '') {
-            $query->where('buyer_id', request()->get('retailers_id'));
+        if ($request->end_date && !empty($request->end_date)) {
+            $query->whereDate('created_at', '<=', $request->end_date);
         }
 
-        return $query->latest();
+        if ($request->customer_id && !empty($request->customer_id)) {
+            $query->whereHas('order', function ($query) use ($request) {
+                $query->where('customer_id', $request->customer_id);
+            });
+        }
+
+        return $query->orderBy('has_driver_info', 'asc')->latest();
     }
 
 

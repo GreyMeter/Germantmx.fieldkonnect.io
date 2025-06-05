@@ -1495,7 +1495,7 @@ class AjaxController extends Controller
 
     public function squaredOffBooking(Request $request)
     {
-        $update = Order::where('id', $request->id)->update(['status' => '5']);
+        $update = Order::where('id', $request->id)->update(['status' => '5', 'ordering' => 4]);
 
         if ($update) {
             return response()->json(['status' => true, 'msg' => 'Booking Squared Off Successfully !!']);

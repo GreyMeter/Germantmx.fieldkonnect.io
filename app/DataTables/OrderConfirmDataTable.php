@@ -112,8 +112,7 @@ class OrderConfirmDataTable extends DataTable
             });
         }
 
-        return $query->orderByRaw("CASE WHEN status = 4 THEN 1 ELSE 0 END")
-        ->latest();
+        return $query->orderBy("ordering", "asc")->latest();
     }
 
 

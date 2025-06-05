@@ -65,19 +65,26 @@ class OrderController extends Controller
             $user_ids = getUsersReportingToAuth($user->id);
             $pageSize = $request->input('pageSize');
             $customer_ids = EmployeeDetail::where('user_id', $user->id)->pluck('customer_id');
-
-            $data = Order::with('customer:id,name');
-            if (!$user->hasRole('superadmin')) {
-                $data->WhereIn('customer_id', $customer_ids);
-            }
-
-            $data = $data->select('id', 'po_no', 'qty', 'base_price', 'discount_amt', 'created_at', 'customer_id')
+            $query = Order::with('customer:id,name')
+                ->select('id', 'po_no', 'qty', 'base_price', 'discount_amt', 'created_at', 'customer_id', 'ordering')
                 ->selectRaw('base_price + discount_amt as base_price')
-                ->orderBy('id', 'desc');
-            $data = (!empty($pageSize)) ? $data->paginate($pageSize) : $data->get();
-            if ($data && count($data) > 0) {
-                return response()->json(['status' => 'success', 'message' => 'Data retrieved successfully.', 'data' => $data], $this->successStatus);
+                ->orderBy('ordering', 'asc')
+                ->latest();
+
+            if (!$user->hasRole('superadmin')) {
+                $query->whereIn('customer_id', $customer_ids);
             }
+
+            $data = !empty($pageSize) ? $query->paginate($pageSize) : $query->get();
+
+            if ($data->isNotEmpty()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Data retrieved successfully.',
+                    'data' => $data
+                ], $this->successStatus);
+            }
+
             return response(['status' => 'error', 'message' => 'No Record Found.'], 200);
         } catch (\Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
@@ -562,7 +569,7 @@ class OrderController extends Controller
             $data = Order::where('customer_id', $customer->id)
                 ->select('id', 'po_no', 'qty', 'base_price', 'discount_amt', 'created_at')
                 ->selectRaw('base_price + discount_amt as base_price')
-                ->orderBy('id', 'desc')
+                ->orderBy("ordering", "asc")->latest()
                 ->get();
 
             return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
@@ -920,6 +927,13 @@ class OrderController extends Controller
 
                 $orderConfirm = OrderConfirm::create($data);
             }
+            $totalOrderConfirmQty = OrderConfirm::where('order_id', $request->soda_id)->sum('qty');
+            if ($totalOrderConfirmQty >= $soda->qty) {
+                Order::where('id', $request->soda_id)->update(['ordering' => 3]);
+            } else {
+                Order::where('id', $request->soda_id)->update(['ordering' => 2]);
+            }
+
             $Ndata['type'] = 'Order Comfirmed';
             $Ndata['data'] = $tqty . ' Quantity confirmed of PO Number ' . $soda->po_no . ' .';
             $Ndata['customer_id'] = $soda->customer_id;
@@ -1082,6 +1096,14 @@ class OrderController extends Controller
 
                 $orderConfirm = OrderConfirm::create($data);
             }
+
+            $totalOrderConfirmQty = OrderConfirm::where('order_id', $request->soda_id)->sum('qty');
+            if ($totalOrderConfirmQty >= $soda->qty) {
+                Order::where('id', $request->soda_id)->update(['ordering' => 3]);
+            } else {
+                Order::where('id', $request->soda_id)->update(['ordering' => 2]);
+            }
+
             $Ndata['type'] = 'Order Comfirmed';
             $Ndata['data'] = $tqty . ' Quantity confirmed of PO Number ' . $soda->po_no . ' .';
             $Ndata['customer_id'] = $soda->customer_id;

@@ -303,7 +303,7 @@ class ReportController extends Controller
                     }
                 })
                 ->select('id', 'checkin_date', 'checkin_time', 'user_id', 'customer_id', 'checkout_time', 'beatscheduleid')
-                ->latest();
+                ->orderBy('checkin_date', 'desc')->get();
             return Datatables::of($data)
                 ->addIndexColumn()
                 ->addColumn('visit_time', function ($query) {

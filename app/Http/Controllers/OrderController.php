@@ -274,9 +274,6 @@ class OrderController extends Controller
     }
     public function dispatch_order_download(Request $request)
     {
-        if($request->ip() !== '111.118.252.250'){
-            return view('work_in_progress');
-        }
         abort_if(Gate::denies('order_dispatch_download'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         if (ob_get_contents()) ob_end_clean();
         ob_start();
@@ -489,6 +486,7 @@ class OrderController extends Controller
         $orders = $this->orders->find($orderid);
         if ($orders) {
             $orders->status = '4';
+            $orders->ordering = '4';
             $orders->cancel_remark = $request->remark;
             $orders->save();
             $dipatchO = OrderDispatch::where('order_id', '=', $orders->id)->get();
@@ -641,6 +639,13 @@ class OrderController extends Controller
             $soda = OrderConfirm::create($data);
         }
 
+        $totalOrderConfirmQty = OrderConfirm::where('order_id', $id)->sum('qty');
+        if($totalOrderConfirmQty >= $orders->qty){
+            Order::where('id', $id)->update(['ordering' => 3]);
+        }else{
+            Order::where('id', $id)->update(['ordering' => 2]);
+        }
+
         $Ndata['type'] = 'Order Comfirmed';
         $Ndata['data'] = $tqty . ' Quantity confirmed of PO Number ' . $request['po_no'] . ' .';
         $Ndata['customer_id'] = $orders['customer_id'];
@@ -775,6 +780,12 @@ class OrderController extends Controller
                             ->usingFileName($customname)
                             ->toMediaCollection('wevrage_slip', 'public');
                     }
+                }
+                $disOrderQty = OrderDispatch::where('confirm_po_no', $id)->sum('qty');
+                if($disOrderQty >= $orders->sum('qty')){
+                    OrderConfirm::where(['confirm_po_no' => $id])->update(['ordering' => '3']);
+                }else{
+                    OrderConfirm::where(['confirm_po_no' => $id])->update(['ordering' => '2']);
                 }
                 return Redirect::to('orders_confirm')->with('message_success', 'Order Dispatch Successfully.');
             } else {
@@ -911,6 +922,12 @@ class OrderController extends Controller
                 $order->status = '4';
                 $order->save();
             }
+            $orderDispatchQty = OrderDispatch::where('confirm_po_no', $request->order_confirm_id)->sum('qty');
+
+            if($orderDispatchQty <= 0 && $orders->sum('qty') <= 0){
+                OrderConfirm::where('confirm_po_no', $request->order_confirm_id)->update(['ordering' => '4']);
+            }
+
             return response()->json(['status' => 'success', 'message' => 'Order cancle successfully !!']);
         } else {
             return response()->json(['status' => 'error', 'message' => 'Order not found !!']);
