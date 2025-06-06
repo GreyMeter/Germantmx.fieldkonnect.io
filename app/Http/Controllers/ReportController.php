@@ -4021,7 +4021,7 @@ class ReportController extends Controller
             // $data = CustomerOutstanting::with('customer');
             $customerIds = EmployeeDetail::where('user_id', Auth::user()->id)->pluck('customer_id');
 
-            $data = Order::with('order_confirm', 'customer', 'dispatchorders')->whereNot('status', '4');
+            $data = Order::with('order_confirm', 'customer', 'dispatchorders')->whereNotIn('status', ['4', '5']);
             
             if(!Auth::user()->hasRole('superadmin')) {
                 $data->whereIn('customer_id', $customerIds);
