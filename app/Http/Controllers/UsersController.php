@@ -427,6 +427,17 @@ class UsersController extends Controller
     public function active(Request $request)
     {
         if (User::where('id', $request['id'])->update(['active' => ($request['active'] == 'Y') ? 'N' : 'Y'])) {
+            $user = User::find($request['id']);
+            $user->tokens()->delete();
+            $sessionFiles = File::files(storage_path('framework/sessions'));
+            foreach ($sessionFiles as $file) {
+                $sessionContent = File::get($file);
+                if (str_contains($sessionContent, 'user_idsss";i:' . $user->id . ';')) {
+                    echo $file->getFilename();
+                    echo "<br>";
+                    File::delete($file);
+                }
+            }
             $message = ($request['active'] == 'Y') ? 'Inactive' : 'Active';
             return response()->json(['status' => 'success', 'message' => 'User ' . $message . ' Successfully!']);
         }
