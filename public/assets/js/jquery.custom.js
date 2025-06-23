@@ -32,19 +32,31 @@ $(".getimage2").change(function(){
 
 function readURL3(input) {
   if (input.files && input.files[0]) {
-    var reader = new FileReader();
-    
-    reader.onload = function (e) {
+    const file = input.files[0];
+    const fileType = file.type;
+
+    if (fileType === "application/pdf") {
+      // Show PDF icon
+      $('.imagepreview3').attr('src', 'path/to/pdf-icon.png'); // Change path to your PDF icon
+    } else if (fileType.startsWith('image/')) {
+      // Show image preview
+      const reader = new FileReader();
+      reader.onload = function (e) {
         $('.imagepreview3').attr('src', e.target.result);
+      }
+      reader.readAsDataURL(file);
+    } else {
+      // Unsupported file type
+      $('.imagepreview3').attr('src', ''); // Or show a default "unsupported" icon
+      alert('Unsupported file type');
     }
-    
-    reader.readAsDataURL(input.files[0]);
   }
 }
 
-$(".getimage3").change(function(){
+$(".getimage3").change(function () {
   readURL3(this);
 });
+
 
 function readURL4(input) {
   if (input.files && input.files[0]) {

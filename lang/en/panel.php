@@ -649,7 +649,7 @@ return [
             'aadhar_image'     => 'Aadhar Image',
             'aadhar_front_image'     => 'Aadhar Fornt Image',
             'aadhar_back_image'     => 'Aadhar Back Image',
-            'bank_passbook_image'     => 'Bank Passbook Image',
+            'bank_passbook_image'     => 'Bank Image',
             'account_holder'     => 'Account Holder Name',
             'account_number'     => 'Account number',
             'bank_name'     => 'Bank Name',

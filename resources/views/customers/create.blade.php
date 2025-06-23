@@ -47,10 +47,11 @@
               <div class="col-md-3 ml-auto mr-auto">
                 <div class="fileinput fileinput-new text-center" data-provides="fileinput">
                   <div class="selectThumbnail">
+                    <p style="color: #000;float: left;font-size: 16px;">Click to Upload</p>
                     <span class="btn btn-just-icon btn-round btn-file">
                       <span class="fileinput-new"><i class="fa fa-pencil"></i></span>
                       <span class="fileinput-exists">Change</span>
-                      <input type="file" name="image" class="getimage7" accept="image/*">
+                      <input type="file" name="image" class="getimage7" accept="image/*,application/pdf">
                     </span>
                     <br>
                     <a href="#pablo" class="btn btn-danger btn-round fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Remove</a>
@@ -70,10 +71,11 @@
               <div class="col-md-3 ml-auto mr-auto">
                 <div class="fileinput fileinput-new text-center" data-provides="fileinput">
                   <div class="selectThumbnail">
+                    <p style="color: #000;float: left;font-size: 16px;">Click to Upload</p>
                     <span class="btn btn-just-icon btn-round btn-file">
                       <span class="fileinput-new"><i class="fa fa-pencil"></i></span>
                       <span class="fileinput-exists">Change</span>
-                      <input type="file" name="profileImage" class="getimage8" accept="image/*">
+                      <input type="file" name="profileImage" class="getimage8" accept="image/*,application/pdf">
                     </span>
                     <br>
                     <a href="#pablo" class="btn btn-danger btn-round fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Remove</a>
@@ -289,7 +291,7 @@
 
               <div class="col-md-6">
                 <div class="row">
-                  <label class="col-md-3 col-form-label">{!! trans('panel.global.contact_number_two') !!}<span class="text-danger"> *</span></label>
+                  <label class="col-md-3 col-form-label">{!! trans('panel.global.contact_number_two') !!}</label>
                   <div class="col-md-9">
                     <div class="form-group has-default bmd-form-group">
                       <input type="text" name="contact_number" id="contact_number" class="form-control" value="{!! old( 'contact_number', $customers['contact_number']) !!}" maxlength="13" minlength="10">
@@ -780,10 +782,11 @@
               <div class="col-md-2 col-sm-2">
                 <div class="fileinput fileinput-new text-center" data-provides="fileinput">
                   <div class="selectThumbnail">
+                    <p style="color: #000;float: left;font-size: 16px;">Click to Upload</p>
                     <span class="btn btn-just-icon btn-round btn-file">
                       <span class="fileinput-new"><i class="fa fa-pencil"></i></span>
                       <span class="fileinput-exists">Change</span>
-                      <input type="file" name="imggstin" class="getimage1" accept="image/*">
+                      <input type="file" name="imggstin" class="getimage1" accept="image/*,application/pdf">
                     </span>
                     <br>
                     <a href="#pablo" class="btn btn-danger btn-round fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Remove</a>
@@ -803,10 +806,11 @@
               <div class="col-md-2 col-sm-2">
                 <div class="fileinput fileinput-new text-center" data-provides="fileinput">
                   <div class="selectThumbnail">
+                    <p style="color: #000;float: left;font-size: 16px;">Click to Upload</p>
                     <span class="btn btn-just-icon btn-round btn-file">
                       <span class="fileinput-new"><i class="fa fa-pencil"></i></span>
                       <span class="fileinput-exists">Change</span>
-                      <input type="file" name="imgpan" class="getimage2" accept="image/*">
+                      <input type="file" name="imgpan" class="getimage2" accept="image/*,application/pdf">
                     </span>
                     <br>
                     <a href="#pablo" class="btn btn-danger btn-round fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Remove</a>
@@ -821,10 +825,11 @@
               <div class="col-md-2 col-sm-2">
                 <div class="fileinput fileinput-new text-center" data-provides="fileinput">
                   <div class="selectThumbnail">
+                    <p style="color: #000;float: left;font-size: 16px;">Click to Upload</p>
                     <span class="btn btn-just-icon btn-round btn-file">
                       <span class="fileinput-new"><i class="fa fa-pencil"></i></span>
                       <span class="fileinput-exists">Change</span>
-                      <input type="file" name="imgaadhar" class="getimage3" accept="image/*">
+                      <input type="file" name="imgaadhar" class="getimage3" accept="image/*,application/pdf">
                     </span>
                     <br>
                     <a href="#pablo" class="btn btn-danger btn-round fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Remove</a>
@@ -839,10 +844,11 @@
               <div class="col-md-2 col-sm-2">
                 <div class="fileinput fileinput-new text-center" data-provides="fileinput">
                   <div class="selectThumbnail">
+                    <p style="color: #000;float: left;font-size: 16px;">Click to Upload</p>
                     <span class="btn btn-just-icon btn-round btn-file">
                       <span class="fileinput-new"><i class="fa fa-pencil"></i></span>
                       <span class="fileinput-exists">Change</span>
-                      <input type="file" name="imgaadharback" class="getimage4" accept="image/*">
+                      <input type="file" name="imgaadharback" class="getimage4" accept="image/*,application/pdf">
                     </span>
                     <br>
                     <a href="#pablo" class="btn btn-danger btn-round fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Remove</a>
@@ -857,10 +863,11 @@
               <div class="col-md-2 col-sm-2">
                 <div class="fileinput fileinput-new text-center" data-provides="fileinput">
                   <div class="selectThumbnail">
+                    <p style="color: #000;float: left;font-size: 16px;">Click to Upload</p>
                     <span class="btn btn-just-icon btn-round btn-file">
                       <span class="fileinput-new"><i class="fa fa-pencil"></i></span>
                       <span class="fileinput-exists">Change</span>
-                      <input type="file" name="imgbankpass" class="getimage5" accept="image/*">
+                      <input type="file" name="imgbankpass" class="getimage5" accept="image/*,application/pdf">
                     </span>
                     <br>
                     <a href="#pablo" class="btn btn-danger btn-round fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Remove</a>
@@ -875,10 +882,11 @@
               <div class="col-md-2 col-sm-2">
                 <div class="fileinput fileinput-new text-center" data-provides="fileinput">
                   <div class="selectThumbnail">
+                    <p style="color: #000;float: left;font-size: 16px;">Click to Upload</p>
                     <span class="btn btn-just-icon btn-round btn-file">
                       <span class="fileinput-new"><i class="fa fa-pencil"></i></span>
                       <span class="fileinput-exists">Change</span>
-                      <input type="file" name="imgother" class="getimage6" accept="image/*">
+                      <input type="file" name="imgother" class="getimage6" accept="image/*,application/pdf">
                     </span>
                     <br>
                     <a href="#pablo" class="btn btn-danger btn-round fileinput-exists" data-dismiss="fileinput"><i class="fa fa-times"></i> Remove</a>

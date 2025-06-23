@@ -76,6 +76,7 @@ use App\Http\Controllers\FieldKonnectAppSettings;
 use App\Http\Controllers\PlantController;
 use App\Http\Controllers\PriceController;
 use App\Http\Controllers\SouthPriceController;
+use App\Http\Controllers\ZoneController;
 
 /*
 |--------------------------------------------------------------------------
@@ -699,6 +700,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::any('mechanicsPoints-download', [ReportController::class, 'mechanicsPointsDownload']);
     Route::any('targetAchievement-download', [ReportController::class, 'targetAchievementDownload']);
     Route::any('reports/attendancereportSummary', [ReportController::class, 'attendancereportSummary']);
+
+    //Zones
+    Route::resource('zones', ZoneController::class);
+    Route::any('zone-download', [ZoneController::class, 'download'])->name('zones.download');
+    Route::any('zone-upload', [ZoneController::class, 'upload'])->name('zones.upload');
 
     //Tours
     Route::resource('tours', TourController::class);

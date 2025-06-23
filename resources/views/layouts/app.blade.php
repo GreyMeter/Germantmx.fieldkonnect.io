@@ -789,13 +789,14 @@
                   </li>
                   @endif
 
-                  @if(auth()->user()->can(['distributor_access']))
-                  <!-- <li class="nav-item {{ request()->is('distributors*') ? 'active' : '' }}">
-                    <a class="nav-link" href="{{ url('distributors') }}">
-                      <i class="material-icons">store</i>
-                      <p>{!! trans('panel.sidemenu.distributors') !!}</p>
+                  @if(auth()->user()->can(['zone_access']))
+                  <li class="nav-link-btn {{ request()->is('zones*') ? 'active' : '' }}">
+                    <a class="hoveradd2" href="{{ url('zones') }}">
+                      <i class="material-icons icon">store</i>
+                      <span>Zones</span>
+                      <div class="d-none mobile_hide">Zones </div>
                     </a>
-                  </li> -->
+                  </li>
                   @endif
 
                   @if(auth()->user()->can('customertype_access'))
@@ -814,8 +815,8 @@
                   <li class="nav-link-btn {{ request()->is('customer_outstanting*') ? 'active' : '' }}">
                     <a class="hoveradd2" href="{{ url('customer_outstanting') }}">
                       <i class="material-icons icon">nature_people</i>
-                      <span>Cutomer Outstanding</span>
-                      <div class="d-none mobile_hide"> Cutomer Outstanding</div>
+                      <span>Pendency Report</span>
+                      <div class="d-none mobile_hide"> Pendency Report</div>
                     </a>
                   </li>
                   @endif

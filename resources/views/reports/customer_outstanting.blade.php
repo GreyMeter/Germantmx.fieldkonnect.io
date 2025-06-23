@@ -30,7 +30,7 @@
           <div class="card-icon">
             <i class="material-icons">perm_identity</i>
           </div>
-          <h4 class="card-title">Customer Outstanding
+          <h4 class="card-title">Pendency Report
             <span class="">
               <div class="btn-group header-frm-btn">
                 @if(auth()->user()->can(['customer_outstanting_download']))
