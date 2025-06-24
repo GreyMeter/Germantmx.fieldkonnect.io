@@ -418,6 +418,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::any('stock_template', [ProductController::class, 'stock_template'])->name('stock.template');
     Route::post('stock/upload', [ProductController::class, 'stock_upload'])->name('stock.upload');
     Route::any('stock/download', [ProductController::class, 'stock_download'])->name('stock.download');
+    Route::any('stock_change', [ProductController::class, 'stock_change'])->name('stock.change');
 
     // Random Stock
     Route::any('random_stock', [ProductController::class, 'random_stock'])->name('random_stock');

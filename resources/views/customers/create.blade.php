@@ -367,9 +367,48 @@
                         <option value="South Parity" {{($customers && $customers['customer_parity'] == 'South Parity')? 'selected':''}}>South Parity</option>
                       </select>
                     </div>
-                    @if ($errors->has('order_limit'))
+                    @if ($errors->has('customer_parity'))
                     <div class="error col-lg-12">
-                      <p class="text-danger">{{ $errors->first('order_limit') }}</p>
+                      <p class="text-danger">{{ $errors->first('customer_parity') }}</p>
+                    </div>
+                    @endif
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="row">
+                  <label class="col-md-3 col-form-label">Zone</small></label>
+                  <div class="col-md-9">
+                    <div class="form-group has-default bmd-form-group">
+                      <select name="zone_id" id="zone_id" class="form-control select2">
+                        <option value="">Select Zone</option>
+                        @if(@isset($zones ))
+                        @foreach($zones as $zone)
+                        <option value="{{$zone->id}}" {{($customers && $customers['zone_id'] == $zone->id)? 'selected':''}}>{{$zone->name}}</option>
+                        @endforeach
+                        @endif
+                      </select>
+                    </div>
+                    @if ($errors->has('zone_id'))
+                    <div class="error col-lg-12">
+                      <p class="text-danger">{{ $errors->first('zone_id') }}</p>
+                    </div>
+                    @endif
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <div class="row">
+                  <label class="col-md-3 col-form-label">Customer PO No</small></label>
+                  <div class="col-md-9">
+                    <div class="form-group has-default bmd-form-group">
+                      <input type="text" name="customer_po_no" id="customer_po_no" class="form-control" value="{!! old( 'customer_po_no', $customers['customer_po_no']) !!}">
+                    </div>
+                    @if ($errors->has('customer_po_no'))
+                    <div class="error col-lg-12">
+                      <p class="text-danger">{{ $errors->first('customer_po_no') }}</p>
                     </div>
                     @endif
                   </div>
@@ -1008,7 +1047,7 @@
       </div>
     </div>
   </div>
-  <script src="{{ url('/').'/'.asset('assets/js/jquery.custom.js') }}"></script>
+  <script src="{{ url('/').'/'.asset('assets/js/jquery.custom.js?v=' . now()->timestamp) }}"></script>
   <script src="{{ url('/').'/'.asset('assets/js/validation_customers.js') }}"></script>
   <script type="text/javascript">
     $(function() {

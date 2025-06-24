@@ -14,7 +14,7 @@ class Customers extends Authenticatable
 
     protected $table = 'customers';
 
-    protected $fillable = ['active', 'name', 'first_name', 'last_name', 'mobile', 'email', 'password', 'notification_id', 'latitude', 'longitude', 'device_type', 'customer_parity', 'gender', 'profile_image', 'shop_image', 'customer_code', 'status_id', 'region_id', 'customertype', 'firmtype', 'created_by', 'updated_by', 'executive_id', 'otp', 'deleted_at', 'created_at', 'updated_at', 'beatscheduleid', 'order_limit', 'manager_name', 'notify', 'contact_number', 'parent_id'];
+    protected $fillable = ['active', 'name', 'first_name', 'last_name', 'mobile', 'email', 'password', 'notification_id', 'latitude', 'longitude', 'device_type', 'customer_parity', 'gender', 'profile_image', 'shop_image', 'customer_code', 'status_id', 'region_id', 'customertype', 'firmtype', 'created_by', 'updated_by', 'executive_id', 'zone_id', 'customer_po_no', 'otp', 'deleted_at', 'created_at', 'updated_at', 'beatscheduleid', 'order_limit', 'manager_name', 'notify', 'contact_number', 'parent_id'];
 
     protected $appends = ['full_address'];
 
@@ -34,6 +34,11 @@ class Customers extends Authenticatable
     public function routeNotificationForApn()
     {
         return $this->customerdetails->fcm_token ?? '';
+    }
+
+    public function zone()
+    {
+        return $this->belongsTo(Zone::class);
     }
 
     /**
@@ -82,6 +87,8 @@ class Customers extends Authenticatable
                 'order_limit' => !empty($request['order_limit']) ? $request['order_limit'] : null,
                 'creation_date' => !empty($request['creation_date']) ? $request['creation_date'] : null,
                 'customer_parity' => !empty($request['customer_parity']) ? $request['customer_parity'] : null,
+                'zone_id' => !empty($request['zone_id']) ? $request['zone_id'] : null,
+                'customer_po_no' => !empty($request['customer_po_no']) ? $request['customer_po_no'] : null,
                 'password' => !empty($request['password']) ? $request['password'] : '12345678',
                 'contact_number' => !empty($request['contact_number']) ? $request['contact_number'] : '',
                 'notification_id' => !empty($request['notification_id']) ? $request['notification_id'] : '',
@@ -121,6 +128,8 @@ class Customers extends Authenticatable
             $customers->name = !empty($request['name']) ? $request['name'] : '';
             $customers->first_name = !empty($request['first_name']) ? ucfirst($request['first_name']) : '';
             $customers->order_limit = !empty($request['order_limit']) ? $request['order_limit'] : null;
+            $customers->zone_id = !empty($request['zone_id']) ? $request['zone_id'] : null;
+            $customers->customer_po_no = !empty($request['customer_po_no']) ? $request['customer_po_no'] : null;
             $customers->creation_date = !empty($request['creation_date']) ? $request['creation_date'] : null;
             $customers->customer_parity = !empty($request['customer_parity']) ? $request['customer_parity'] : null;
             $customers->last_name = !empty($request['last_name']) ? ucfirst($request['last_name']) : '';

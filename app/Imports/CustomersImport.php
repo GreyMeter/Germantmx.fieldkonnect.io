@@ -7,7 +7,7 @@ use App\Models\Customers;
 use App\Models\CustomerDetails;
 use App\Models\Address;
 use App\Models\Attachment;
-use App\Models\City;
+use App\Models\Zone;
 use App\Models\Pincode;
 use App\Models\UserDetails;
 use App\Models\Beat;
@@ -56,6 +56,12 @@ class CustomersImport implements ToCollection, WithValidation, WithHeadingRow, W
         $row['mobile'] = '91' . preg_replace('/\s+/', '', $row['mobile']);
       }
 
+      if(!empty($row['zone'])){
+        $zone = Zone::where('name', '=', $row['zone'])->first();
+      }else{
+        $zone = null;
+      }
+
       if (isset($row['created_date']) && is_numeric($row['created_date'])) {
         $excelDate = $row['created_date'] - 25569; // Adjust for Excel's epoch
         $unixTimestamp = strtotime('+' . $excelDate . ' days', strtotime('1970-01-01'));
@@ -79,6 +85,8 @@ class CustomersImport implements ToCollection, WithValidation, WithHeadingRow, W
           'email' => !empty($row['email']) ? $row['email'] : null,
           'creation_date' => !empty($row['created_date']) ? $row['created_date'] : null,
           'customertype' => !empty($row['customer_type_id']) ? $row['customer_type_id'] : null,
+          'zone_id' => $zone ? $zone->id : null,
+          'customer_po_no' => !empty($row['customer_po_no']) ? $row['customer_po_no'] : null,
         ]);
 
 
@@ -173,6 +181,8 @@ class CustomersImport implements ToCollection, WithValidation, WithHeadingRow, W
           'status_id' =>  !empty($row['status_id']) ? $row['status_id'] : 2,
           'customertype' =>  !empty($row['customertype']) ? $row['customertype'] : 1,
           'firmtype' =>  !empty($row['firmtype']) ? $row['firmtype'] : null,
+          'zone_id' => $zone ? $zone->id : null,
+          'customer_po_no' => !empty($row['customer_po_no']) ? $row['customer_po_no'] : null,
           // 'created_by' => $user_id,
           'created_by' => Auth::user()->id,
           //'executive_id' => $executive_id,
@@ -348,7 +358,7 @@ class CustomersImport implements ToCollection, WithValidation, WithHeadingRow, W
   public function rules(): array
   {
     return [
-      // 'mobile' => 'required|regex:/^91\d{10}$/|unique:customers,mobile',
+      'zone' => 'nullable|exists:zones,name',
     ];
   }
 

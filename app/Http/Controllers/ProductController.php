@@ -406,8 +406,15 @@ class ProductController extends Controller
 
             return Datatables::of($data)
                 ->addIndexColumn()
+                ->editColumn('stock', function ($data) {
+                    $edit_btn = '';
+                    if (auth()->user()->can('edit_stock')) {
+                        // $edit_btn = '<i class="fa fa-edit edit_stock ml-2" data-id="' . $data->id . '" data-value="' . $data->stock . '" title="Edit Stock"></i>';
+                    }
+                    return $data->stock . ' ' . $edit_btn;
+                })
 
-                ->rawColumns([])
+                ->rawColumns(['stock'])
                 ->make(true);
         }
 
@@ -451,11 +458,11 @@ class ProductController extends Controller
             if ($request->plant_id && !empty($request->plant_id)) {
                 $data->where('plant_id', $request->plant_id);
             }
-        
+
             if ($request->category_id && !empty($request->category_id)) {
                 $data->where('category_id', $request->category_id);
             }
-        
+
             return Datatables::of($data)
                 ->addIndexColumn()
 
@@ -490,5 +497,15 @@ class ProductController extends Controller
         if (ob_get_contents()) ob_end_clean();
         ob_start();
         return Excel::download(new RandomStockExport($request), 'Random Stock.xlsx');
+    }
+
+    public function stock_change(Request $request)
+    {
+        $update = BranchStock::where('id', $request->id)->update(['stock' => $request->value]);
+        if($update){
+            return response()->json(['status' => 'success', 'message' => 'Stock Update Successfully']);
+        }else{
+            return response()->json(['status' => 'error', 'message' => 'Error in Stock Update']);
+        }
     }
 }

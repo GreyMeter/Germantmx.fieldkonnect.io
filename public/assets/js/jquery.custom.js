@@ -1,32 +1,54 @@
-function readURL(input) {
+function readURL1(input) {
   if (input.files && input.files[0]) {
-    var reader = new FileReader();
-    
-    reader.onload = function (e) {
+    const file = input.files[0];
+    const fileType = file.type;
+
+    if (fileType === "application/pdf") {
+      // Show PDF icon
+      $('.imagepreview1').attr('src', '/public/assets/img/pdf_logo.png');
+    } else if (fileType.startsWith('image/')) {
+      // Show image preview
+      const reader = new FileReader();
+      reader.onload = function (e) {
         $('.imagepreview1').attr('src', e.target.result);
+      }
+      reader.readAsDataURL(file);
+    } else {
+      // Unsupported file type
+      $('.imagepreview1').attr('src', ''); // Or show a default "unsupported" icon
+      alert('Unsupported file type');
     }
-    
-    reader.readAsDataURL(input.files[0]);
   }
 }
 
-$(".getimage1").change(function(){
-  readURL(this);
+$(".getimage1").change(function () {
+  readURL1(this);
 });
 
 function readURL2(input) {
   if (input.files && input.files[0]) {
-    var reader = new FileReader();
-    
-    reader.onload = function (e) {
+    const file = input.files[0];
+    const fileType = file.type;
+
+    if (fileType === "application/pdf") {
+      // Show PDF icon
+      $('.imagepreview2').attr('src', '/public/assets/img/pdf_logo.png');
+    } else if (fileType.startsWith('image/')) {
+      // Show image preview
+      const reader = new FileReader();
+      reader.onload = function (e) {
         $('.imagepreview2').attr('src', e.target.result);
+      }
+      reader.readAsDataURL(file);
+    } else {
+      // Unsupported file type
+      $('.imagepreview2').attr('src', ''); // Or show a default "unsupported" icon
+      alert('Unsupported file type');
     }
-    
-    reader.readAsDataURL(input.files[0]);
   }
 }
 
-$(".getimage2").change(function(){
+$(".getimage2").change(function () {
   readURL2(this);
 });
 
@@ -37,7 +59,7 @@ function readURL3(input) {
 
     if (fileType === "application/pdf") {
       // Show PDF icon
-      $('.imagepreview3').attr('src', 'path/to/pdf-icon.png'); // Change path to your PDF icon
+      $('.imagepreview3').attr('src', '/public/assets/img/pdf_logo.png');
     } else if (fileType.startsWith('image/')) {
       // Show image preview
       const reader = new FileReader();
@@ -60,81 +82,138 @@ $(".getimage3").change(function () {
 
 function readURL4(input) {
   if (input.files && input.files[0]) {
-    var reader = new FileReader();
-    
-    reader.onload = function (e) {
+    const file = input.files[0];
+    const fileType = file.type;
+
+    if (fileType === "application/pdf") {
+      // Show PDF icon
+      $('.imagepreview4').attr('src', '/public/assets/img/pdf_logo.png');
+    } else if (fileType.startsWith('image/')) {
+      // Show image preview
+      const reader = new FileReader();
+      reader.onload = function (e) {
         $('.imagepreview4').attr('src', e.target.result);
+      }
+      reader.readAsDataURL(file);
+    } else {
+      // Unsupported file type
+      $('.imagepreview4').attr('src', ''); // Or show a default "unsupported" icon
+      alert('Unsupported file type');
     }
-    
-    reader.readAsDataURL(input.files[0]);
   }
 }
 
-$(".getimage4").change(function(){
+$(".getimage4").change(function () {
   readURL4(this);
 });
 
 function readURL5(input) {
   if (input.files && input.files[0]) {
-    var reader = new FileReader();
-    
-    reader.onload = function (e) {
+    const file = input.files[0];
+    const fileType = file.type;
+
+    if (fileType === "application/pdf") {
+      // Show PDF icon
+      $('.imagepreview5').attr('src', '/public/assets/img/pdf_logo.png');
+    } else if (fileType.startsWith('image/')) {
+      // Show image preview
+      const reader = new FileReader();
+      reader.onload = function (e) {
         $('.imagepreview5').attr('src', e.target.result);
+      }
+      reader.readAsDataURL(file);
+    } else {
+      // Unsupported file type
+      $('.imagepreview5').attr('src', ''); // Or show a default "unsupported" icon
+      alert('Unsupported file type');
     }
-    
-    reader.readAsDataURL(input.files[0]);
   }
 }
 
-$(".getimage5").change(function(){
+$(".getimage5").change(function () {
   readURL5(this);
 });
 
 function readURL6(input) {
   if (input.files && input.files[0]) {
-    var reader = new FileReader();
-    
-    reader.onload = function (e) {
+    const file = input.files[0];
+    const fileType = file.type;
+
+    if (fileType === "application/pdf") {
+      // Show PDF icon
+      $('.imagepreview6').attr('src', '/public/assets/img/pdf_logo.png');
+    } else if (fileType.startsWith('image/')) {
+      // Show image preview
+      const reader = new FileReader();
+      reader.onload = function (e) {
         $('.imagepreview6').attr('src', e.target.result);
+      }
+      reader.readAsDataURL(file);
+    } else {
+      // Unsupported file type
+      $('.imagepreview6').attr('src', ''); // Or show a default "unsupported" icon
+      alert('Unsupported file type');
     }
-    
-    reader.readAsDataURL(input.files[0]);
   }
 }
 
-$(".getimage6").change(function(){
+$(".getimage6").change(function () {
   readURL6(this);
 });
 
 function readURL7(input) {
   if (input.files && input.files[0]) {
-    var reader = new FileReader();
-    
-    reader.onload = function (e) {
+    const file = input.files[0];
+    const fileType = file.type;
+
+    if (fileType === "application/pdf") {
+      // Show PDF icon
+      $('.imagepreview7').attr('src', '/public/assets/img/pdf_logo.png');
+    } else if (fileType.startsWith('image/')) {
+      // Show image preview
+      const reader = new FileReader();
+      reader.onload = function (e) {
         $('.imagepreview7').attr('src', e.target.result);
+      }
+      reader.readAsDataURL(file);
+    } else {
+      // Unsupported file type
+      $('.imagepreview7').attr('src', ''); // Or show a default "unsupported" icon
+      alert('Unsupported file type');
     }
-    reader.readAsDataURL(input.files[0]);
   }
 }
 
-$(".getimage7").change(function(){
+$(".getimage7").change(function () {
   readURL7(this);
 });
 
 
 function readURL8(input) {
   if (input.files && input.files[0]) {
-    var reader = new FileReader();
-    
-    reader.onload = function (e) {
+    const file = input.files[0];
+    const fileType = file.type;
+
+    if (fileType === "application/pdf") {
+      // Show PDF icon
+      $('.imagepreview8').attr('src', '/public/assets/img/pdf_logo.png');
+    } else if (fileType.startsWith('image/')) {
+      // Show image preview
+      const reader = new FileReader();
+      reader.onload = function (e) {
         $('.imagepreview8').attr('src', e.target.result);
+      }
+      reader.readAsDataURL(file);
+    } else {
+      // Unsupported file type
+      $('.imagepreview8').attr('src', ''); // Or show a default "unsupported" icon
+      alert('Unsupported file type');
     }
-    reader.readAsDataURL(input.files[0]);
   }
 }
 
-$(".getimage8").change(function(){
-  readURL8(this);
+$(".getimage8").change(function () {
+  readURL3(this);
 });
 
 

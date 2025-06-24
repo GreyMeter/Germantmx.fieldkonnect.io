@@ -1,8 +1,12 @@
 <x-app-layout>
   <style>
-    table tbody tr{
+    table tbody tr {
       font-size: 14px !important;
       font-weight: 100 !important;
+    }
+
+    .edit_stock {
+      cursor: pointer;
     }
   </style>
   <div class="row">
@@ -118,7 +122,7 @@
             </span>
           </div>
           @endif
-          
+
           <div class="table-responsive">
             <table id="getprimarysales" class="table table-striped table-bordered table-hover table-checkable no-wrap">
               <thead class=" text-primary">
@@ -159,15 +163,14 @@
         ajax: {
           url: "{{ route('stock') }}",
           data: function(d) {
-              d.plant_id = $('#plant_id').val(),
+            d.plant_id = $('#plant_id').val(),
               d.brand_id = $('#brand_id').val(),
               d.category_id = $('#category_id').val(),
               d.unit_id = $('#unit_id').val(),
               d.search = $('input[type="search"]').val()
           }
         },
-        columns: [
-          {
+        columns: [{
             data: 'plant.plant_name',
             name: 'plant.plant_name',
             orderable: false,
@@ -196,6 +199,7 @@
             data: 'stock',
             name: 'stock',
             searchable: false,
+            orderable: false,
             "defaultContent": ''
           }
         ]
@@ -212,9 +216,57 @@
       $('#unit_id').change(function() {
         table.draw();
       });
+
+      $(document).on('click', '.edit_stock', function(e) {
+        e.preventDefault();
+
+        var id = $(this).data('id');
+        var value = $(this).data('value');
+
+        Swal.fire({
+          title: 'Edit Stock',
+          input: 'number',
+          inputValue: value,
+          inputAttributes: {
+            step: '0.01',
+            min: '0.01'
+          },
+          showCancelButton: true,
+          confirmButtonText: 'Update',
+          cancelButtonText: 'Cancel',
+          inputValidator: (newValue) => {
+            if (!newValue || parseFloat(newValue) < 0) {
+              return 'Stock value must be greater than or equal to 0';
+            }
+          }
+        }).then((result) => {
+          if (result.value) {
+            const newValue = parseFloat(result.value);
+
+            $.ajax({
+              url: '/stock_change',
+              method: 'POST',
+              data: {
+                id: id,
+                value: newValue,
+                _token: $('meta[name="csrf-token"]').attr('content') // for Laravel CSRF
+              },
+              success: function(response) {
+                Swal.fire('Success!', 'Stock updated successfully.', 'success');
+                table.draw();
+                // Optionally reload or update DOM
+              },
+              error: function(xhr) {
+                Swal.fire('Error!', 'Failed to update stock.', 'error');
+              }
+            });
+          }
+        });
+      });
+
     });
 
-    $('#reset-filter').on('click', function(){
+    $('#reset-filter').on('click', function() {
       $('#prifilfrm').find('input:text, input:password, input:file, select, textarea').val('');
       $('#prifilfrm').find('select').change();
     })

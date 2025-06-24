@@ -21,6 +21,7 @@ use App\Exports\SurveyExport;
 use App\Exports\CustomersTemplate;
 use App\Http\Requests\CustomersRequest;
 use App\Models\TransactionHistory;
+use App\Models\Zone;
 
 use App\Models\EmployeeDetail;
 use App\Models\ParentDetail;
@@ -93,7 +94,7 @@ class CustomerController extends Controller
             if(auth()->user()->hasRole('Marketing Executive')){
                $customer_ids = EmployeeDetail::where('user_id', auth()->user()->id)->pluck('customer_id')->toArray();
             }
-            $data = Customers::with('customertypes', 'firmtypes', 'createdbyname')
+            $data = Customers::with('customertypes', 'firmtypes', 'createdbyname', 'zone')
                 ->where(function ($query) use ($request, $userids , $customer_ids) {
                     if (!empty($request['executive_id'])) {
                         $query->where('executive_id', $request['executive_id']);
@@ -172,6 +173,9 @@ class CustomerController extends Controller
                 ->addIndexColumn()
                 ->addColumn('checkbox', function ($item) {
                     return '<input type="checkbox" id="manual_entry_' . $item->id . '" class="manual_entry_cb" value="' . $item->id . '" />';
+                })
+                ->addColumn('contect_person', function ($item) {
+                    return $item->first_name . ' ' . $item->last_name;
                 })
                 ->editColumn('created_at', function ($data) {
                     return isset($data->created_at) ? showdatetimeformat($data->created_at) : '';
@@ -289,7 +293,9 @@ class CustomerController extends Controller
 
         $parentcustomers = Customers::where('active', '=', 'Y')->where('customertype', '!=', '2')->select('id', 'name')->orderBy('id', 'desc')->get();
 
-        return view('customers.create', compact('pincodes', 'customertype', 'firmtype', 'pincodes', 'countries', 'fields', 'users', 'deals', 'parentcustomers'))->with('customers', $this->customers);
+        $zones = Zone::all();
+
+        return view('customers.create', compact('pincodes', 'customertype', 'firmtype', 'pincodes', 'countries', 'fields', 'users', 'deals', 'parentcustomers', 'zones'))->with('customers', $this->customers);
     }
 
     public function createDistributor()
@@ -542,7 +548,8 @@ class CustomerController extends Controller
         })->select('id', 'name')->orderBy('id', 'desc')->get();
 
         $parentcustomers = Customers::where('active', '=', 'Y')->where('customertype', '!=', '2')->select('id', 'name')->orderBy('id', 'desc')->get();
-        return view('customers.create', compact('pincodes', 'customertype', 'firmtype', 'pincodes', 'countries', 'fields', 'users', 'deals', 'parentcustomers'))->with('customers', $customers);
+        $zones = Zone::all();
+        return view('customers.create', compact('pincodes', 'customertype', 'firmtype', 'pincodes', 'countries', 'fields', 'users', 'deals', 'parentcustomers', 'zones'))->with('customers', $customers);
     }
 
     /**

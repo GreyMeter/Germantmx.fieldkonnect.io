@@ -81,7 +81,6 @@
                        <option value="N">Inactive</option>
                     </select>
                    </div>  -->
-
                     <div class="p-2" style="width:150px;"><input type="text" class="form-control datepicker" id="start_date" name="start_date" placeholder="Start Date" autocomplete="off" readonly></div>
                     <div class="p-2" style="width:150px;"><input type="text" class="form-control datepicker" id="end_date" name="end_date" placeholder="End Date" autocomplete="off" readonly></div>
                     <div class="p-2"><button class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.download') !!} {!! trans('panel.customers.title') !!}"><i class="material-icons">cloud_download</i></button></div>
@@ -115,6 +114,9 @@
               @endif
               @if(auth()->user()->can(['customer_create']))
               <a href="{{ route('customers.create') }}" class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.add') !!} {!! trans('panel.customers.title_singular') !!}"><i class="material-icons">add_circle</i></a>
+              @endif
+              @if(auth()->user()->can(['customer_list_print']))
+              <button class="btn btn-just-icon btn-theme mr-2" title="Print" onclick="printDivByClass('table-responsive')"><i class="material-icons">print</i></button>
               @endif
               </div>
             </div>
@@ -219,8 +221,8 @@
               <!-- <th><input type="checkbox" class="allCustomerschecked"/></th> -->
               <th>{!! trans('panel.global.action') !!}</th>
               <th>Firm Name</th>
-              <th>{!! trans('panel.customers.fields.first_name') !!}</th>
-              <th>{!! trans('panel.customers.fields.last_name') !!}</th>
+              <th>Contect Person</th>
+              <th>Zone</th>
               <th>{!! trans('panel.customers.fields.mobile') !!}</th>
               <th>{!! trans('panel.customers.fields.shop_image') !!}</th>
               <th>{!! trans('panel.customers.fields.profile_image') !!}</th>
@@ -274,8 +276,8 @@
             // { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false },
             { data: 'action', name: 'action',"defaultContent": '',className: 'remove-sort-icon', orderable: false, searchable: false},
             {data: 'name', name: 'name',"defaultContent": '',orderable: false,},
-            {data: 'first_name', name: 'first_name',"defaultContent": '',orderable: false,},
-            {data: 'last_name', name: 'last_name',"defaultContent": '',orderable: false,},
+            {data: 'contect_person', name: 'contect_person',"defaultContent": '',orderable: false,},
+            {data: 'zone.name', name: 'zone.name',"defaultContent": '',orderable: false,},
             {data: 'mobile', name: 'mobile',"defaultContent": '',orderable: false,},
             {data: 'image', name: 'image',"defaultContent": '',orderable: false,},
             {data: 'profileimage', name: 'profileimage',"defaultContent": '',orderable: false,},

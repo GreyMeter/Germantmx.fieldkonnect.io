@@ -17,9 +17,6 @@ class ZoneController extends Controller
 {
     public function index(ZoneDataTable $dataTable, Request $request)
     {
-        if (!$request->dev && !$request->ajax()) {
-            return view('work_in_progress');
-        }
         return $dataTable->render('zones.index');
     }
 
