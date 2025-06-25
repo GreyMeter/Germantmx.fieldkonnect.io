@@ -622,6 +622,9 @@ class OrderController extends Controller
             $data['created_by'] = Auth::user()->id;
             $data['po_no'] = $orders->po_no;
             $data['consignee_details'] = $request->consignee_details;
+            $data['gst_number'] = $request->gst_number;
+            $data['delivery_address'] = $request->delivery_address;
+            $data['supervisor_number'] = $request->supervisor_number;
             $data['qty'] = $qty;
             $data['unit_id'] = $request->grade_id[$k];
             $data['brand_id'] = $request->brand_id[$k];
@@ -645,6 +648,10 @@ class OrderController extends Controller
         }else{
             Order::where('id', $id)->update(['ordering' => 2]);
         }
+        // if($orders->qty - $totalOrderConfirmQty <= 0.55){
+        //     $orders->qty = $totalOrderConfirmQty;
+        //     $orders->save();
+        // }
 
         $Ndata['type'] = 'Order Comfirmed';
         $Ndata['data'] = $tqty . ' Quantity confirmed of PO Number ' . $request['po_no'] . ' .';
@@ -894,6 +901,9 @@ class OrderController extends Controller
                     'loading_add' => $request->loading_add[$key],
                     'base_price' => $request->dispatch_base_price[$key],
                     'consignee_details' => $request->consignee_details,
+                    'gst_number' => $request->gst_number,
+                    'delivery_address' => $request->delivery_address,
+                    'supervisor_number' => $request->supervisor_number,
                     'soda_price' => $request->dispatch_soda_price[$key]
                 ]);
             }
@@ -924,9 +934,9 @@ class OrderController extends Controller
             }
             $orderDispatchQty = OrderDispatch::where('confirm_po_no', $request->order_confirm_id)->sum('qty');
 
-            if($orderDispatchQty <= 0 && $orders->sum('qty') <= 0){
+            // if($orderDispatchQty <= 0 && $orders->sum('qty') <= 0){
                 OrderConfirm::where('confirm_po_no', $request->order_confirm_id)->update(['ordering' => '4']);
-            }
+            // }
 
             return response()->json(['status' => 'success', 'message' => 'Order cancle successfully !!']);
         } else {

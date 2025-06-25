@@ -32,7 +32,9 @@ class OrderDataTable extends DataTable
                     return '<span class="badge badge-success">Completed</span>';
                 } else if ($totalOrderConfirmQty > 0 && $data->qty > $totalOrderConfirmQty) {
                     return '<span class="badge badge-warning">Partially Completed</span>';
-                } else if ($totalOrderConfirmQty == 0) {
+                } else if ($data->status == 1) {
+                    return '<span class="badge badge-primary">Confirmed</span>';
+                }else if ($totalOrderConfirmQty == 0) {
                     return '<span class="badge badge-danger">Pending</span>';
                 }
             })

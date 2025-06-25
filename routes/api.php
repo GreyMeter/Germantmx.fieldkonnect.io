@@ -78,6 +78,7 @@ Route::any('getBrand', [OrderController::class, 'get_brand']);
 Route::any('getGrade', [OrderController::class, 'get_grade']);
 Route::any('getSize', [OrderController::class, 'get_size']);
 Route::any('getMaterial', [OrderController::class, 'get_material']);
+Route::any('getZone', [OrderController::class, 'get_zone']);
 
 Route::any('emailExists', [CustomController::class, 'emailExists']);
 

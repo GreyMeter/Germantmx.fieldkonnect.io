@@ -76,9 +76,9 @@
                 @endif --}}
                 <span class="pull-right">
                   <div class="btn-group">
-                  @if(auth()->user()->can(['dispatch_print']))
-                  <button class="btn btn-just-icon btn-theme mr-2" title="Print" onclick="printDivByClass('invoice')"><i class="material-icons">print</i></button>
-                  @endif
+                    @if(auth()->user()->can(['dispatch_print']))
+                    <button class="btn btn-just-icon btn-theme mr-2" title="Print" onclick="printDivByClass('invoice')"><i class="material-icons">print</i></button>
+                    @endif
                     @if(auth()->user()->can(['order_access']))
                     <a href="{{ url('orders_dispatch') }}" class="btn btn-just-icon btn-theme" title="Dispatch {!! trans('panel.global.list') !!}"><i class="material-icons">next_plan</i></a>
                     @endif
@@ -126,7 +126,10 @@
                 <div class="col-sm-4 invoice-col">
                   <h3 style="margin-bottom: 10px;font-weight: 500;">Consignee Details:</h3>
                   <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
-                    <strong>{!! nl2br(e($orders->order_confirm['consignee_details'])) !!} </strong>
+                    <p class="m-0 p-0">Consignee Name: <small>{!! nl2br(e($orders->order_confirm['consignee_details'])) !!}</small></p>
+                    <p class="m-0 p-0">GST Number: <small>{!! nl2br(e($orders->order_confirm['gst_number'])) !!}</small></p>
+                    <p class="m-0 p-0">Delivery Address: <small>{!! nl2br(e($orders->order_confirm['delivery_address'])) !!}</small></p>
+                    <p class="m-0 p-0">Supervisor Contact Number: <small>{!! nl2br(e($orders->order_confirm['supervisor_number'])) !!}</small></p>
                   </address>
                 </div>
                 <div class="col-sm-4 invoice-col">
@@ -135,7 +138,8 @@
                     PO Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['po_no'] !!}</span> <br>
                     Order Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['confirm_po_no'] !!}</span> <br>
                     Order Dispatch Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['dispatch_po_no'] !!}</span> <br>
-                    Date: {!! date("d-M-Y H:i A", strtotime($orders['created_at'])) !!} <br>
+                    Date of Booking: {!! date("d-M-Y H:i A", strtotime($orders->order['created_at'])) !!} <br>
+                    total Quantity: {!! $orders->order['qty'] !!} <br>
                     Base Price: {!! $orders['order']['base_price'] + $orders['order']['discount_amt'] !!} <br>
                     Created By: {!! $orders['createdbyname']?$orders['createdbyname']['name']:'Self' !!}
                   </address>

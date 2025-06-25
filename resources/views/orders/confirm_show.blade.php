@@ -99,7 +99,10 @@
                 <div class="col-sm-4 invoice-col">
                   <h3 style="margin-bottom: 10px;font-weight: 500;">Consignee Details:</h3>
                   <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
-                    <strong>{!! nl2br(e($orders['consignee_details'])) !!} </strong>
+                    <p class="m-0 p-0">Consignee Name: <small>{!! nl2br(e($orders['consignee_details'])) !!}</small></p>
+                    <p class="m-0 p-0">GST Number: <small>{!! nl2br(e($orders['gst_number'])) !!}</small></p>
+                    <p class="m-0 p-0">Delivery Address: <small>{!! nl2br(e($orders['delivery_address'])) !!}</small></p>
+                    <p class="m-0 p-0">Supervisor Contact Number: <small>{!! nl2br(e($orders['supervisor_number'])) !!}</small></p>
                   </address>
                 </div>
                 <div class="col-sm-4 invoice-col">

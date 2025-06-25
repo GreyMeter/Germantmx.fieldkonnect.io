@@ -24,7 +24,7 @@ use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Customers;
 use App\Models\OrderConfirm;
-use App\Models\Product;
+use App\Models\Zone;
 use App\Models\User;
 use App\Models\Sales;
 use App\Models\AdditionalPrice;
@@ -622,6 +622,17 @@ class OrderController extends Controller
         }
     }
 
+    public function get_zone(Request $request)
+    {
+        try {
+            $data = Zone::all();
+
+            return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], $this->internalError);
+        }
+    }
+
     public function getSodaCreateDetails(Request $request)
     {
         try {
@@ -933,6 +944,10 @@ class OrderController extends Controller
             } else {
                 Order::where('id', $request->soda_id)->update(['ordering' => 2]);
             }
+            // if($soda->qty - $totalOrderConfirmQty <= 0.55){
+            //     $soda->qty = $totalOrderConfirmQty;
+            //     $soda->save();
+            // }
 
             $Ndata['type'] = 'Order Comfirmed';
             $Ndata['data'] = $tqty . ' Quantity confirmed of PO Number ' . $soda->po_no . ' .';
@@ -1103,6 +1118,10 @@ class OrderController extends Controller
             } else {
                 Order::where('id', $request->soda_id)->update(['ordering' => 2]);
             }
+            // if($soda->qty - $totalOrderConfirmQty <= 0.55){
+            //     $soda->qty = $totalOrderConfirmQty;
+            //     $soda->save();
+            // }            
 
             $Ndata['type'] = 'Order Comfirmed';
             $Ndata['data'] = $tqty . ' Quantity confirmed of PO Number ' . $soda->po_no . ' .';

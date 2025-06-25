@@ -128,6 +128,8 @@ class CustomerController extends Controller
                         'created_by' =>  !empty($request['created_by']) ? $request['created_by'] : null,
                         'manager_name' => !empty($request['manager_name']) ? $request['manager_name'] : '',
                         'contact_number' => !empty($request['contact_number']) ? $request['contact_number'] : '',
+                        'zone_id' => !empty($request['zone_id']) ? $request['zone_id'] : null,
+                        'customer_po_no' => !empty($request['customer_po_no']) ? $request['customer_po_no'] : null,
                         //'parent_id' => !empty($request['parent_id'])? $request['parent_id'] :null,
                         'created_at' => getcurentDateTime(),
                         'updated_at' => getcurentDateTime()

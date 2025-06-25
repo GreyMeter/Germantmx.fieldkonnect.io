@@ -409,7 +409,7 @@ class ProductController extends Controller
                 ->editColumn('stock', function ($data) {
                     $edit_btn = '';
                     if (auth()->user()->can('edit_stock')) {
-                        // $edit_btn = '<i class="fa fa-edit edit_stock ml-2" data-id="' . $data->id . '" data-value="' . $data->stock . '" title="Edit Stock"></i>';
+                        $edit_btn = '<i class="fa fa-edit edit_stock ml-2" data-id="' . $data->id . '" data-value="' . $data->stock . '" title="Edit Stock"></i>';
                     }
                     return $data->stock . ' ' . $edit_btn;
                 })

@@ -44,11 +44,14 @@
           <div class="row">
             @if($orders->exists && $cnf)
             <div class="col-md-12">
+              <h4 class="text-dark" style="font-weight: 600;">Consignee Details :</h4>
+            </div>
+            <div class="col-md-6">
               <div class="row">
-                <label class="col-md-2 col-form-label">Consignee Details<span class="text-danger"> *</span></label>
-                <div class="col-md-10">
+                <label class="col-md-3 col-form-label">Consignee Name</label>
+                <div class="col-md-9">
                   <div class="form-group has-default bmd-form-group">
-                    <textarea name="consignee_details" class="form-control" cols="30" rows="6" id="consignee_details" required></textarea>
+                    <input type="text" name="consignee_details" id="consignee_details" class="form-control" value="{!! $orders['consignee_details'] !!}" maxlength="200">
                     @if ($errors->has('consignee_details'))
                     <div class="error col-lg-12">
                       <p class="text-danger">{{ $errors->first('consignee_details') }}</p>
@@ -58,6 +61,52 @@
                 </div>
               </div>
             </div>
+            <div class="col-md-6">
+              <div class="row">
+                <label class="col-md-3 col-form-label">GST Number</label>
+                <div class="col-md-9">
+                  <div class="form-group has-default bmd-form-group">
+                    <input type="text" name="gst_number" id="gst_number" class="form-control" value="{!! $orders['gst_number'] !!}" maxlength="200">
+                    @if ($errors->has('gst_number'))
+                    <div class="error col-lg-12">
+                      <p class="text-danger">{{ $errors->first('gst_number') }}</p>
+                    </div>
+                    @endif
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="row">
+                <label class="col-md-3 col-form-label">Delivery Address</label>
+                <div class="col-md-9">
+                  <div class="form-group has-default bmd-form-group">
+                    <input type="text" name="delivery_address" id="delivery_address" class="form-control" value="{!! $orders['delivery_address'] !!}" maxlength="200">
+                    @if ($errors->has('delivery_address'))
+                    <div class="error col-lg-12">
+                      <p class="text-danger">{{ $errors->first('delivery_address') }}</p>
+                    </div>
+                    @endif
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="row">
+                <label class="col-md-3 col-form-label">Supervisor Contact Number</label>
+                <div class="col-md-9">
+                  <div class="form-group has-default bmd-form-group">
+                    <input type="text" name="supervisor_number" id="supervisor_number" class="form-control" value="{!! $orders['supervisor_number'] !!}" maxlength="200">
+                    @if ($errors->has('supervisor_number'))
+                    <div class="error col-lg-12">
+                      <p class="text-danger">{{ $errors->first('supervisor_number') }}</p>
+                    </div>
+                    @endif
+                  </div>
+                </div>
+              </div>
+            </div>
+            <hr style="width: 100%;">
             @endif
 
             <div class="col-md-6">

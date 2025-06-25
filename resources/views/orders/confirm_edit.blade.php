@@ -98,9 +98,27 @@
                   </address>
                 </div>
                 <div class="col-sm-4 invoice-col">
-                  <h3 style="margin-bottom: 10px;font-weight: 500;">Consignee Details:</h3>
-                      <textarea style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8; font-weight: 900;color: #000;" name="consignee_details" class="form-control" cols="30" rows="6" id="consignee_details" required>{!! $orders['consignee_details'] !!} </textarea>
+                  <h3 style="margin-bottom: 10px; font-weight: 500;">Consignee Details:</h3>
+                  <div style="border: 1px dashed #377ab8; padding: 15px; border-radius: 8px; box-shadow: -3px 3px 11px 0px #377ab8;">
+                    <div class="d-flex align-items-center mb-2">
+                      <label for="consignee_details" class="me-2" style="width: 160px; font-weight: bold;">Consignee Name:</label>
+                      <input type="text" name="consignee_details" id="consignee_details" class="form-control" value="{!! $orders['consignee_details'] !!}">
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                      <label for="gst_number" class="me-2" style="width: 160px; font-weight: bold;">GST Number:</label>
+                      <input type="text" name="gst_number" id="gst_number" class="form-control" value="{!! $orders['gst_number'] !!}">
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                      <label for="delivery_address" class="me-2" style="width: 160px; font-weight: bold;">Delivery Address:</label>
+                      <input type="text" name="delivery_address" id="delivery_address" class="form-control" value="{!! $orders['delivery_address'] !!}">
+                    </div>
+                    <div class="d-flex align-items-center">
+                      <label for="supervisor_number" class="me-2" style="width: 160px; font-weight: bold;">Supervisor Contact Number:</label>
+                      <input type="text" name="supervisor_number" id="supervisor_number" class="form-control" value="{!! $orders['supervisor_number'] !!}">
+                    </div>
+                  </div>
                 </div>
+
                 <div class="col-sm-4 invoice-col">
                   <h3 style="margin-bottom: 10px;font-weight: 500;">Booking Deatils:</h3>
                   <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
@@ -115,7 +133,7 @@
               <!-- /.row -->
 
               <!-- Table row -->
-              
+
               <div class="row">
                 {{--<div class="col-12">
                   <!-- New Row for Driver Details -->
@@ -154,7 +172,7 @@
                   </div>
                 </div>--}}
                 <div class="col-12 table-responsive">
-                <span class="badge badge-danger" id="all-qty-errors"></span>
+                  <span class="badge badge-danger" id="all-qty-errors"></span>
                   <table class="table table-striped">
                     <thead>
                       <tr>
@@ -437,69 +455,46 @@
     let syncingBrands = false;
 
     $(document).on('change', '.brand_change, .grade_change, .size_change, .material_change', function() {
-          if (syncingBrands) return;
+      if (syncingBrands) return;
 
-          // Sync brand values
-          let firstValue = null;
-          let firstValueM = null;
-          $('.brand_change').each(function () {
-              let val = $(this).val();
-              if (val) {
-                  firstValue = val;
-                  return false; // break
-              }
-          });
-          
-          if (firstValue !== null) {
-            syncingBrands = true; // Prevent recursion
-            $('.brand_change').each(function () {
-              $(this).val(firstValue);
-            });
-            syncingBrands = false;
-          }
-
-          // Sync material values
-          $('.material_change').each(function () {
-              let val = $(this).val();
-              if (val) {
-                firstValueM = val;
-                  return false; // break
-              }
-          });
-          if (firstValueM !== null) {
-              syncingBrands = true; // Prevent recursion
-              $('.material_change').each(function () {
-                  $(this).val(firstValueM);
-              });
-              syncingBrands = false;
-          }
-        // Now do row-specific logic
-        var tBody = $(this).closest('tbody');
-        tBody.find('tr').each(function() {
-            var row = $(this);
-
-          row.find('.dispatch_soda_price').val(''); // Update the booking price in the row
-          row.find('.dispatch_base_price').val('');
-          var brand = row.find('.brand_change').val();
-          var grade = row.find('.grade_change').val();
-          var size = row.find('.size_change').val();
-          var material = row.find('.material_change').val();
-          var quantity = row.find('.points').val();
-          var additionalRate = row.find('.additional_rate').val();
-          // var specialCut = row.find('.special_cut').val();
-
-          if (brand && size) {
-            getPrices(brand, grade, size, material, quantity, row, additionalRate);
-          } else {
-            row.find('.dispatch_soda_price').text(''); // Update the booking price in the row
-            row.find('.dispatch_base_price').text('');
-          }
-        });
+      // Sync brand values
+      let firstValue = null;
+      let firstValueM = null;
+      $('.brand_change').each(function() {
+        let val = $(this).val();
+        if (val) {
+          firstValue = val;
+          return false; // break
+        }
       });
 
+      if (firstValue !== null) {
+        syncingBrands = true; // Prevent recursion
+        $('.brand_change').each(function() {
+          $(this).val(firstValue);
+        });
+        syncingBrands = false;
+      }
 
-      $('.points, .additional_rate').on('input', function() {
-        var row = $(this).closest('tr'); // Get the closest row of the changed input/select
+      // Sync material values
+      $('.material_change').each(function() {
+        let val = $(this).val();
+        if (val) {
+          firstValueM = val;
+          return false; // break
+        }
+      });
+      if (firstValueM !== null) {
+        syncingBrands = true; // Prevent recursion
+        $('.material_change').each(function() {
+          $(this).val(firstValueM);
+        });
+        syncingBrands = false;
+      }
+      // Now do row-specific logic
+      var tBody = $(this).closest('tbody');
+      tBody.find('tr').each(function() {
+        var row = $(this);
 
         row.find('.dispatch_soda_price').val(''); // Update the booking price in the row
         row.find('.dispatch_base_price').val('');
@@ -510,10 +505,33 @@
         var quantity = row.find('.points').val();
         var additionalRate = row.find('.additional_rate').val();
         // var specialCut = row.find('.special_cut').val();
+
         if (brand && size) {
           getPrices(brand, grade, size, material, quantity, row, additionalRate);
+        } else {
+          row.find('.dispatch_soda_price').text(''); // Update the booking price in the row
+          row.find('.dispatch_base_price').text('');
         }
       });
+    });
+
+
+    $('.points, .additional_rate').on('input', function() {
+      var row = $(this).closest('tr'); // Get the closest row of the changed input/select
+
+      row.find('.dispatch_soda_price').val(''); // Update the booking price in the row
+      row.find('.dispatch_base_price').val('');
+      var brand = row.find('.brand_change').val();
+      var grade = row.find('.grade_change').val();
+      var size = row.find('.size_change').val();
+      var material = row.find('.material_change').val();
+      var quantity = row.find('.points').val();
+      var additionalRate = row.find('.additional_rate').val();
+      // var specialCut = row.find('.special_cut').val();
+      if (brand && size) {
+        getPrices(brand, grade, size, material, quantity, row, additionalRate);
+      }
+    });
 
     function getPrices(brand = '', grade = '', size = '', material = '', quantity = 1, row, additionalRate = 0) {
       var bookingPrice = $('#base_price').val(); // Example booking price
@@ -571,20 +589,20 @@
     });
 
     $(document).ready(function() {
-        $("#consignee_details").autocomplete({
-            source: function(request, response) {
-                $.ajax({
-                    url: "/consignee-suggestions",
-                    data: {
-                        term: request.term
-                    },
-                    success: function(data) {
-                        response(data.results);
-                    }
-                });
+      $("#consignee_details").autocomplete({
+        source: function(request, response) {
+          $.ajax({
+            url: "/consignee-suggestions",
+            data: {
+              term: request.term
             },
-            minLength: 1
-        });
+            success: function(data) {
+              response(data.results);
+            }
+          });
+        },
+        minLength: 1
+      });
     });
   </script>
   <!-- /.content -->
