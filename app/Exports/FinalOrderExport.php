@@ -22,7 +22,7 @@ class FinalOrderExport implements FromCollection, WithHeadings, WithMapping, Sho
 {
     public function __construct($request)
     {
-        $this->pending_status = $request->input('pending_status');
+        $this->status = $request->input('status');
         $this->startdate = $request->input('start_date');
         $this->enddate = $request->input('end_date');
         $this->order_id = $request->input('order_id');
@@ -62,6 +62,9 @@ class FinalOrderExport implements FromCollection, WithHeadings, WithMapping, Sho
                     $query->whereHas('order', function ($query) {
                         $query->where('customer_id', $this->customer_id);
                     });
+                }
+                if ($this->status != null) {
+                    $query->where('ordering', $this->status);
                 }
             })
             ->groupBy('order_id', 'confirm_po_no', DB::raw('COALESCE(unit_id, random_cut)'))

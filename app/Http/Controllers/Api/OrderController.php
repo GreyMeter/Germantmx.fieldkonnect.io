@@ -569,6 +569,7 @@ class OrderController extends Controller
             $data = Order::where('customer_id', $customer->id)
                 ->select('id', 'po_no', 'qty', 'base_price', 'discount_amt', 'created_at')
                 ->selectRaw('base_price + discount_amt as base_price')
+                ->whereNotIn('status', ['4','5'])
                 ->orderBy("ordering", "asc")->latest()
                 ->get();
 
@@ -944,10 +945,10 @@ class OrderController extends Controller
             } else {
                 Order::where('id', $request->soda_id)->update(['ordering' => 2]);
             }
-            // if($soda->qty - $totalOrderConfirmQty <= 0.55){
-            //     $soda->qty = $totalOrderConfirmQty;
-            //     $soda->save();
-            // }
+            if($soda->qty - $totalOrderConfirmQty <= 0.55){
+                $soda->qty = $totalOrderConfirmQty;
+                $soda->save();
+            }
 
             $Ndata['type'] = 'Order Comfirmed';
             $Ndata['data'] = $tqty . ' Quantity confirmed of PO Number ' . $soda->po_no . ' .';
@@ -1118,10 +1119,10 @@ class OrderController extends Controller
             } else {
                 Order::where('id', $request->soda_id)->update(['ordering' => 2]);
             }
-            // if($soda->qty - $totalOrderConfirmQty <= 0.55){
-            //     $soda->qty = $totalOrderConfirmQty;
-            //     $soda->save();
-            // }            
+            if($soda->qty - $totalOrderConfirmQty <= 0.55){
+                $soda->qty = $totalOrderConfirmQty;
+                $soda->save();
+            }            
 
             $Ndata['type'] = 'Order Comfirmed';
             $Ndata['data'] = $tqty . ' Quantity confirmed of PO Number ' . $soda->po_no . ' .';

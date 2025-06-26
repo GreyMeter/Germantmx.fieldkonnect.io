@@ -86,10 +86,10 @@
               'method' => 'POST',
               'id' => 'UpdateOrderForm',
               ]) !!}
-              <div class="row invoice-info">
+              <div class="row invoice-info mb-3">
                 <div class="col-sm-4 invoice-col">
                   <h3 style="margin-bottom: 10px;font-weight: 500;">Customer Deatils:</h3>
-                  <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
+                  <address style="border: 1px dashed #377ab8;padding: 20px 15px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
                     <strong>Name:{!! isset($orders['order']['customer']['name']) ? $orders['order']['customer']['name'] :'' !!} </strong><br>
                     Address:{!! $orders['order']['customer']['customeraddress']['address1']??'' !!} ,{!! $orders['order']['customer']['customeraddress']['address2']??'' !!}<br>
                     {!! $orders['order']['customer']['customeraddress']['locality']??'' !!}, {!! $orders['order']['customer']['customeraddress']['cityname']['city_name']??'' !!} {!! $orders['order']['customer']['customeraddress']['pincodename']['pincode']??'' !!}<br>
@@ -99,21 +99,21 @@
                 </div>
                 <div class="col-sm-4 invoice-col">
                   <h3 style="margin-bottom: 10px; font-weight: 500;">Consignee Details:</h3>
-                  <div style="border: 1px dashed #377ab8; padding: 15px; border-radius: 8px; box-shadow: -3px 3px 11px 0px #377ab8;">
-                    <div class="d-flex align-items-center mb-2">
-                      <label for="consignee_details" class="me-2" style="width: 160px; font-weight: bold;">Consignee Name:</label>
+                  <div style="border: 1px dashed #377ab8; padding: 10px; border-radius: 8px; box-shadow: -3px 3px 11px 0px #377ab8;">
+                    <div class="d-flex align-items-center mb-1">
+                      <label for="consignee_details" class="text-dark m-0" style="width: 160px; font-weight: bold;">Consignee Name:</label>
                       <input type="text" name="consignee_details" id="consignee_details" class="form-control" value="{!! $orders['consignee_details'] !!}">
                     </div>
-                    <div class="d-flex align-items-center mb-2">
-                      <label for="gst_number" class="me-2" style="width: 160px; font-weight: bold;">GST Number:</label>
+                    <div class="d-flex align-items-center mb-1">
+                      <label for="gst_number" class="text-dark m-0" style="width: 160px; font-weight: bold;">GST Number:</label>
                       <input type="text" name="gst_number" id="gst_number" class="form-control" value="{!! $orders['gst_number'] !!}">
                     </div>
-                    <div class="d-flex align-items-center mb-2">
-                      <label for="delivery_address" class="me-2" style="width: 160px; font-weight: bold;">Delivery Address:</label>
+                    <div class="d-flex align-items-center mb-1">
+                      <label for="delivery_address" class="text-dark m-0" style="width: 160px; font-weight: bold;">Delivery Address:</label>
                       <input type="text" name="delivery_address" id="delivery_address" class="form-control" value="{!! $orders['delivery_address'] !!}">
                     </div>
                     <div class="d-flex align-items-center">
-                      <label for="supervisor_number" class="me-2" style="width: 160px; font-weight: bold;">Supervisor Contact Number:</label>
+                      <label for="supervisor_number" class="text-dark m-0" style="width: 160px; font-weight: bold;">Supervisor Contact Number:</label>
                       <input type="text" name="supervisor_number" id="supervisor_number" class="form-control" value="{!! $orders['supervisor_number'] !!}">
                     </div>
                   </div>
@@ -121,7 +121,7 @@
 
                 <div class="col-sm-4 invoice-col">
                   <h3 style="margin-bottom: 10px;font-weight: 500;">Booking Deatils:</h3>
-                  <address style="border: 1px dashed #377ab8;padding: 15px 0px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
+                  <address style="border: 1px dashed #377ab8;padding: 20px 15px;border-radius: 8px;text-align: center;box-shadow:  -3px 3px 11px 0px #377ab8;">
                     PO Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['po_no'] !!}</span> <br>
                     Order Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['confirm_po_no'] !!}</span> <br>
                     Base Price # <span style="font-weight: 800; font-size:16px;"> {!! $orders->order->base_price+$orders->order->discount_amt !!}</span> <br><br>

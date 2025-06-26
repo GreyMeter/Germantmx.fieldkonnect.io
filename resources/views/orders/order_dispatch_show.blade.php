@@ -138,8 +138,8 @@
                     PO Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['po_no'] !!}</span> <br>
                     Order Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['confirm_po_no'] !!}</span> <br>
                     Order Dispatch Number # <span style="font-weight: 800; font-size:16px;"> {!! $orders['dispatch_po_no'] !!}</span> <br>
-                    Date of Booking: {!! date("d-M-Y H:i A", strtotime($orders->order['created_at'])) !!} <br>
-                    total Quantity: {!! $orders->order['qty'] !!} <br>
+                    <!-- Date of Booking: {!! date("d-M-Y H:i A", strtotime($orders->order['created_at'])) !!} <br> -->
+                    <!-- total Quantity: {!! $orders->order['qty'] !!} <br> -->
                     Base Price: {!! $orders['order']['base_price'] + $orders['order']['discount_amt'] !!} <br>
                     Created By: {!! $orders['createdbyname']?$orders['createdbyname']['name']:'Self' !!}
                   </address>

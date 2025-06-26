@@ -37,11 +37,9 @@ class OrderDispatchDataTable extends DataTable
             ->addColumn('action', function ($query) {
                 $btn = '';
                 $activebtn = '';
-                // if (auth()->user()->can(['order_edit'])) {
-                //     $btn = $btn . '<a href="' . url("orders/" . encrypt($query->id) . '/edit') . '" class="btn btn-info btn-just-icon btn-sm" title="' . trans('panel.global.show') . ' ' . trans('panel.order.title_singular') . '">
-                //                     <i class="material-icons">edit</i>
-                //                 </a>';
-                // }
+                if (auth()->user()->can(['reverse_dispatch'])) {
+                    $btn = $btn . '<button type="button" class="btn btn-theme btn-just-icon btn-sm reverse_dispatch mr-1" value="' . $query->dispatch_po_no . '" title="Reverse This Dispatch"><i class="material-icons">autorenew</i></button>';
+                }
                 // if (auth()->user()->can(['order_show'])) {
                 $btn = $btn . '<a href="' . url("orders_dispatch/" . encrypt($query->id)) . '" class="btn btn-theme btn-just-icon btn-sm" title="' . trans('panel.global.show') . ' ' . trans('panel.order.title_singular') . '">
                                     <i class="material-icons">visibility</i>

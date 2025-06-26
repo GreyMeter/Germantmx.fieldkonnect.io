@@ -359,6 +359,37 @@
         });
       });
 
+      $(document).on('click', '.reverse_dispatch', function() {
+      var id = $(this).attr("value");
+      Swal.fire({
+        title: "ARE YOU SURE TO REVERSE DISPATCH ?",
+        showDenyButton: true,
+        showCancelButton: true,
+        confirmButtonText: "Yes",
+        denyButtonText: `Don't`
+      }).then((result) => {
+        if (result.value) {
+          $.ajax({
+            url: "{{ url('reverse_dispatch') }}",
+            dataType: "json",
+            type: "POST",
+            data: {
+              _token: "{{csrf_token()}}",
+              id: id,
+            },
+            success: function(res) {
+              if (res.status == 'success') {
+                Swal.fire("Saved!", res.msg, "success");
+                table.draw();
+              } else {
+                Swal.fire("Error!", res.msg, "error");
+              }
+            }
+          });
+        }
+      });
+    });
+
     });
 
     $(document).ready(function() {

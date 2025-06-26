@@ -20,7 +20,7 @@ use App\Models\OrderDetails;
 use App\Models\Division;
 use App\Models\Department;
 use App\Models\Branch;
-use App\Models\{Address, BranchStock, CustomerOutstanting, DealerAppointment, EmployeeDetail, Media, TransactionHistory, MobileUserLoginDetails, Redemption, ParentDetail, PrimarySales, Product, SalesTargetUsers, State};
+use App\Models\{Address, BranchStock, CustomerOutstanting, DealerAppointment, EmployeeDetail, Media, TransactionHistory, MobileUserLoginDetails, OrderConfirm, OrderDispatch, Redemption, ParentDetail, PrimarySales, Product, SalesTargetUsers, State};
 use Excel;
 use App\Exports\CounterVisitReportExport;
 use App\Exports\AdherenceDetailReportExport;
@@ -4068,14 +4068,18 @@ class ReportController extends Controller
                 })
                 ->editColumn('dispatch', function ($data) {
                     if (count($data->dispatchorders) > 0) {
-                        return $data->dispatchorders->pluck('qty')->sum();
+                        return round($data->dispatchorders->pluck('qty')->sum(), 2);
                     } else {
                         return '0';
                     }
                 })
                 ->editColumn('pending', function ($data) {
                     if (count($data->order_confirm) > 0) {
-                        return round($data->qty - $data->order_confirm->pluck('qty')->sum(), 2);
+                        if($data->qty - $data->order_confirm->pluck('qty')->sum() >= 0) {
+                            return round($data->qty - $data->order_confirm->pluck('qty')->sum(), 2);
+                        }else {
+                            return '0';
+                        }
                     } else {
                         return round($data->qty, 2);
                     }

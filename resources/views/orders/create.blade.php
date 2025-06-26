@@ -118,7 +118,7 @@
                       <option value="">Select Customer</option>
                       @if(@isset($customers ))
                       @foreach($customers as $customer)
-                      <option data-limit="{{$customer->order_limit}}" {{isset($cnf) && $cnf ?'disabled':''}} value="{!! $customer['id'] !!}" {{ old( 'customer_id' , (!empty($orders->customer_id)) ? ($orders->customer_id) :('') ) == $customer['id'] ? 'selected' : '' }}>{!! $customer['name'] !!}</option>
+                      <option data-limit="{{$customer->order_limit}}" {{isset($cnf) && $cnf ?'disabled':''}} value="{!! $customer['id'] !!}" {{ old( 'customer_id' , (!empty($orders->customer_id)) ? ($orders->customer_id) :('') ) == $customer['id'] ? 'selected' : '' }}>{!! $customer['name'] !!} {!! $customer['customer_po_no'] ? '('.$customer['customer_po_no'].')' : '' !!}</option>
                       @endforeach
                       @endif
                     </select>

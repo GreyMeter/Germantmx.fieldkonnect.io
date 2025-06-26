@@ -106,11 +106,15 @@ class OrderConfirmDataTable extends DataTable
             $query->whereDate('created_at', '<=', $request->end_date);
         }
 
-        if ($request->customer_id && !empty($request->customer_id)) {
+        if ($request->customer_id != null && !empty($request->customer_id)) {
             $query->whereHas('order', function ($query) use ($request) {
                 $query->where('customer_id', $request->customer_id);
             });
         }
+
+        // if ($request->status != null) {
+        //     $query->where('ordering', $request->status);
+        // }
 
         return $query->orderBy("ordering", "asc")->latest();
     }

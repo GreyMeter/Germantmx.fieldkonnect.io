@@ -29,6 +29,14 @@
                         @endforeach
                       </select>
                     </div>
+                    <div class="p-2" style="width:190px;">
+                      <select class="select2" name="status" id="status">
+                        <option value="">Select Status</option>
+                        <option value="0">Pending</option>
+                        <option value="2">Partially Dispatch</option>
+                        <option value="3">Dispatch</option>
+                      </select>
+                    </div>
                     <div class="p-2"><input type="text" class="form-control datepicker" id="start_date" name="start_date" placeholder="Start Date" autocomplete="off" readonly></div>
                     <div class="p-2"><input type="text" class="form-control datepicker" id="end_date" name="end_date" placeholder="End Date" autocomplete="off" readonly></div>
                     <div class="p-2"><button class="btn btn-just-icon btn-theme" title="{!!  trans('panel.global.download') !!} {!! trans('panel.order.title') !!}"><i class="material-icons">cloud_download</i></button></div>
@@ -141,6 +149,7 @@
             d.start_date = $('#start_date').val();
             d.end_date = $('#end_date').val();
             d.customer_id = $('#customer_id').val();
+            d.status = $('#status').val();
           }
         },
         columns: [
@@ -207,46 +216,14 @@
       $('#customer_id').change(function() {
         table.draw();
       });
+      // $('#status').change(function() {
+      //   table.draw();
+      // });
 
       $('#start_date').change(function() {
         var selectedStartDate = $('#start_date').datepicker('getDate');
         $('#end_date').datepicker("option", "minDate", selectedStartDate);
         table.draw();
-      });
-
-      $('body').on('click', '.activeRecord', function() {
-        var id = $(this).attr("id");
-        var active = $(this).attr("value");
-        var status = '';
-        if (active == 'Y') {
-          status = 'Incative ?';
-        } else {
-          status = 'Ative ?';
-        }
-        var token = $("meta[name='csrf-token']").attr("content");
-        if (!confirm("Are You sure want " + status)) {
-          return false;
-        }
-        $.ajax({
-          url: "{{ url('orders-active') }}",
-          type: 'POST',
-          data: {
-            _token: token,
-            id: id,
-            active: active
-          },
-          success: function(data) {
-            $('.message').empty();
-            $('.alert').show();
-            if (data.status == 'success') {
-              $('.alert').addClass("alert-success");
-            } else {
-              $('.alert').addClass("alert-danger");
-            }
-            $('.message').append(data.message);
-            table.draw();
-          },
-        });
       });
 
       $('body').on('click', '.delete', function() {

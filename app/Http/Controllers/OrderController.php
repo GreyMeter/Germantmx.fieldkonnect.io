@@ -67,6 +67,7 @@ class OrderController extends Controller
         return $dataTable->render('orders.index', compact('customers'));
     }
 
+
     public function confirm_orders(OrderConfirmDataTable $dataTable)
     {
         abort_if(Gate::denies('order_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
@@ -90,7 +91,7 @@ class OrderController extends Controller
     {
         abort_if(Gate::denies('order_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $categories = Category::where('active', '=', 'Y')->select('id', 'category_name')->get();
-        $customers = Customers::where('active', '=', 'Y')->select('id', 'name', 'order_limit')->get();
+        $customers = Customers::where('active', '=', 'Y')->select('id', 'name', 'order_limit', 'customer_po_no')->get();
         $brands = Brand::where('active', '=', 'Y')->select('id', 'brand_name')->get();
         $units = UnitMeasure::where('active', '=', 'Y')->select('id', 'unit_name')->get();
         $base_price = optional(Price::select('base_price')->first())->base_price;
@@ -648,10 +649,10 @@ class OrderController extends Controller
         }else{
             Order::where('id', $id)->update(['ordering' => 2]);
         }
-        // if($orders->qty - $totalOrderConfirmQty <= 0.55){
-        //     $orders->qty = $totalOrderConfirmQty;
-        //     $orders->save();
-        // }
+        if($orders->qty - $totalOrderConfirmQty <= 0.55){
+            $orders->qty = $totalOrderConfirmQty;
+            $orders->save();
+        }
 
         $Ndata['type'] = 'Order Comfirmed';
         $Ndata['data'] = $tqty . ' Quantity confirmed of PO Number ' . $request['po_no'] . ' .';
@@ -972,5 +973,16 @@ class OrderController extends Controller
             }
         }
         return response()->json($result);
+    }
+
+    public function reverse_dispatch(Request $request)
+    {
+        try {
+            OrderDispactchDetails::where('order_dispatch_po_no', $request->id)->delete();
+            OrderDispatch::where('dispatch_po_no', $request->id)->delete();
+            return response()->json(['status' => 'success', 'msg' => 'Dispatch Reverse to final order successfully !!']);
+        } catch (\Exception $e) {
+            return response()->json(['status' => 'error', 'msg' => 'Something went wrong.']);
+        }
     }
 }
