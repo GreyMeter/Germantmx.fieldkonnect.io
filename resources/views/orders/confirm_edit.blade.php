@@ -150,7 +150,7 @@
                       </div>
                       <div class="col-md-4">
                         <label>Vehicle Number</label>
-                        <input type="text" name="vehicle_number" id="vehicle_number" class="form-control">
+                        <input type="text" name="vehicle_number" id="vehicle_number" class="form-control" value="{{old('vehicle_number')}}">
                       </div>
                       <div class="col-md-3 mt-3">
                         <label>TC Image</label>
@@ -391,9 +391,9 @@
             minlength: 10,
             maxlength: 10
           },
-          vehicle_number: {
-            vehicleFormat: true
-          }
+          // vehicle_number: {
+          //   vehicleFormat: true
+          // }
         },
         errorClass: "error", // Use the correct error class
         highlight: function(element) {
@@ -420,37 +420,37 @@
       });
     });
 
-    $(document).ready(function() {
-      $('#vehicle_number').on('input', function() {
-        var inputVal = $(this).val().replace(/\s+/g, '').toUpperCase(); // Remove spaces and convert to uppercase
-        var formattedVal = '';
+    // $(document).ready(function() {
+    //   $('#vehicle_number').on('input', function() {
+    //     var inputVal = $(this).val().replace(/\s+/g, '').toUpperCase(); // Remove spaces and convert to uppercase
+    //     var formattedVal = '';
 
-        if (inputVal.length > 0) {
-          formattedVal = inputVal.substring(0, 2); // State Code
-        }
-        if (inputVal.length > 2) {
-          formattedVal += ' ' + inputVal.substring(2, 4); // District Code
-        }
-        if (inputVal.length > 4) {
-          formattedVal += ' ' + inputVal.substring(4, 6); // Two Alphabets
-        }
-        if (inputVal.length > 6) {
-          formattedVal += ' ' + inputVal.substring(6, 10); // Four Digits
-        }
+    //     if (inputVal.length > 0) {
+    //       formattedVal = inputVal.substring(0, 2); // State Code
+    //     }
+    //     if (inputVal.length > 2) {
+    //       formattedVal += ' ' + inputVal.substring(2, 4); // District Code
+    //     }
+    //     if (inputVal.length > 4) {
+    //       formattedVal += ' ' + inputVal.substring(4, 6); // Two Alphabets
+    //     }
+    //     if (inputVal.length > 6) {
+    //       formattedVal += ' ' + inputVal.substring(6, 10); // Four Digits
+    //     }
 
-        $(this).val(formattedVal); // Set formatted value
+    //     $(this).val(formattedVal); // Set formatted value
 
-        // Validation: MP 12 AB 1234
-        var vehiclePattern = /^[A-Z]{2} \d{2} [A-Z]{2} \d{4}$/;
-        if (!vehiclePattern.test(formattedVal)) {
-          $('#vehicle_error').removeClass('d-none'); // Show error message
-          $(this).addClass('is-invalid'); // Add red border
-        } else {
-          $('#vehicle_error').addClass('d-none'); // Hide error message
-          $(this).removeClass('is-invalid'); // Remove red border
-        }
-      });
-    });
+    //     // Validation: MP 12 AB 1234
+    //     var vehiclePattern = /^[A-Z]{2} \d{2} [A-Z]{2} \d{4}$/;
+    //     if (!vehiclePattern.test(formattedVal)) {
+    //       $('#vehicle_error').removeClass('d-none'); // Show error message
+    //       $(this).addClass('is-invalid'); // Add red border
+    //     } else {
+    //       $('#vehicle_error').addClass('d-none'); // Hide error message
+    //       $(this).removeClass('is-invalid'); // Remove red border
+    //     }
+    //   });
+    // });
 
     let syncingBrands = false;
 

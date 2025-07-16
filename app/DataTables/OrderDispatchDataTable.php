@@ -27,6 +27,13 @@ class OrderDispatchDataTable extends DataTable
             ->editColumn('qty', function ($data) {
                 return isset($data->total_qty) ? $data->total_qty : '';
             })
+            ->editColumn('consignee_details', function ($data) {
+                return isset($data->order_confirm) ? $data->order_confirm->consignee_details : '';
+            })
+            ->editColumn('order.customer.name', function ($data) {
+                return $data->order->customer->name .
+                    ($data->order->customer->customer_po_no ? ' (' . $data->order->customer->customer_po_no . ')' : '');
+            })
             ->editColumn('driver_status', function ($data) {
                 return ($data->order_dispatch_details &&
                     $data->order_dispatch_details->driver_name &&

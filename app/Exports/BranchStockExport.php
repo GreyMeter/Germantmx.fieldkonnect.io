@@ -57,6 +57,8 @@ class BranchStockExport implements FromCollection, WithHeadings, ShouldAutoSize,
             'Size', 
             'Grade', 
             'Stock QTY',
+            'production',
+            'Total'
         ];
     }
 
@@ -72,7 +74,9 @@ class BranchStockExport implements FromCollection, WithHeadings, ShouldAutoSize,
             $data->brands ? $data->brands->brand_name : '-',
             $data->sizes ? $data->sizes->category_name : '-',
             $data->grades ? $data->grades->unit_name : '-',
-            $data->stock ? $data->stock : '-',
+            $data->stock ? $data->stock : '0.00',
+            $data->production ? $data->production : '0.00',
+            $data->stock + $data->production > 0 ? $data->stock + $data->production : '0'
         ];
     }
 

@@ -61,7 +61,10 @@ class BranchStockImport implements ToCollection, WithValidation, WithHeadingRow,
                     'category_id' => $size->id
                 ],
                 [
-                    'stock' => $row['stock_qty']
+                    'stock' => $row['stock_qty'],
+                    'production' => $row['production'],
+                    'created_by' => Auth::user()->id,
+                    'updated_by' => Auth::user()->id
                 ]
             );
         }

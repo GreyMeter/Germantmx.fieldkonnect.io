@@ -390,7 +390,7 @@ class ProductController extends Controller
         $plants = Plant::where('active', 'Y')->latest()->get();
 
         if ($request->ajax()) {
-            $data = BranchStock::with('plant', 'brands', 'sizes', 'grades');
+            $data = BranchStock::with('plant', 'brands', 'sizes', 'grades', 'created_by_name', 'updated_by_name');
             if ($request->plant_id && !empty($request->plant_id)) {
                 $data->where('plant_id', $request->plant_id);
             }
@@ -413,8 +413,21 @@ class ProductController extends Controller
                     }
                     return $data->stock . ' ' . $edit_btn;
                 })
+                ->editColumn('created_at', function ($data) {
+                    return date('d-m-Y h:i A', strtotime($data->created_at));
+                })
+                ->editColumn('updated_at', function ($data) {
+                    return date('d-m-Y h:i A', strtotime($data->updated_at));
+                })
+                ->addColumn('production', function ($data) {
+                    if(!auth()->user()->can('edit_stock')) return $data->production;
+                    return '<div class="input-group" style="max-width: 130px;"><button class="btn btn-info change_production" data-id="' . $data->id . '" style="padding: 4px 9px;" type="button" onclick="this.nextElementSibling.stepDown()">−</button><input type="number" class="form-control text-center change_production_input" data-id="' . $data->id . '" name="production" min="0" max="10000" step="1" value="' . $data->production . '"><button class="btn btn-info change_production" data-id="' . $data->id . '" style="padding: 4px 9px;" type="button" onclick="this.previousElementSibling.stepUp()">+</button></div>';
+                })
+                ->addColumn('total', function ($data) {
+                    return $data->stock + $data->production;
+                })
 
-                ->rawColumns(['stock'])
+                ->rawColumns(['stock', 'created_at', 'updated_at', 'production', 'total'])
                 ->make(true);
         }
 
@@ -501,11 +514,21 @@ class ProductController extends Controller
 
     public function stock_change(Request $request)
     {
-        $update = BranchStock::where('id', $request->id)->update(['stock' => $request->value]);
-        if($update){
+        $update = BranchStock::where('id', $request->id)->update(['stock' => $request->value, 'updated_by' => auth()->user()->id]);
+        if ($update) {
             return response()->json(['status' => 'success', 'message' => 'Stock Update Successfully']);
-        }else{
+        } else {
             return response()->json(['status' => 'error', 'message' => 'Error in Stock Update']);
+        }
+    }
+
+    public function change_production(Request $request)
+    {
+        $update = BranchStock::where('id', $request->id)->update(['production' => $request->value, 'updated_by' => auth()->user()->id]);
+        if ($update) {
+            return response()->json(['status' => 'success', 'message' => 'Production Update Successfully']);
+        } else {
+            return response()->json(['status' => 'error', 'message' => 'Error in Production Update']);
         }
     }
 }

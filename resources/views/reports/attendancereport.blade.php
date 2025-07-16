@@ -29,7 +29,7 @@
                 <form method="GET" action="{{ URL::to('attendance-download') }}">
                   <div class="d-flex flex-row">
 
-                    <div class="p-2" style="width: 250px;">
+                    {{--<div class="p-2" style="width: 250px;">
                       <select class="selectpicker" multiple name="branch_id" id="branch_id" data-style="select-with-transition" title="Select Branch">
                         <option value="">Select Branch</option>
                         @if(@isset($branches ))
@@ -38,7 +38,7 @@
                         @endforeach
                         @endif
                       </select>
-                    </div>
+                    </div>--}}
 
                     <div class="p-2" style="width: 250px;">
                       <select class="selectpicker" name="executive_id" id="executive_id" data-style="select-with-transition" title="Select User">

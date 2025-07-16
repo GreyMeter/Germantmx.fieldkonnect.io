@@ -65,7 +65,7 @@ class OrderController extends Controller
             $user_ids = getUsersReportingToAuth($user->id);
             $pageSize = $request->input('pageSize');
             $customer_ids = EmployeeDetail::where('user_id', $user->id)->pluck('customer_id');
-            $query = Order::with('customer:id,name')
+            $query = Order::with('customer:id,name,customer_po_no')
                 ->select('id', 'po_no', 'qty', 'base_price', 'discount_amt', 'created_at', 'customer_id', 'ordering')
                 ->selectRaw('base_price + discount_amt as base_price')
                 ->orderBy('ordering', 'asc')
@@ -924,6 +924,9 @@ class OrderController extends Controller
                 $data['created_by'] = NULL;
                 $data['po_no'] = $soda->po_no;
                 $data['consignee_details'] = $request->consignee_details;
+                $data['gst_number'] = $request->gst_number;
+                $data['delivery_address'] = $request->delivery_address;
+                $data['supervisor_number'] = $request->supervisor_number;
                 $data['qty'] = $qty;
                 $data['unit_id'] = $request->grade_id[$k];
                 $data['brand_id'] = $request->brand_id[$k];
@@ -1097,6 +1100,9 @@ class OrderController extends Controller
                 $data['created_by'] = NULL;
                 $data['po_no'] = $soda->po_no;
                 $data['consignee_details'] = $request->consignee_details;
+                $data['gst_number'] = $request->gst_number;
+                $data['delivery_address'] = $request->delivery_address;
+                $data['supervisor_number'] = $request->supervisor_number;
                 $data['qty'] = $qty;
                 $data['unit_id'] = $request->grade_id[$k];
                 $data['brand_id'] = $request->brand_id[$k];
@@ -1142,8 +1148,13 @@ class OrderController extends Controller
         try {
             $customer = $request->user();
             $sodas = Order::where('customer_id', $customer->id)->pluck('id');
-            $data = OrderConfirm::whereIn('order_id', $sodas)->with('order.customer', 'createdbyname')->selectRaw('*, SUM(qty) as total_qty')
-                ->groupBy('confirm_po_no')->orderBy('created_at', 'desc')->get();
+            $data = OrderConfirm::whereIn('order_id', $sodas)->with('order.customer', 'createdbyname')->selectRaw('*, SUM(qty) as total_qty');
+
+            if($request->has('from_date') && $request->has('to_date')) {
+                $data = $data->whereBetween('created_at', [$request->from_date, $request->to_date]);
+            }
+            $data = $data->groupBy('confirm_po_no')->orderBy('created_at', 'desc');
+            $data = !empty($pageSize) ? $data->paginate($pageSize) : $data->get();
 
             return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
         } catch (\Exception $e) {
@@ -1155,14 +1166,20 @@ class OrderController extends Controller
     {
         try {
             $user = $request->user();
+            $pageSize = $request->input('pageSize');
             $customer_ids = EmployeeDetail::where('user_id', $user->id)->pluck('customer_id');
             if (!$user->hasRole('superadmin')) {
                 $sodas = Order::WhereIn('customer_id', $customer_ids)->pluck('id');
             } else {
                 $sodas = Order::pluck('id');
             }
-            $data = OrderConfirm::whereIn('order_id', $sodas)->with('order.customer', 'createdbyname')->selectRaw('*, SUM(qty) as total_qty')
-                ->groupBy('confirm_po_no')->orderBy('created_at', 'desc')->get();
+            $data = OrderConfirm::whereIn('order_id', $sodas)->with('order.customer', 'createdbyname')->selectRaw('*, SUM(qty) as total_qty');
+
+            if($request->has('from_date') && $request->has('to_date')) {
+                $data = $data->whereBetween('created_at', [$request->from_date, $request->to_date]);
+            }
+            $data = $data->groupBy('confirm_po_no')->orderBy('created_at', 'desc');
+            $data = !empty($pageSize) ? $data->paginate($pageSize) : $data->get();
 
             return response()->json(['status' => 'success', 'message' => 'Order retrieved successfully.', 'data' => $data], 200);
         } catch (\Exception $e) {

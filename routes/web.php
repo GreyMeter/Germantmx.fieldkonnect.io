@@ -5,6 +5,7 @@ use App\Http\Controllers\AjaxController;
 use App\Http\Controllers\AppraisalController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\BeatController;
+use App\Http\Controllers\BilletController;
 use App\Http\Controllers\BrandController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CheckinController;
@@ -408,6 +409,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::any('productionupdate', [ProductController::class, 'productionUpdate'])->name('products.productionupdate');
     Route::any('products-list', [ProductController::class, 'productList']);
     Route::any('checkProductCode', [ProductController::class, 'checkProductCode'])->name('checkProductCode');
+    Route::any('change_production', [ProductController::class, 'change_production'])->name('change_production');
 
     //Price
     Route::resource('prices', PriceController::class);
@@ -707,6 +709,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::resource('zones', ZoneController::class);
     Route::any('zone-download', [ZoneController::class, 'download'])->name('zones.download');
     Route::any('zone-upload', [ZoneController::class, 'upload'])->name('zones.upload');
+
+    //Billet
+    Route::resource('billets', BilletController::class);
+    Route::any('billet-download', [BilletController::class, 'download'])->name('billets.download');
+    Route::any('billet-upload', [BilletController::class, 'upload'])->name('billets.upload');
 
     //Tours
     Route::resource('tours', TourController::class);

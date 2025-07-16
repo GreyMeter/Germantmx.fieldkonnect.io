@@ -117,7 +117,7 @@
                 {{-- <th>Grade</th> --}}
                 {{-- <th>Size</th> --}}
                 <th>Plant</th>
-                {{-- <th>material</th> --}}
+                <th>Consignee Details</th>
                 <th>Quantity<small>(Tonn)</small></th>
                 <th>Driver Status</th>
                 {{-- <th>Base Price<small>(1MT)</small></th> --}}
@@ -129,7 +129,7 @@
               </tbody>
               <tfoot>
                 <tr>
-                  <th colspan="5"><b>Total : </b></th>
+                  <th colspan="6"><b>Total : </b></th>
                   <th id="totalQty"></th>
                   <th colspan="2"></th>
                 </tr>
@@ -160,7 +160,7 @@
         };
 
         var totalQty = api
-          .column(6, {
+          .column(7, {
             page: 'current'
           })
           .data()
@@ -169,7 +169,7 @@
           }, 0);
 
         // Update footer
-        $(api.column(6).footer()).html(totalQty.toFixed(2));
+        $(api.column(7).footer()).html(totalQty.toFixed(2));
       },
         ajax: {
           url: "{{ route('orders.dispatch.list') }}",
@@ -236,12 +236,12 @@
             "defaultContent": '',
             orderable: false
           },
-          // {
-          //   data: 'order.material',
-          //   name: 'order.material',
-          //   "defaultContent": '',
-          //   orderable: false
-          // },
+          {
+            data: 'consignee_details',
+            name: 'consignee_details',
+            "defaultContent": '',
+            orderable: false
+          },
           {
             data: 'qty',
             name: 'qty',

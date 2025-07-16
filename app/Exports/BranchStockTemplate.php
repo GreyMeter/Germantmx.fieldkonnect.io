@@ -29,6 +29,7 @@ class BranchStockTemplate implements FromCollection,WithHeadings,ShouldAutoSize
             'Size', 
             'Grade', 
             'Stock QTY',
+            'Production'
         ];
     }
 

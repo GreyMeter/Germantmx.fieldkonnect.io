@@ -14,7 +14,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Illuminate\Support\Facades\Auth;
 
 
-class CheckinExport implements FromCollection, WithHeadings, ShouldAutoSize, WithMapping
+class CheckinExport implements FromCollection, WithHeadings, ShouldAutoSize, WithMapping,WithEvents
 {
     public function __construct($request)
     {
@@ -25,7 +25,7 @@ class CheckinExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
     }
     public function collection()
     {
-        return CheckIn::with('beatschedules', 'customers', 'users', 'orders', 'visitreports', 'visitreports.visittypename', 'orders_sum')->where(function ($query) {
+        return CheckIn::with('customers', 'users', 'visitreports')->where(function ($query) {
             if ($this->user_id) {
                 $query->where('user_id', $this->user_id);
             }elseif (!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin')) {
@@ -39,27 +39,16 @@ class CheckinExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
             }
         })
             ->select('id', 'customer_id', 'user_id', 'checkin_date', 'checkin_time', 'checkout_date', 'checkout_time', 'checkin_address', 'checkout_address', 'distance', 'beatscheduleid', 'created_at')
-            ->latest()->limit(5000)->get();
+            ->orderBy('id', 'desc')->limit(5000)->get();
     }
 
     public function headings(): array
     {
-        return ['id', 'Checkin Date', 'User ID', 'Employee Code', 'User Name', 'Designation', 'Division', 'Branch', 'Checkin Time', 'Checkout Time', 'Spend Time', 'Checkin Address', 'Checkout Address', 'Distance', 'Customer Id', 'Customer Type', 'Customer Name', 'Customer Mobile', 'Beat Name', 'City', 'District', 'Address', 'Existing', 'Visit Type', 'Visit Remark', 'Order Qty', 'Order Value'];
+        return ['id', 'Checkin Date', 'User ID', 'Employee Code', 'User Name', 'Designation', 'Checkin Time', 'Checkout Time', 'Spend Time', 'Checkin Address', 'Checkout Address', 'Distance', 'Customer Id', 'Customer Type', 'Customer Name', 'Customer Mobile', 'City', 'District', 'Address', 'Existing/New', 'Visit Remark'];
     }
 
     public function map($data): array
     {
-
-        $sum_qty = 0;
-        if (!empty($data['orders_sum'])) {
-            foreach ($data['orders_sum'] as $key_new => $datas) {
-                $order_id = $datas->id;
-                $sum_qty += OrderDetails::where('order_id', $order_id)->sum('quantity') ?? 0;
-            }
-        }
-
-
-
         if(!empty($data->checkout_time) && !empty($data->checkin_time)){
             $parsedTime1 = Carbon::createFromFormat('H:i:s', $data->checkout_time);
             $parsedTime2 = Carbon::createFromFormat('H:i:s', $data->checkin_time);
@@ -77,8 +66,6 @@ class CheckinExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
             isset($data['users']['employee_codes']) ? $data['users']['employee_codes'] : '',
             isset($data['users']['name']) ? $data['users']['name'] : '',
             isset($data['users']['getdesignation']['designation_name']) ? $data['users']['getdesignation']['designation_name'] : '',
-            isset($data['users']['getdivision']['division_name']) ? $data['users']['getdivision']['division_name'] : '',
-            isset($data['users']['getbranch']['branch_name']) ? $data['users']['getbranch']['branch_name'] : '',
 
             isset($data['checkin_time']) ? $data['checkin_time'] : '',
             isset($data['checkout_time']) ? $data['checkout_time'] : '',
@@ -91,7 +78,6 @@ class CheckinExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
             isset($data['customers']['customertypes']['customertype_name']) ? $data['customers']['customertypes']['customertype_name'] : '',
             isset($data['customers']['name']) ? $data['customers']['name'] : '',
             isset($data['customers']['mobile']) ? $data['customers']['mobile'] : '',
-            isset($data['beatschedules']['beats']['beat_name']) ? $data['beatschedules']['beats']['beat_name'] : '',
             isset($data['customers']['customeraddress']['cityname']['city_name']) ? $data['customers']['customeraddress']['cityname']['city_name'] : '',
 
             isset($data['customers']['customeraddress']['districtname']['district_name']) ? $data['customers']['customeraddress']['districtname']['district_name'] : '',
@@ -99,12 +85,57 @@ class CheckinExport implements FromCollection, WithHeadings, ShouldAutoSize, Wit
 
             isset($data['customers']['customeraddress']['address1']) ? $data['customers']['customeraddress']['address1'] . ' ' . $data['customers']['customeraddress']['address2'] : '',
             (date("Y-m-d", strtotime($data['customers']['created_at'])) == date("Y-m-d", strtotime($data['checkin_date']))) ? 'New' : 'Existing',
-            isset($data['visitreports']['visittypename']['type_name']) ? $data['visitreports']['visittypename']['type_name'] : '',
+            // isset($data['visitreports']['visittypename']['type_name']) ? $data['visitreports']['visittypename']['type_name'] : '',
             isset($data['visitreports']['description']) ? $data['visitreports']['description'] : '',
-            // isset($data['orders']) ?$data['orders']->sum('total_qty') : 0,
-            // isset($data['orders']) ? $data['orders']->sum('grand_total') : 0,
-            $sum_qty,
-            (!empty($data['orders_sum'])) ? $data['orders_sum']->sum('grand_total') : 0,
+        ];
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                $lastRow = $sheet->getHighestDataRow();
+                $lastColumn = $sheet->getHighestDataColumn();
+
+                $firstRowRange = 'A1:' . $lastColumn . '1';
+                $sheet->getRowDimension(1)->setRowHeight(25);
+                $sheet->getStyle($firstRowRange)->getAlignment()->setWrapText(true);
+                $sheet->getStyle($firstRowRange)->getFont()->setSize(14);
+
+                $event->sheet->getStyle($firstRowRange)->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'color' => ['rgb' => 'FFFFFF'],
+                    ],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                    ],
+                    'fill' => [
+                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => '00aadb'],
+                    ],
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'color' => ['argb' => '000000'],
+                        ],
+                    ],
+                ]);
+
+                $event->sheet->getStyle('A1:' . $lastColumn . '' . $lastRow)->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'color' => ['argb' => '000000'],
+                        ],
+                    ],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT,
+                    ],
+                ]);
+            },
         ];
     }
 }

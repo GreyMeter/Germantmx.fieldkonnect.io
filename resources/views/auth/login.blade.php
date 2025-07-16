@@ -199,7 +199,7 @@
       <div class="right-container">
         <div class="login-box">
           <div class="german-logo-cont">
-            <img src="{{ asset('assets/img/logo-germantmx.png') }}" alt="" class="german-logo">
+            <img src="{{ asset('assets/img/german_logo.png') }}" alt="" class="german-logo">
           </div>
 
           <h2>Hello!</h2>

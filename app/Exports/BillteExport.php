@@ -2,31 +2,42 @@
 
 namespace App\Exports;
 
-use Maatwebsite\Excel\Concerns\FromArray;
+use App\Models\Billet;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithEvents;
 use Maatwebsite\Excel\Events\AfterSheet;
+use Maatwebsite\Excel\Concerns\WithMapping;
+use Illuminate\Support\Facades\Auth;
 
-class ExcelExport implements FromArray, WithHeadings, ShouldAutoSize, WithEvents
+class BillteExport implements FromCollection,WithHeadings,ShouldAutoSize,WithMapping,WithEvents
 {
-    protected $headings;
-    protected $data;
-
-    public function __construct(array $headings, array $data)
+    public function collection()
     {
-        $this->headings = $headings;
-        $this->data = $data;
+        return Billet::with('createdbyname', 'to_name')->latest()->get();   
     }
 
     public function headings(): array
     {
-        return $this->headings;
+        return ['Date','From', 'To', 'Material', 'Quantity', 'Output', 'Balance', 'Rate', 'Vehicle No', 'Remarks', 'Created By'];
     }
 
-    public function array(): array
+    public function map($data): array
     {
-        return $this->data;
+        return [
+            $data->date,
+            $data->from_is,
+            $data->to_name->plant_name,
+            $data->material,
+            $data->quantity,
+            $data->output,
+            $data->balance,
+            $data->rate,
+            $data->vehicle_no,
+            $data->remarks,
+            $data->createdbyname->name
+        ];
     }
 
     public function registerEvents(): array
@@ -77,4 +88,5 @@ class ExcelExport implements FromArray, WithHeadings, ShouldAutoSize, WithEvents
             },
         ];
     }
+
 }

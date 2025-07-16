@@ -131,6 +131,12 @@
                 <th>Size</th>
                 <th>Grade</th>
                 <th>Stock QTY</th>
+                <th>Production</th>
+                <th>Total</th>
+                <th>Created By</th>
+                <th>Created At</th>
+                <!-- <th>Updated By</th>
+                <th>Updated At</th> -->
               </thead>
               <tbody>
               </tbody>
@@ -201,7 +207,45 @@
             searchable: false,
             orderable: false,
             "defaultContent": ''
-          }
+          },
+          {
+            data: 'production',
+            name: 'production',
+            searchable: false,
+            orderable: false,
+            "defaultContent": ''
+          },
+          {
+            data: 'total',
+            name: 'total',
+            searchable: false,
+            orderable: false,
+            "defaultContent": ''
+          },
+          {
+            data: 'created_by_name.name',
+            name: 'created_by_name.name',
+            "defaultContent": '',
+            orderable: false
+          },
+          {
+            data: 'created_at',
+            name: 'created_at',
+            "defaultContent": '',
+            orderable: false
+          },
+          // {
+          //   data: 'updated_by_name.name',
+          //   name: 'updated_by_name.name',
+          //   "defaultContent": '',
+          //   orderable: false
+          // },
+          // {
+          //   data: 'updated_at',
+          //   name: 'updated_at',
+          //   "defaultContent": '',
+          //   orderable: false
+          // },
         ]
       });
       $('#plant_id').change(function() {
@@ -215,6 +259,48 @@
       });
       $('#unit_id').change(function() {
         table.draw();
+      });
+
+      $(document).on('click', '.change_production', function(e) {
+        var id = $(this).data('id');
+        var value = $(this).closest('.input-group').find('input[type="number"]').val();
+        $.ajax({
+          url: '/change_production',
+          method: 'POST',
+          data: {
+            id: id,
+            value: value,
+            _token: $('meta[name="csrf-token"]').attr('content') // for Laravel CSRF
+          },
+          success: function(response) {
+            table.draw();
+            // Optionally reload or update DOM
+          },
+          error: function(xhr) {
+            console.log(xhr.responseText);
+          }
+        })
+      });
+
+      $(document).on('input', '.change_production_input', function(e) {
+          var id = $(this).data('id');
+          var value = $(this).val();
+          $.ajax({
+            url: '/change_production',
+            method: 'POST',
+            data: {
+              id: id,
+              value: value,
+              _token: $('meta[name="csrf-token"]').attr('content') // for Laravel CSRF
+            },
+            success: function(response) {
+              table.draw();
+              // Optionally reload or update DOM
+            },
+            error: function(xhr) {
+              console.log(xhr.responseText);
+            }
+          })
       });
 
       $(document).on('click', '.edit_stock', function(e) {

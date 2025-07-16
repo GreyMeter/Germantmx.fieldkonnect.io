@@ -12,7 +12,7 @@ use Maatwebsite\Excel\Concerns\WithMapping;
 use Illuminate\Support\Facades\Auth;
 
 
-class AttendanceExport implements FromCollection,WithHeadings,ShouldAutoSize,WithMapping
+class AttendanceExport implements FromCollection,WithHeadings,ShouldAutoSize,WithMapping,WithEvents
 {
     public function __construct($request)
     {
@@ -62,7 +62,7 @@ class AttendanceExport implements FromCollection,WithHeadings,ShouldAutoSize,Wit
     public function headings(): array
     {
         // return ['id','Employee Code','user_id','Designation','Branch','Division','punchin_date', 'punchin_time','punchout_time','worked_time','Working Type', 'punchin_address', 'punchout_date','punchout_address','punchin_summary','punchout_summary','punchin_longitude','punchin_latitude','punchout_latitude','punchout_longitude'];
-        return ['id','Employee Code','user_id','Designation','Branch','Division','punchin_date', 'punchin_time','punchout_time','worked_time','Working Type','Attendance Status','Remark Status', 'punchin_address','punchout_address','punchin_summary','punchin_longitude','punchin_latitude','punchout_longitude','punchout_latitude'];
+        return ['id','Employee Code','user_id','Designation','punchin_date', 'punchin_time','punchout_time','worked_time','Working Type','Attendance Status','Remark Status', 'punchin_address','punchout_address','punchin_summary','punchin_longitude','punchin_latitude','punchout_longitude','punchout_latitude'];
     }
 
     public function map($data): array
@@ -82,8 +82,8 @@ class AttendanceExport implements FromCollection,WithHeadings,ShouldAutoSize,Wit
             isset($data['users']['employee_codes'])? $data['users']['employee_codes'] :'',
             isset($data['users']['name'])? $data['users']['name'] :'',
             isset($data['users']['getdesignation']['designation_name'])? $data['users']['getdesignation']['designation_name'] :'',
-            isset($data['users']['getbranch']['branch_name'])? $data['users']['getbranch']['branch_name'] :'',
-            isset($data['users']['getdivision']['division_name'])? $data['users']['getdivision']['division_name'] :'',
+            // isset($data['users']['getbranch']['branch_name'])? $data['users']['getbranch']['branch_name'] :'',
+            // isset($data['users']['getdivision']['division_name'])? $data['users']['getdivision']['division_name'] :'',
 
             $data['punchin_date'],
             $data['punchin_time'],
@@ -103,11 +103,56 @@ class AttendanceExport implements FromCollection,WithHeadings,ShouldAutoSize,Wit
             isset($data['punchin_latitude']) ? $data['punchin_latitude'] : '',
             isset($data['punchout_longitude']) ? $data['punchout_longitude'] : '',
             isset($data['punchout_latitude']) ? $data['punchout_latitude'] : '',
-
-            
-          
-          
            
+        ];
+    }
+
+    public function registerEvents(): array
+    {
+        return [
+            AfterSheet::class => function (AfterSheet $event) {
+                $sheet = $event->sheet->getDelegate();
+                $lastRow = $sheet->getHighestDataRow();
+                $lastColumn = $sheet->getHighestDataColumn();
+
+                $firstRowRange = 'A1:' . $lastColumn . '1';
+                $sheet->getRowDimension(1)->setRowHeight(25);
+                $sheet->getStyle($firstRowRange)->getAlignment()->setWrapText(true);
+                $sheet->getStyle($firstRowRange)->getFont()->setSize(14);
+
+                $event->sheet->getStyle($firstRowRange)->applyFromArray([
+                    'font' => [
+                        'bold' => true,
+                        'color' => ['rgb' => 'FFFFFF'],
+                    ],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+                        'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                    ],
+                    'fill' => [
+                        'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                        'startColor' => ['rgb' => '00aadb'],
+                    ],
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'color' => ['argb' => '000000'],
+                        ],
+                    ],
+                ]);
+
+                $event->sheet->getStyle('A1:' . $lastColumn . '' . $lastRow)->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'color' => ['argb' => '000000'],
+                        ],
+                    ],
+                    'alignment' => [
+                        'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT,
+                    ],
+                ]);
+            },
         ];
     }
 

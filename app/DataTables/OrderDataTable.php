@@ -34,12 +34,16 @@ class OrderDataTable extends DataTable
                     return '<span class="badge badge-warning">Partially Completed</span>';
                 } else if ($data->status == 1) {
                     return '<span class="badge badge-primary">Confirmed</span>';
-                }else if ($totalOrderConfirmQty == 0) {
+                } else if ($totalOrderConfirmQty == 0) {
                     return '<span class="badge badge-danger">Pending</span>';
                 }
             })
             ->editColumn('created_at', function ($data) {
                 return isset($data->created_at) ? showdatetimeformat($data->created_at) : '';
+            })
+            ->editColumn('customer.name', function ($data) {
+                return $data->customer->name .
+                    ($data->customer->customer_po_no ? ' (' . $data->customer->customer_po_no . ')' : '');
             })
             ->addColumn('action', function ($query) {
                 $btn = '';
@@ -86,26 +90,34 @@ class OrderDataTable extends DataTable
     {
         $userids = getUsersReportingToAuth();
 
-        $query = $model->with('customer', 'createdbyname');
-
+        $query = $model->with([
+            'customer',
+            'createdbyname',
+            'order_confirm',
+        ])->withSum('order_confirm as confirm_qty_sum', 'qty')->whereNotIn('status', [4, 5]); // <-- Add this line
+        
         if (!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin')) {
             $customerIds = EmployeeDetail::where('user_id', Auth::user()->id)->pluck('customer_id');
             $query->whereIn('customer_id', $customerIds);
         }
-
+        
         if ($request->customer_id && !empty($request->customer_id)) {
             $query->where('customer_id', $request->customer_id);
         }
-
+        
         if ($request->start_date && !empty($request->start_date)) {
             $query->whereDate('created_at', '>=', $request->start_date);
         }
-
+        
         if ($request->end_date && !empty($request->end_date)) {
             $query->whereDate('created_at', '<=', $request->end_date);
         }
-
+        
+        // 🔍 Apply filter for remaining qty > 0.55
+        $query->havingRaw('(qty - IFNULL(confirm_qty_sum, 0)) > ?', [0.55]);
+        
         return $query->orderBy("ordering", "asc")->latest();
+        
     }
 
 

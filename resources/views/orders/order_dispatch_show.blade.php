@@ -120,7 +120,8 @@
                     Address:{!! $orders['order']['customer']['customeraddress']['address1']??'' !!} ,{!! $orders['order']['customer']['customeraddress']['address2']??'' !!}<br>
                     {!! $orders['order']['customer']['customeraddress']['locality']??'' !!}, {!! $orders['order']['customer']['customeraddress']['cityname']['city_name']??'' !!} {!! $orders['order']['customer']['customeraddress']['pincodename']['pincode']??'' !!}<br>
                     Phone: {!! $orders['order']['customer']['mobile'] !!}<br>
-                    Email: {!! $orders['order']['customer']['email'] !!}
+                    Email: {!! $orders['order']['customer']['email'] !!}<br>
+                    Customer PO Number: {!! $orders['order']['customer']['customer_po_no'] !!}
                   </address>
                 </div>
                 <div class="col-sm-4 invoice-col">
@@ -327,9 +328,9 @@
             minlength: 10,
             maxlength: 10
           },
-          vehicle_number: {
-            vehicleFormat: true
-          },
+          // vehicle_number: {
+          //   vehicleFormat: true
+          // },
           qty: {
             required: true,
             max: function() {
@@ -345,35 +346,35 @@
           $(element).removeClass('is-invalid'); // Remove red border
         }
       });
-      $('#vehicle_number').on('input', function() {
-        var inputVal = $(this).val().replace(/\s+/g, '').toUpperCase(); // Remove spaces and convert to uppercase
-        var formattedVal = '';
+      // $('#vehicle_number').on('input', function() {
+      //   var inputVal = $(this).val().replace(/\s+/g, '').toUpperCase(); // Remove spaces and convert to uppercase
+      //   var formattedVal = '';
 
-        if (inputVal.length > 0) {
-          formattedVal = inputVal.substring(0, 2); // State Code
-        }
-        if (inputVal.length > 2) {
-          formattedVal += ' ' + inputVal.substring(2, 4); // District Code
-        }
-        if (inputVal.length > 4) {
-          formattedVal += ' ' + inputVal.substring(4, 6); // Two Alphabets
-        }
-        if (inputVal.length > 6) {
-          formattedVal += ' ' + inputVal.substring(6, 10); // Four Digits
-        }
+      //   if (inputVal.length > 0) {
+      //     formattedVal = inputVal.substring(0, 2); // State Code
+      //   }
+      //   if (inputVal.length > 2) {
+      //     formattedVal += ' ' + inputVal.substring(2, 4); // District Code
+      //   }
+      //   if (inputVal.length > 4) {
+      //     formattedVal += ' ' + inputVal.substring(4, 6); // Two Alphabets
+      //   }
+      //   if (inputVal.length > 6) {
+      //     formattedVal += ' ' + inputVal.substring(6, 10); // Four Digits
+      //   }
 
-        $(this).val(formattedVal); // Set formatted value
+      //   $(this).val(formattedVal); // Set formatted value
 
-        // Validation: MP 12 AB 1234
-        var vehiclePattern = /^[A-Z]{2} \d{2} [A-Z]{2} \d{4}$/;
-        if (!vehiclePattern.test(formattedVal)) {
-          $('#vehicle_error').removeClass('d-none'); // Show error message
-          $(this).addClass('is-invalid'); // Add red border
-        } else {
-          $('#vehicle_error').addClass('d-none'); // Hide error message
-          $(this).removeClass('is-invalid'); // Remove red border
-        }
-      });
+      //   // Validation: MP 12 AB 1234
+      //   var vehiclePattern = /^[A-Z]{2} \d{2} [A-Z]{2} \d{4}$/;
+      //   if (!vehiclePattern.test(formattedVal)) {
+      //     $('#vehicle_error').removeClass('d-none'); // Show error message
+      //     $(this).addClass('is-invalid'); // Add red border
+      //   } else {
+      //     $('#vehicle_error').addClass('d-none'); // Hide error message
+      //     $(this).removeClass('is-invalid'); // Remove red border
+      //   }
+      // });
     });
 
     $(".plant_id_select, .quantitys").on("input", function() {

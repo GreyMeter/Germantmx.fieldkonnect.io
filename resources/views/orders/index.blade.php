@@ -119,8 +119,8 @@
                 <th>{!! trans('panel.global.action') !!}</th>
                 <th>PO No.</th>
                 <th>Distributor/Dealer Name</th>
-                <!-- <th>Brand</th>
-                <th>Grade</th>
+                <th>Distributor/Dealer PO No</th>
+                <!-- <th>Grade</th>
                 <th>Size</th> -->
                 <th>Quantity<small>(Tonn)</small></th>
                 <th>Base Price<small>(1MT)</small></th>
@@ -172,7 +172,12 @@
             "defaultContent": '',
             orderable: false
           },
-
+          {
+            data: 'customer.customer_po_no',
+            name: 'customer.customer_po_no',
+            "defaultContent": '',
+            orderable: false
+          },
           {
             data: 'qty',
             name: 'qty',

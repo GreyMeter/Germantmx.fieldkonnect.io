@@ -124,7 +124,8 @@
                     {!! $orders['customer']['customeraddress']['pincodename']['pincode'] ?? '' !!}
                     <br>
                     Phone: {!! $orders['customer']['mobile'] !!}<br>
-                    Email: {!! $orders['customer']['email'] !!}
+                    Email: {!! $orders['customer']['email'] !!}<br>
+                    Customer PO Number: {!! $orders['customer']['customer_po_no'] !!}
                   </address>
                 </div>
                 <div class="col-sm-2 invoice-col"></div>

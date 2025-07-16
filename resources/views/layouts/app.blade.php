@@ -985,6 +985,17 @@
               </div>
             </li>
             @endif
+            @if(auth()->user()->can('billet_access'))
+            <li class="single-menu nav-link {{ request()->is('billets*') ? 'active' : '' }}">
+              <a class="hoveradd" href="{{ url('billets') }}">
+                <i class="material-icons icon">church</i>
+                <span>Billets</span>
+                <div class="d-none mobile_hide">Billets
+
+                </div>
+              </a>
+            </li>
+            @endif
             @if(auth()->user()->can('general_prices_access'))
             <li class="single-menu nav-link {{ request()->is('prices*') ? 'active' : '' }}">
               <a class="hoveradd" href="{{ url('prices/create') }}">
@@ -1345,7 +1356,7 @@
       <!-- Navbar -->
       <nav class="navbar navbar-expand-lg navbar-transparent navbar-absolute fixed-top ">
         <div class="container-fluid  p-2" style="background: transparent; !important">
-          <img class="rounded ml-2" src="{!! url('/').'/'.asset('assets/img/mini_logo.png?') !!}" width="60">
+          <img class="rounded ml-2" src="{!! url('/').'/'.asset('assets/img/german_logo.png?') !!}" width="120">
           <!-- <img src="{!! url('/').'/'.asset('assets/img/logo.png') !!}" width="50"> -->
           <div class="navbar-wrapper">
             <div class="navbar-minimize">

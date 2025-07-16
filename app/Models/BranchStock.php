@@ -9,7 +9,7 @@ class BranchStock extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['plant_id', 'unit_id', 'plant_name', 'brand_id', 'category_id', 'stock', 'days', 'year', 'quarter', 'created_at', 'updated_at'];
+    protected $fillable = ['plant_id', 'unit_id', 'plant_name', 'brand_id', 'category_id', 'stock', 'days', 'year', 'quarter', 'created_by', 'updated_by', 'created_at', 'updated_at'];
 
     public $timestamps = true;
 
@@ -31,5 +31,15 @@ class BranchStock extends Model
     public function grades()
     {
         return $this->belongsTo('App\Models\UnitMeasure', 'unit_id', 'id');
+    }
+
+    public function created_by_name()
+    {
+        return $this->belongsTo('App\Models\User', 'created_by', 'id');
+    }
+
+    public function updated_by_name()
+    {
+        return $this->belongsTo('App\Models\User', 'updated_by', 'id');
     }
 }

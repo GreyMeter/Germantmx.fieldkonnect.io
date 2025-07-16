@@ -40,6 +40,10 @@ class OrderConfirmDataTable extends DataTable
                     return '<span class="badge badge-success">Dispatched</span>';
                 }
             })
+            ->editColumn('order.customer.name', function ($data) {
+                return $data->order->customer->name .
+                    ($data->order->customer->customer_po_no ? ' (' . $data->order->customer->customer_po_no . ')' : '');
+            })
             ->addColumn('action', function ($query) {
                 $btn = '';
                 $activebtn = '';
@@ -86,7 +90,7 @@ class OrderConfirmDataTable extends DataTable
         $userids = getUsersReportingToAuth();
 
         $query = $model->with('order.customer', 'createdbyname')->selectRaw('*, SUM(qty) as total_qty')
-            ->groupBy('confirm_po_no');
+            ->groupBy('confirm_po_no')->where('qty' , '>', 0);
 
         if (!Auth::user()->hasRole('superadmin') && !Auth::user()->hasRole('Admin')) {
             $customerIds = EmployeeDetail::where('user_id', Auth::user()->id)->pluck('customer_id');
