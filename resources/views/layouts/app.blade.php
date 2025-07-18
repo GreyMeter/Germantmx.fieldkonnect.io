@@ -510,7 +510,7 @@
     font-weight: 500;*/
       background-color: transparent;
       color: #fff;
-      font-weight: 600;
+      font-weight: 500;
     }
 
 
@@ -999,9 +999,9 @@
             @if(auth()->user()->can('general_prices_access'))
             <li class="single-menu nav-link {{ request()->is('prices*') ? 'active' : '' }}">
               <a class="hoveradd" href="{{ url('prices/create') }}">
-                <i class="material-icons icon">payments</i>
+                <i class="material-icons icon">attach_money</i>
                 <span>General Prices</span>
-                <div class="d-none mobile_hide">General {!! trans('panel.sidemenu.prices') !!}
+                <div class="d-none mobile_hide">General Prices
 
                 </div>
               </a>
@@ -1010,9 +1010,20 @@
             @if(auth()->user()->can('south_prices_access'))
             <li class="single-menu nav-link {{ request()->is('south_prices*') ? 'active' : '' }}">
               <a class="hoveradd" href="{{ url('south_prices/create') }}">
-                <i class="material-icons icon">payments</i>
+                <i class="material-icons icon">price_change</i>
                 <span>South Prices</span>
-                <div class="d-none mobile_hide">South {!! trans('panel.sidemenu.prices') !!}
+                <div class="d-none mobile_hide">South Prices
+
+                </div>
+              </a>
+            </li>
+            @endif
+            @if(auth()->user()->can('jsw_prices_access'))
+            <li class="single-menu nav-link {{ request()->is('jsw_prices*') ? 'active' : '' }}">
+              <a class="hoveradd" href="{{ url('jsw_prices/create') }}">
+                <i class="material-icons icon">currency_rupee</i>
+                <span>JSW Prices</span>
+                <div class="d-none mobile_hide">JSW Prices
 
                 </div>
               </a>

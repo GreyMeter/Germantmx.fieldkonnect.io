@@ -74,6 +74,7 @@ use App\Http\Controllers\NewJoiningController;
 use App\Http\Controllers\ServiceBillController;
 use App\Http\Controllers\ServiceChargeProductsController;
 use App\Http\Controllers\FieldKonnectAppSettings;
+use App\Http\Controllers\JSWPriceController;
 use App\Http\Controllers\PlantController;
 use App\Http\Controllers\PriceController;
 use App\Http\Controllers\SouthPriceController;
@@ -414,6 +415,7 @@ Route::group(['middleware' => ['auth']], function () {
     //Price
     Route::resource('prices', PriceController::class);
     Route::resource('south_prices', SouthPriceController::class);
+    Route::resource('jsw_prices', JSWPriceController::class);
 
     // Product Stock
     Route::any('stock', [ProductController::class, 'stock'])->name('stock');
