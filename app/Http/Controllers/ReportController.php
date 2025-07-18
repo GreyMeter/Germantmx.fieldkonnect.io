@@ -4054,8 +4054,8 @@ class ReportController extends Controller
             $data = $data->orderBy('created_at', 'desc')->get();
             $data = $data->filter(function ($item) {
                 $confirmedQty = $item->order_confirm->pluck('qty')->sum();
-                $pending = (int)$item->qty - (int)$confirmedQty;
-                return $pending > 0;
+                $pending = round((float)$item->qty - (float)$confirmedQty, 2);
+                return $pending > 0.55;
             });
 
             return Datatables::of($data)

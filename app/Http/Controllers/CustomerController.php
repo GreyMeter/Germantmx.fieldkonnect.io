@@ -180,6 +180,18 @@ class CustomerController extends Controller
                 ->editColumn('created_at', function ($data) {
                     return isset($data->created_at) ? showdatetimeformat($data->created_at) : '';
                 })
+                ->editColumn('mobile', function ($data) {
+                    $mobile = $data->mobile;
+
+                    if (strlen($mobile) === 12 && substr($mobile, 0, 2) === '91') {
+                        $mobile = substr($mobile, 2); // Remove first two digits
+                    }
+                    if (strlen($mobile) === 13 && substr($mobile, 0, 3) === '+91') {
+                        $mobile = substr($mobile, 3); // Remove first two digits
+                    }
+                
+                    return $mobile;
+                })
                 ->editColumn('beat_name', function ($data) {
                     $beat_names = array();
                     $beat_details = BeatCustomer::with('beats')

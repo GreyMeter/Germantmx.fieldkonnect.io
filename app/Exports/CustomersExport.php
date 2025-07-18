@@ -151,6 +151,15 @@ class CustomersExport implements FromCollection, WithHeadings, ShouldAutoSize, W
             }
         }
 
+        $mobile = $data['mobile'];
+
+        if (strlen($mobile) === 12 && substr($mobile, 0, 2) === '91') {
+            $mobile = substr($mobile, 2); // Remove first two digits
+        }
+        if (strlen($mobile) === 13 && substr($mobile, 0, 3) === '+91') {
+            $mobile = substr($mobile, 3); // Remove first two digits
+        }
+
         //new fields end
 
 
@@ -167,7 +176,7 @@ class CustomersExport implements FromCollection, WithHeadings, ShouldAutoSize, W
             implode(',', $parent),
             $data['first_name'],
             $data['last_name'],
-            $data['mobile'],
+            $mobile,
             $data['contact_number'],
             $data['email'],
             isset($data['customeraddress']['address1']) ? $data['customeraddress']['address1'] : '',
